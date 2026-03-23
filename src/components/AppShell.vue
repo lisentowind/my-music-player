@@ -7,7 +7,10 @@ import { RouterLink, RouterView } from "vue-router";
     <header class="app-shell__header">
       <div class="brand">
         <span class="brand__dot" />
-        <span class="brand__title">My Player</span>
+        <div class="brand__text">
+          <span class="brand__title">My Player</span>
+          <span class="brand__subtitle">Desktop Starter</span>
+        </div>
       </div>
 
       <nav class="nav">
@@ -49,6 +52,11 @@ import { RouterLink, RouterView } from "vue-router";
   gap: var(--space-2);
 }
 
+.brand__text {
+  display: grid;
+  gap: 1px;
+}
+
 .brand__dot {
   width: 10px;
   height: 10px;
@@ -58,9 +66,14 @@ import { RouterLink, RouterView } from "vue-router";
 }
 
 .brand__title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--color-text);
+}
+
+.brand__subtitle {
+  font-size: 11px;
+  color: var(--color-text-secondary);
 }
 
 .nav {
@@ -89,5 +102,17 @@ import { RouterLink, RouterView } from "vue-router";
 .app-shell__main {
   flex: 1;
   padding: var(--space-8) var(--space-6);
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .app-shell__header {
+    padding: var(--space-4);
+  }
+
+  .app-shell__main {
+    padding: var(--space-6) var(--space-4);
+  }
 }
 </style>
