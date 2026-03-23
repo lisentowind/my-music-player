@@ -1,0 +1,23 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="128" y1="64" x2="896" y2="960" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C8D2DE" />
+      <stop offset="0.55" stop-color="#8A98A8" />
+      <stop offset="1" stop-color="#5F6C7A" />
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(712 250) rotate(122) scale(420 460)">
+      <stop stop-color="#F8FBFF" stop-opacity="0.88" />
+      <stop offset="1" stop-color="#F8FBFF" stop-opacity="0" />
+    </radialGradient>
+    <filter id="blur" x="80" y="120" width="850" height="820" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="28" />
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)" />
+  <circle cx="712" cy="250" r="360" fill="url(#glow)" />
+  <g filter="url(#blur)">
+    <path d="M200 690C270 520 410 420 560 430C710 440 815 575 825 735C690 840 470 885 250 835C210 800 192 756 200 690Z" fill="#EAF1F7" fill-opacity="0.42"/>
+    <path d="M320 185C420 150 550 170 665 230C760 280 825 360 860 455C830 500 782 534 716 555C606 590 466 574 355 515C290 478 243 420 214 347C237 271 270 218 320 185Z" fill="#FCFEFF" fill-opacity="0.34"/>
+  </g>
+  <rect x="120" y="120" width="784" height="784" rx="92" fill="#FFFFFF" fill-opacity="0.06" stroke="#FFFFFF" stroke-opacity="0.4" stroke-width="2"/>
+</svg>

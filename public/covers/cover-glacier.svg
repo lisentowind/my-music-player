@@ -1,0 +1,23 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="72" y1="96" x2="952" y2="924" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D8E6F2" />
+      <stop offset="0.5" stop-color="#9AB1C7" />
+      <stop offset="1" stop-color="#617D97" />
+    </linearGradient>
+    <linearGradient id="sheet" x1="258" y1="210" x2="770" y2="848" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.74" />
+      <stop offset="1" stop-color="#E6F2FF" stop-opacity="0.26" />
+    </linearGradient>
+    <filter id="soft" x="100" y="100" width="824" height="824" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="22" />
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)" />
+  <g filter="url(#soft)">
+    <path d="M172 668L386 246L640 350L852 512L678 824L358 856L172 668Z" fill="url(#sheet)" />
+    <path d="M252 762L462 456L668 536L768 730L588 854L382 854L252 762Z" fill="#F4FAFF" fill-opacity="0.36" />
+    <path d="M250 306L428 184L644 210L774 332L734 478L572 548L386 506L256 412L250 306Z" fill="#FFFFFF" fill-opacity="0.28" />
+  </g>
+  <rect x="118" y="118" width="788" height="788" rx="98" fill="#FFFFFF" fill-opacity="0.05" stroke="#FFFFFF" stroke-opacity="0.42" stroke-width="2"/>
+</svg>
