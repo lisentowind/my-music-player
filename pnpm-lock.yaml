@@ -30,6 +30,9 @@ importers:
       '@tauri-apps/cli':
         specifier: ^2
         version: 2.10.1
+      '@types/node':
+        specifier: ^24.6.1
+        version: 24.12.0
       '@unocss/preset-attributify':
         specifier: ^66.6.7
         version: 66.6.7
@@ -38,7 +41,7 @@ importers:
         version: 66.6.7
       '@vitejs/plugin-vue':
         specifier: ^5.2.1
-        version: 5.2.4(vite@6.4.1(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3))(vue@3.5.30(typescript@5.6.3))
+        version: 5.2.4(vite@6.4.1(@types/node@24.12.0)(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3))(vue@3.5.30(typescript@5.6.3))
       eslint:
         specifier: ^10.1.0
         version: 10.1.0(jiti@2.6.1)
@@ -53,10 +56,10 @@ importers:
         version: 5.6.3
       unocss:
         specifier: ^66.6.7
-        version: 66.6.7(vite@6.4.1(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3))
+        version: 66.6.7(vite@6.4.1(@types/node@24.12.0)(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3))
       vite:
         specifier: ^6.0.3
-        version: 6.4.1(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3)
+        version: 6.4.1(@types/node@24.12.0)(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3)
       vue-tsc:
         specifier: ^2.1.10
         version: 2.2.12(typescript@5.6.3)
@@ -807,6 +810,9 @@ packages:
 
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
+
+  '@types/node@24.12.0':
+    resolution: {integrity: sha512-GYDxsZi3ChgmckRT9HPU0WEhKLP08ev/Yfcq2AstjrDASOYCSXeyjDsHg4v5t4jOj7cyDX3vmprafKlWIG9MXQ==}
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
@@ -2158,6 +2164,9 @@ packages:
   unconfig@7.5.0:
     resolution: {integrity: sha512-oi8Qy2JV4D3UQ0PsopR28CzdQ3S/5A1zwsUwp/rosSbfhJ5z7b90bIyTwi/F7hCLD4SGcZVjDzd4XoUQcEanvA==}
 
+  undici-types@7.16.0:
+    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
+
   unist-util-is@6.0.1:
     resolution: {integrity: sha512-LsiILbtBETkDz8I9p1dQ0uyRUWuaQzd/cuEeS1hoRSyW5E5XGmTzlwY1OrNzzakGowI9Dr/I8HVaw4hTtnxy8g==}
 
@@ -2861,6 +2870,10 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
+  '@types/node@24.12.0':
+    dependencies:
+      undici-types: 7.16.0
+
   '@types/unist@3.0.3': {}
 
   '@typescript-eslint/eslint-plugin@8.57.1(@typescript-eslint/parser@8.57.1(eslint@10.1.0(jiti@2.6.1))(typescript@5.6.3))(eslint@10.1.0(jiti@2.6.1))(typescript@5.6.3)':
@@ -3084,7 +3097,7 @@ snapshots:
     dependencies:
       '@unocss/core': 66.6.7
 
-  '@unocss/vite@66.6.7(vite@6.4.1(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3))':
+  '@unocss/vite@66.6.7(vite@6.4.1(@types/node@24.12.0)(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3))':
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@unocss/config': 66.6.7
@@ -3095,11 +3108,11 @@ snapshots:
       pathe: 2.0.3
       tinyglobby: 0.2.15
       unplugin-utils: 0.3.1
-      vite: 6.4.1(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3)
+      vite: 6.4.1(@types/node@24.12.0)(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3)
 
-  '@vitejs/plugin-vue@5.2.4(vite@6.4.1(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3))(vue@3.5.30(typescript@5.6.3))':
+  '@vitejs/plugin-vue@5.2.4(vite@6.4.1(@types/node@24.12.0)(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3))(vue@3.5.30(typescript@5.6.3))':
     dependencies:
-      vite: 6.4.1(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3)
+      vite: 6.4.1(@types/node@24.12.0)(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3)
       vue: 3.5.30(typescript@5.6.3)
 
   '@vitest/eslint-plugin@1.6.13(@typescript-eslint/eslint-plugin@8.57.1(@typescript-eslint/parser@8.57.1(eslint@10.1.0(jiti@2.6.1))(typescript@5.6.3))(eslint@10.1.0(jiti@2.6.1))(typescript@5.6.3))(eslint@10.1.0(jiti@2.6.1))(typescript@5.6.3)':
@@ -4568,6 +4581,8 @@ snapshots:
       quansync: 1.0.0
       unconfig-core: 7.5.0
 
+  undici-types@7.16.0: {}
+
   unist-util-is@6.0.1:
     dependencies:
       '@types/unist': 3.0.3
@@ -4587,7 +4602,7 @@ snapshots:
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
 
-  unocss@66.6.7(vite@6.4.1(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3)):
+  unocss@66.6.7(vite@6.4.1(@types/node@24.12.0)(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3)):
     dependencies:
       '@unocss/cli': 66.6.7
       '@unocss/core': 66.6.7
@@ -4605,7 +4620,7 @@ snapshots:
       '@unocss/transformer-compile-class': 66.6.7
       '@unocss/transformer-directives': 66.6.7
       '@unocss/transformer-variant-group': 66.6.7
-      '@unocss/vite': 66.6.7(vite@6.4.1(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3))
+      '@unocss/vite': 66.6.7(vite@6.4.1(@types/node@24.12.0)(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3))
     transitivePeerDependencies:
       - vite
 
@@ -4639,7 +4654,7 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  vite@6.4.1(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3):
+  vite@6.4.1(@types/node@24.12.0)(jiti@2.6.1)(less@4.6.4)(yaml@2.8.3):
     dependencies:
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.3)
@@ -4648,6 +4663,7 @@ snapshots:
       rollup: 4.60.0
       tinyglobby: 0.2.15
     optionalDependencies:
+      '@types/node': 24.12.0
       fsevents: 2.3.3
       jiti: 2.6.1
       less: 4.6.4

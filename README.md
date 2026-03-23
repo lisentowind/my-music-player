@@ -13,6 +13,8 @@ This template should help get you started developing with Vue 3 and TypeScript i
 - `pnpm dev`: run Vite dev server
 - `pnpm tauri:dev`: run Tauri desktop app in development
 - `pnpm build`: build desktop package with Tauri
+- `pnpm build:web`: run frontend type check and build web assets for Tauri
+- `pnpm typecheck`: run both Vue app and Node-side config type checks
 - `pnpm lint`: run ESLint checks
 - `pnpm format`: format files with Prettier
 

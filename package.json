@@ -8,7 +8,9 @@
     "tauri:dev": "tauri dev",
     "build": "tauri build",
     "build:web": "vue-tsc --noEmit && vite build",
-    "typecheck": "vue-tsc --noEmit",
+    "typecheck": "pnpm typecheck:web && pnpm typecheck:node",
+    "typecheck:web": "vue-tsc --noEmit",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
     "lint": "eslint .",
     "format": "prettier . --write",
     "preview": "vite preview",
@@ -23,6 +25,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^7.7.3",
+    "@types/node": "^24.6.1",
     "@tauri-apps/cli": "^2",
     "@unocss/preset-attributify": "^66.6.7",
     "@unocss/preset-uno": "^66.6.7",
