@@ -70,8 +70,8 @@ describe("resolveNextAction", () => {
     });
   });
 
-  it("wraps to the first track in list-loop mode", () => {
-    expect(resolveNextAction({ currentIndex: 4, trackCount: 5, mode: "list-loop" })).toEqual({
+  it("wraps to the first track in repeat-all mode", () => {
+    expect(resolveNextAction({ currentIndex: 4, trackCount: 5, mode: "repeat-all" })).toEqual({
       nextIndex: 0,
       shouldPlay: true,
     });
@@ -81,6 +81,23 @@ describe("resolveNextAction", () => {
     expect(resolveNextAction({ currentIndex: 0, trackCount: 0, mode: "sequential" })).toEqual({
       nextIndex: 0,
       shouldPlay: false,
+    });
+  });
+});
+
+describe("playback mode aliases", () => {
+  it("maps list-loop to repeat-all behavior", () => {
+    expect(resolveNextAction({ currentIndex: 4, trackCount: 5, mode: "list-loop" })).toEqual({
+      nextIndex: 0,
+      shouldPlay: true,
+    });
+  });
+
+  it("maps single-loop to repeat-one behavior", () => {
+    expect(resolveEndedAction({ currentIndex: 3, trackCount: 5, mode: "single-loop" })).toEqual({
+      nextIndex: 3,
+      shouldPlay: true,
+      shouldReplay: true,
     });
   });
 });

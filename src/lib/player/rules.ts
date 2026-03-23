@@ -1,4 +1,7 @@
-export type PlaybackMode = "sequential" | "list-loop" | "single-loop" | "repeat-all" | "repeat-one";
+type StandardPlaybackMode = "sequential" | "repeat-all" | "repeat-one";
+type LegacyPlaybackMode = "list-loop" | "single-loop";
+
+export type PlaybackMode = StandardPlaybackMode | LegacyPlaybackMode;
 
 interface BaseInput {
   currentIndex: number;
@@ -13,12 +16,16 @@ interface NextInput extends BaseInput {
   mode: PlaybackMode;
 }
 
+interface NormalizedNextInput extends BaseInput {
+  mode: StandardPlaybackMode;
+}
+
 interface QueueSelectionInput {
   trackIds: string[];
   trackId: string;
 }
 
-function normalizeMode(mode: PlaybackMode) {
+function normalizeMode(mode: PlaybackMode): StandardPlaybackMode {
   if (mode === "list-loop") {
     return "repeat-all";
   }
@@ -28,6 +35,14 @@ function normalizeMode(mode: PlaybackMode) {
   }
 
   return mode;
+}
+
+function normalizeNextInput({ currentIndex, trackCount, mode }: NextInput): NormalizedNextInput {
+  return {
+    currentIndex,
+    trackCount,
+    mode: normalizeMode(mode),
+  };
 }
 
 function clampIndex(currentIndex: number, trackCount: number) {
@@ -60,7 +75,7 @@ export function resolvePreviousAction({ currentIndex, currentTime, trackCount }:
   };
 }
 
-export function resolveNextAction({ currentIndex, trackCount, mode }: NextInput) {
+function resolveNextActionNormalized({ currentIndex, trackCount, mode }: NormalizedNextInput) {
   if (trackCount <= 0) {
     return {
       nextIndex: 0,
@@ -69,7 +84,6 @@ export function resolveNextAction({ currentIndex, trackCount, mode }: NextInput)
   }
 
   const safeIndex = clampIndex(currentIndex, trackCount);
-  const normalizedMode = normalizeMode(mode);
   const isLastTrack = safeIndex === trackCount - 1;
   if (!isLastTrack) {
     return {
@@ -78,7 +92,7 @@ export function resolveNextAction({ currentIndex, trackCount, mode }: NextInput)
     };
   }
 
-  if (normalizedMode === "repeat-all") {
+  if (mode === "repeat-all") {
     return {
       nextIndex: 0,
       shouldPlay: true,
@@ -91,7 +105,12 @@ export function resolveNextAction({ currentIndex, trackCount, mode }: NextInput)
   };
 }
 
-export function resolveEndedAction({ currentIndex, trackCount, mode }: NextInput) {
+export function resolveNextAction(input: NextInput) {
+  return resolveNextActionNormalized(normalizeNextInput(input));
+}
+
+export function resolveEndedAction(input: NextInput) {
+  const { currentIndex, trackCount, mode } = normalizeNextInput(input);
   if (trackCount <= 0) {
     return {
       nextIndex: 0,
@@ -101,8 +120,7 @@ export function resolveEndedAction({ currentIndex, trackCount, mode }: NextInput
   }
 
   const safeIndex = clampIndex(currentIndex, trackCount);
-  const normalizedMode = normalizeMode(mode);
-  if (normalizedMode === "repeat-one") {
+  if (mode === "repeat-one") {
     return {
       nextIndex: safeIndex,
       shouldPlay: true,
@@ -110,7 +128,7 @@ export function resolveEndedAction({ currentIndex, trackCount, mode }: NextInput
     };
   }
 
-  const next = resolveNextAction({ currentIndex: safeIndex, trackCount, mode: normalizedMode });
+  const next = resolveNextActionNormalized({ currentIndex: safeIndex, trackCount, mode });
   return {
     nextIndex: next.nextIndex,
     shouldPlay: next.shouldPlay,
@@ -118,10 +136,14 @@ export function resolveEndedAction({ currentIndex, trackCount, mode }: NextInput
   };
 }
 
-export function resolveErrorRecovery({ currentIndex, trackCount, mode }: NextInput) {
-  const normalizedMode = normalizeMode(mode);
-  const fallbackMode = normalizedMode === "repeat-one" ? "sequential" : normalizedMode;
-  const next = resolveNextAction({ currentIndex, trackCount, mode: fallbackMode });
+export function resolveErrorRecovery(input: NextInput) {
+  const normalized = normalizeNextInput(input);
+  const fallbackMode = normalized.mode === "repeat-one" ? "sequential" : normalized.mode;
+  const next = resolveNextActionNormalized({
+    currentIndex: normalized.currentIndex,
+    trackCount: normalized.trackCount,
+    mode: fallbackMode,
+  });
 
   return {
     nextIndex: next.nextIndex,
