@@ -94,12 +94,12 @@ The generated app should be more useful than a blank demo while staying lightwei
 - A desktop-oriented home page
 - An About page to validate routing structure
 - A simple Pinia example store
-- A Tauri connectivity example on the home page
+- A concrete Tauri connectivity example on the home page using a simple backend command round-trip, such as returning a short greeting or status string from the native layer
 - Global style setup using UnoCSS and Less
 - Common package scripts for:
-  - frontend dev
-  - tauri dev
-  - build
+  - `dev` for frontend-only development
+  - `tauri:dev` for desktop development
+  - `build` for a production desktop bundle
   - lint
   - format
 
@@ -146,8 +146,9 @@ This split keeps the codebase fast to build in while preserving structure where 
 The initial scaffold is considered successful when:
 
 - Dependencies install successfully with pnpm
-- Frontend development starts successfully
-- Tauri development starts successfully
+- `pnpm dev` starts frontend development successfully
+- `pnpm tauri:dev` starts Tauri desktop development successfully
+- `pnpm build` produces a production desktop bundle successfully
 - Lint and format commands run successfully
 - Routing, state, UnoCSS, and Less are all wired into the app
 - The repository contains a clear foundation for continued desktop app development
