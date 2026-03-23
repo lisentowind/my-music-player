@@ -90,19 +90,4 @@ import { RouterLink, RouterView } from "vue-router";
   flex: 1;
   padding: var(--space-8) var(--space-6);
 }
-
-:deep(.route-placeholder) {
-  max-width: 520px;
-  margin: 0 auto;
-}
-
-:deep(.route-placeholder__title) {
-  margin: 0 0 var(--space-2);
-  font-size: 24px;
-  line-height: 1.3;
-}
-
-:deep(.route-placeholder__description) {
-  margin: 0;
-}
 </style>
