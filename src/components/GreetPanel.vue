@@ -32,7 +32,9 @@ async function submitGreeting() {
 <template>
   <section class="card greet-panel">
     <h2 class="greet-panel__title">原生命令回环</h2>
-    <p class="text-subtle greet-panel__subtitle">输入名称后调用 Rust `greet` 命令，确认桌面端命令链路。</p>
+    <p class="text-subtle greet-panel__subtitle">
+      输入名称后调用 Rust `greet` 命令，确认桌面端命令链路。
+    </p>
 
     <p v-if="!tauriAvailable" class="greet-panel__hint">
       当前运行环境不是 Tauri，命令交互区已禁用。请使用 `pnpm tauri:dev` 在桌面端验证。
@@ -40,7 +42,12 @@ async function submitGreeting() {
 
     <label class="greet-panel__field">
       <span>名称</span>
-      <input v-model="name" type="text" :disabled="!tauriAvailable" placeholder="例如：Desktop User" />
+      <input
+        v-model="name"
+        type="text"
+        :disabled="!tauriAvailable"
+        placeholder="例如：Desktop User"
+      />
     </label>
 
     <button type="button" :disabled="loading || !tauriAvailable" @click="submitGreeting">
@@ -83,7 +90,9 @@ async function submitGreeting() {
   background: #fff;
   color: var(--color-text);
   outline: none;
-  transition: border-color 180ms ease, box-shadow 180ms ease;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .greet-panel__field input:disabled {

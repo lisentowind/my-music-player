@@ -1,7 +1,9 @@
 {
-  "name": "tauri-app",
+  "name": "my-player-desktop-starter",
+  "description": "Tauri + Vue 3 + TypeScript desktop starter",
   "private": true,
   "version": "0.1.0",
+  "packageManager": "pnpm@10.28.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
