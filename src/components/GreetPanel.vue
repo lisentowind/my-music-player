@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { getGreeting } from "@/lib/tauri";
+import { getGreeting, isTauriRuntime, TAURI_UNAVAILABLE_MESSAGE } from "@/lib/tauri";
 
 const name = ref("");
 const result = ref("");
 const error = ref("");
 const loading = ref(false);
+const tauriAvailable = isTauriRuntime();
 
 async function submitGreeting() {
+  if (!tauriAvailable) {
+    error.value = TAURI_UNAVAILABLE_MESSAGE;
+    result.value = "";
+    return;
+  }
+
   loading.value = true;
   error.value = "";
 
@@ -25,14 +32,18 @@ async function submitGreeting() {
 <template>
   <section class="card greet-panel">
     <h2 class="greet-panel__title">原生命令回环</h2>
-    <p class="text-subtle greet-panel__subtitle">输入名称后调用 Rust `greet` 命令，确认前后端链路可用。</p>
+    <p class="text-subtle greet-panel__subtitle">输入名称后调用 Rust `greet` 命令，确认桌面端命令链路。</p>
+
+    <p v-if="!tauriAvailable" class="greet-panel__hint">
+      当前运行环境不是 Tauri，命令交互区已禁用。请使用 `pnpm tauri:dev` 在桌面端验证。
+    </p>
 
     <label class="greet-panel__field">
       <span>名称</span>
-      <input v-model="name" type="text" placeholder="例如：Desktop User" />
+      <input v-model="name" type="text" :disabled="!tauriAvailable" placeholder="例如：Desktop User" />
     </label>
 
-    <button type="button" :disabled="loading" @click="submitGreeting">
+    <button type="button" :disabled="loading || !tauriAvailable" @click="submitGreeting">
       {{ loading ? "调用中..." : "调用 greet 命令" }}
     </button>
 
@@ -75,6 +86,11 @@ async function submitGreeting() {
   transition: border-color 180ms ease, box-shadow 180ms ease;
 }
 
+.greet-panel__field input:disabled {
+  background: #f1f5f9;
+  cursor: not-allowed;
+}
+
 .greet-panel__field input:focus {
   border-color: #0284c7;
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.16);
@@ -111,6 +127,17 @@ button:disabled {
   color: #0f172a;
   background: #e0f2fe;
   border: 1px solid #bae6fd;
+}
+
+.greet-panel__hint {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .greet-panel__error {

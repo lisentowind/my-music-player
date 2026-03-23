@@ -1,6 +1,6 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
 
-const TAURI_INTERNALS_KEY = "__TAURI_INTERNALS__";
+export const TAURI_UNAVAILABLE_MESSAGE = "当前为 Web 运行态，原生命令仅在 Tauri 桌面端可用。";
 
 export interface RuntimeSnapshot {
   runtimeLabel: string;
@@ -10,7 +10,7 @@ export interface RuntimeSnapshot {
 }
 
 export function isTauriRuntime() {
-  return typeof window !== "undefined" && TAURI_INTERNALS_KEY in window;
+  return isTauri();
 }
 
 export function getRuntimeSnapshot(routePath: string, routeName?: string | null): RuntimeSnapshot {
@@ -25,6 +25,10 @@ export function getRuntimeSnapshot(routePath: string, routeName?: string | null)
 }
 
 export async function getGreeting(name: string) {
+  if (!isTauriRuntime()) {
+    throw new Error(TAURI_UNAVAILABLE_MESSAGE);
+  }
+
   const normalizedName = name.trim() || "Player";
   return invoke<string>("greet", { name: normalizedName });
 }

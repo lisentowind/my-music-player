@@ -19,10 +19,10 @@ function incrementByFive() {
 <template>
   <section class="home">
     <header class="card home__hero">
-      <p class="home__kicker">Desktop Starter</p>
-      <h1>My Player 桌面端起始页</h1>
+      <p class="home__kicker">Workspace Home</p>
+      <h1>My Player 桌面工作区</h1>
       <p class="text-subtle">
-        这是面向后续业务扩展的默认首页，已接入路由、Pinia 和 Tauri 原生命令调用能力。
+        这是默认启动首页，聚焦运行基线与扩展入口，便于后续在此叠加真实业务模块。
       </p>
     </header>
 
@@ -33,8 +33,8 @@ function incrementByFive() {
 
     <section class="card home__counter">
       <div class="home__counter-header">
-        <h2>Pinia 状态示例</h2>
-        <span class="text-subtle">用于证明 store 已实际接入页面</span>
+        <h2>启动状态（Pinia）</h2>
+        <span class="text-subtle">基础状态链路校验区</span>
       </div>
 
       <div class="home__counter-values">
@@ -58,7 +58,7 @@ function incrementByFive() {
     <section class="card home__placeholder">
       <div class="home__placeholder-header">
         <h2>未来业务模块占位区</h2>
-        <p class="text-subtle">后续可在此挂载播放列表、媒体扫描、在线同步等核心模块。</p>
+        <p class="text-subtle">此区块保留给播放器核心能力，当前仅提供结构占位，不承载业务逻辑。</p>
       </div>
       <div class="home__placeholder-grid">
         <article>
