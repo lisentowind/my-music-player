@@ -1,4 +1,4 @@
-export type PlaybackMode = "sequential" | "list-loop" | "single-loop";
+export type PlaybackMode = "sequential" | "list-loop" | "single-loop" | "repeat-all" | "repeat-one";
 
 interface BaseInput {
   currentIndex: number;
@@ -18,6 +18,18 @@ interface QueueSelectionInput {
   trackId: string;
 }
 
+function normalizeMode(mode: PlaybackMode) {
+  if (mode === "list-loop") {
+    return "repeat-all";
+  }
+
+  if (mode === "single-loop") {
+    return "repeat-one";
+  }
+
+  return mode;
+}
+
 function clampIndex(currentIndex: number, trackCount: number) {
   if (trackCount <= 0) {
     return 0;
@@ -27,6 +39,13 @@ function clampIndex(currentIndex: number, trackCount: number) {
 }
 
 export function resolvePreviousAction({ currentIndex, currentTime, trackCount }: PreviousInput) {
+  if (trackCount <= 0) {
+    return {
+      nextIndex: 0,
+      shouldRestart: false,
+    };
+  }
+
   const safeIndex = clampIndex(currentIndex, trackCount);
   if (safeIndex === 0 || currentTime > 3) {
     return {
@@ -50,6 +69,7 @@ export function resolveNextAction({ currentIndex, trackCount, mode }: NextInput)
   }
 
   const safeIndex = clampIndex(currentIndex, trackCount);
+  const normalizedMode = normalizeMode(mode);
   const isLastTrack = safeIndex === trackCount - 1;
   if (!isLastTrack) {
     return {
@@ -58,7 +78,7 @@ export function resolveNextAction({ currentIndex, trackCount, mode }: NextInput)
     };
   }
 
-  if (mode === "list-loop") {
+  if (normalizedMode === "repeat-all") {
     return {
       nextIndex: 0,
       shouldPlay: true,
@@ -72,8 +92,17 @@ export function resolveNextAction({ currentIndex, trackCount, mode }: NextInput)
 }
 
 export function resolveEndedAction({ currentIndex, trackCount, mode }: NextInput) {
+  if (trackCount <= 0) {
+    return {
+      nextIndex: 0,
+      shouldPlay: false,
+      shouldReplay: false,
+    };
+  }
+
   const safeIndex = clampIndex(currentIndex, trackCount);
-  if (mode === "single-loop") {
+  const normalizedMode = normalizeMode(mode);
+  if (normalizedMode === "repeat-one") {
     return {
       nextIndex: safeIndex,
       shouldPlay: true,
@@ -81,7 +110,7 @@ export function resolveEndedAction({ currentIndex, trackCount, mode }: NextInput
     };
   }
 
-  const next = resolveNextAction({ currentIndex: safeIndex, trackCount, mode });
+  const next = resolveNextAction({ currentIndex: safeIndex, trackCount, mode: normalizedMode });
   return {
     nextIndex: next.nextIndex,
     shouldPlay: next.shouldPlay,
@@ -90,7 +119,8 @@ export function resolveEndedAction({ currentIndex, trackCount, mode }: NextInput
 }
 
 export function resolveErrorRecovery({ currentIndex, trackCount, mode }: NextInput) {
-  const fallbackMode = mode === "single-loop" ? "sequential" : mode;
+  const normalizedMode = normalizeMode(mode);
+  const fallbackMode = normalizedMode === "repeat-one" ? "sequential" : normalizedMode;
   const next = resolveNextAction({ currentIndex, trackCount, mode: fallbackMode });
 
   return {

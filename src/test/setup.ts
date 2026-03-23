@@ -19,6 +19,12 @@ export class FakeAudio {
   private listeners = new Map<string, Set<AudioListener>>();
   private listenerMap = new Map<string, Map<EventListenerOrEventListenerObject, AudioListener>>();
 
+  constructor(url?: string) {
+    if (typeof url === "string") {
+      this.src = url;
+    }
+  }
+
   play = vi.fn(async () => {
     this.paused = false;
   });
@@ -63,15 +69,30 @@ export class FakeAudio {
     }
   });
 
-  emit(type: string) {
+  emit(type: string, event?: Event | Record<string, unknown>) {
     const listeners = this.listeners.get(type);
     if (!listeners || listeners.size === 0) {
       return;
     }
 
-    const event = new Event(type);
+    let resolvedEvent: Event;
+    if (event instanceof Event) {
+      resolvedEvent = event;
+    } else {
+      resolvedEvent = new Event(type);
+      if (event) {
+        for (const [key, value] of Object.entries(event)) {
+          if (key === "type") {
+            continue;
+          }
+
+          Reflect.set(resolvedEvent as object, key, value);
+        }
+      }
+    }
+
     for (const listener of listeners) {
-      listener(event);
+      listener(resolvedEvent);
     }
   }
 }
