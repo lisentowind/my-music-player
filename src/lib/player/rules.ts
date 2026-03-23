@@ -23,8 +23,29 @@ interface NormalizedNextInput extends BaseInput {
 }
 
 interface QueueSelectionInput {
-  trackIds: string[];
+  trackIds: readonly string[];
   trackId: string;
+}
+
+export interface PreviousAction {
+  nextIndex: number;
+  shouldRestart: boolean;
+}
+
+export interface NextAction {
+  nextIndex: number;
+  shouldPlay: boolean;
+}
+
+export interface EndedAction extends NextAction {
+  shouldReplay: boolean;
+}
+
+export type ErrorRecoveryAction = NextAction;
+
+export interface QueueSelectionAction {
+  nextIndex: number;
+  found: boolean;
 }
 
 function normalizeMode(mode: CompatiblePlaybackMode): StandardPlaybackMode {
@@ -55,7 +76,7 @@ function clampIndex(currentIndex: number, trackCount: number) {
   return Math.min(Math.max(currentIndex, 0), trackCount - 1);
 }
 
-export function resolvePreviousAction({ currentIndex, currentTime, trackCount }: PreviousInput) {
+export function resolvePreviousAction({ currentIndex, currentTime, trackCount }: PreviousInput): PreviousAction {
   if (trackCount <= 0) {
     return {
       nextIndex: 0,
@@ -77,7 +98,7 @@ export function resolvePreviousAction({ currentIndex, currentTime, trackCount }:
   };
 }
 
-function resolveNextActionNormalized({ currentIndex, trackCount, mode }: NormalizedNextInput) {
+function resolveNextActionNormalized({ currentIndex, trackCount, mode }: NormalizedNextInput): NextAction {
   if (trackCount <= 0) {
     return {
       nextIndex: 0,
@@ -111,7 +132,7 @@ export function resolveNextAction(input: NextInput) {
   return resolveNextActionNormalized(normalizeNextInput(input));
 }
 
-export function resolveEndedAction(input: NextInput) {
+export function resolveEndedAction(input: NextInput): EndedAction {
   const { currentIndex, trackCount, mode } = normalizeNextInput(input);
   if (trackCount <= 0) {
     return {
@@ -138,7 +159,7 @@ export function resolveEndedAction(input: NextInput) {
   };
 }
 
-export function resolveErrorRecovery(input: NextInput) {
+export function resolveErrorRecovery(input: NextInput): ErrorRecoveryAction {
   const normalized = normalizeNextInput(input);
   const fallbackMode = normalized.mode === "repeat-one" ? "sequential" : normalized.mode;
   const next = resolveNextActionNormalized({
@@ -153,7 +174,7 @@ export function resolveErrorRecovery(input: NextInput) {
   };
 }
 
-export function resolveQueueSelection({ trackIds, trackId }: QueueSelectionInput) {
+export function resolveQueueSelection({ trackIds, trackId }: QueueSelectionInput): QueueSelectionAction {
   const nextIndex = trackIds.indexOf(trackId);
   if (nextIndex < 0) {
     return {
