@@ -1,7 +1,9 @@
-type StandardPlaybackMode = "sequential" | "repeat-all" | "repeat-one";
-type LegacyPlaybackMode = "list-loop" | "single-loop";
+import type { PlaybackMode } from "@/types/music";
 
-export type PlaybackMode = StandardPlaybackMode | LegacyPlaybackMode;
+type LegacyPlaybackMode = "list-loop" | "single-loop";
+type CompatiblePlaybackMode = PlaybackMode | LegacyPlaybackMode;
+
+type StandardPlaybackMode = PlaybackMode;
 
 interface BaseInput {
   currentIndex: number;
@@ -13,7 +15,7 @@ interface PreviousInput extends BaseInput {
 }
 
 interface NextInput extends BaseInput {
-  mode: PlaybackMode;
+  mode: CompatiblePlaybackMode;
 }
 
 interface NormalizedNextInput extends BaseInput {
@@ -25,7 +27,7 @@ interface QueueSelectionInput {
   trackId: string;
 }
 
-function normalizeMode(mode: PlaybackMode): StandardPlaybackMode {
+function normalizeMode(mode: CompatiblePlaybackMode): StandardPlaybackMode {
   if (mode === "list-loop") {
     return "repeat-all";
   }
