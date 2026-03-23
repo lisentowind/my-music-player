@@ -18,7 +18,7 @@ This template should help get you started developing with Vue 3 and TypeScript i
 
 - `pnpm dev`: run Vite dev server
 - `pnpm tauri:dev`: run Tauri desktop app in development
-- `pnpm build`: build the desktop app bundle with Tauri (current macOS target: `.app`, via `beforeBuildCommand` in `tauri.conf.json`)
+- `pnpm build`: build desktop bundles with Tauri (`bundle.targets` in config controls artifact types; macOS target is overridden in `src-tauri/tauri.macos.conf.json`)
 - `pnpm build:web`: run frontend type check and build web assets for Tauri
 - `pnpm typecheck`: run both Vue app and Node-side config type checks
 - `pnpm lint`: run ESLint checks
@@ -36,7 +36,7 @@ This template should help get you started developing with Vue 3 and TypeScript i
 - Node.js 20+ and `pnpm` 10+
 - Rust toolchain (`rustup`, `cargo`) and platform-specific Tauri prerequisites
 - If `pnpm build` fails with missing native dependencies (for example WebKitGTK on Linux), install the required system packages first, then rerun build.
-- The current bundle target is set to the desktop app bundle itself for stability. If you later need DMG/installer artifacts, you can expand `src-tauri/tauri.conf.json` bundle targets again.
+- Base bundle target is configured as `all` in `src-tauri/tauri.conf.json`. On macOS, `src-tauri/tauri.macos.conf.json` overrides targets to `.app` for local build stability.
 
 ## Recommended IDE Setup
 
