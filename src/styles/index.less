@@ -1,0 +1,24 @@
+@import "./theme.less";
+@import "./utilities.less";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "SF Pro Text", "PingFang SC", "Segoe UI", sans-serif;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
