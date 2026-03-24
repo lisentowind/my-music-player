@@ -85,6 +85,7 @@ function toggleLike(trackId: string) {
             label="最近播放"
             icon="solar:history-line-duotone"
             :active="sortMode === 'recent'"
+            :pressed="sortMode === 'recent'"
             @click="sortMode = 'recent'"
           />
           <PillButton
@@ -92,6 +93,7 @@ function toggleLike(trackId: string) {
             label="歌曲名"
             icon="solar:music-notes-line-duotone"
             :active="sortMode === 'title'"
+            :pressed="sortMode === 'title'"
             @click="sortMode = 'title'"
           />
           <PillButton
@@ -99,6 +101,7 @@ function toggleLike(trackId: string) {
             label="歌手"
             icon="solar:microphone-2-line-duotone"
             :active="sortMode === 'artist'"
+            :pressed="sortMode === 'artist'"
             @click="sortMode = 'artist'"
           />
         </div>

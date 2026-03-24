@@ -58,9 +58,13 @@ describe("liked view", () => {
     expect(player.currentTrack?.id).toBe("track-orbit-glow");
   }, 10000);
 
-  it("排序控件改为组件按钮后仍可点击切换 active", async () => {
+  it("排序控件切换后 aria-pressed 与列表顺序都会变化", async () => {
     const pinia = createPinia();
+    const { usePlayerStore } = await import("@/stores/player");
     const { default: LikedView } = await import("@/views/LikedView.vue");
+    const player = usePlayerStore(pinia);
+    await player.playTrackById("track-silver-steps");
+
     const wrapper = mount(LikedView, {
       global: {
         plugins: [pinia],
@@ -69,11 +73,17 @@ describe("liked view", () => {
 
     const sortButtons = wrapper.findAll(".liked-view__sort .pill-button");
     expect(sortButtons).toHaveLength(3);
+    expect(sortButtons[0]!.attributes("aria-pressed")).toBe("true");
+
+    const getFirstRowTestId = () => wrapper.findAll('[data-testid^="track-row-"]')[0]?.attributes("data-testid");
+    expect(getFirstRowTestId()).toBe("track-row-track-silver-steps");
 
     await sortButtons[1]!.trigger("click");
-    expect(sortButtons[1]!.attributes("data-active")).toBe("true");
+    expect(sortButtons[1]!.attributes("aria-pressed")).toBe("true");
+    expect(getFirstRowTestId()).toBe("track-row-track-dawn-echo");
 
     await sortButtons[2]!.trigger("click");
-    expect(sortButtons[2]!.attributes("data-active")).toBe("true");
+    expect(sortButtons[2]!.attributes("aria-pressed")).toBe("true");
+    expect(getFirstRowTestId()).toBe("track-row-track-silver-steps");
   });
 });

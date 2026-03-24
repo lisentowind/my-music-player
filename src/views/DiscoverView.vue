@@ -133,7 +133,8 @@ function toggleLike(trackId: string) {
             <PillButton
               class="discover-view__quick-like"
               :label="likedSet.has(pick.track.id) ? '已喜欢' : '喜欢'"
-              icon="solar:heart-line-duotone"
+              :aria-label="likedSet.has(pick.track.id) ? `取消喜欢 ${pick.track.title}` : `喜欢 ${pick.track.title}`"
+              :icon="likedSet.has(pick.track.id) ? 'solar:heart-bold' : 'solar:heart-line-duotone'"
               :active="likedSet.has(pick.track.id)"
               :pressed="likedSet.has(pick.track.id)"
               @click="toggleLike(pick.track.id)"

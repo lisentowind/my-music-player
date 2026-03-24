@@ -98,12 +98,17 @@ describe("discover view", () => {
     const quickMainButtons = wrapper.findAll(".discover-view__quick-main");
     expect(quickMainButtons.length).toBeGreaterThan(0);
     await quickMainButtons[0].trigger("click");
-    expect(playTrackByIdSpy).toHaveBeenCalled();
+    expect(playTrackByIdSpy).toHaveBeenCalledWith("track-dawn-echo");
 
     const quickLikeButtons = wrapper.findAll(".discover-view__quick-like");
     expect(quickLikeButtons.length).toBeGreaterThan(0);
+    const beforeLabel = quickLikeButtons[0]?.attributes("aria-label");
+    expect(beforeLabel).toContain("晨雾回声");
     await quickLikeButtons[0].trigger("click");
-    expect(toggleLikeSpy).toHaveBeenCalled();
+    expect(toggleLikeSpy).toHaveBeenCalledWith("track-dawn-echo");
+    const afterLabel = quickLikeButtons[0]?.attributes("aria-label");
+    expect(afterLabel).toContain("晨雾回声");
+    expect(afterLabel).not.toBe(beforeLabel);
     expect(quickLikeButtons[0]?.classes()).toContain("pill-button");
   }, 10000);
 });
