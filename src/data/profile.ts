@@ -10,7 +10,7 @@ export const profileSeed: UserProfileSeed = {
   metrics: [
     {
       id: "metric-liked",
-      label: "喜欢歌曲",
+      label: "收藏歌曲",
       value: `${likedTrackIds.length} 首`,
     },
     {

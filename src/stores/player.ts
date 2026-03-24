@@ -150,6 +150,14 @@ function toTrackIds(queue: readonly Track[]) {
   return queue.map(track => track.id);
 }
 
+const playbackModeLabelMap: Record<PlaybackMode, string> = {
+  sequential: "顺序播放",
+  "repeat-all": "列表循环",
+  "repeat-one": "单曲循环",
+};
+
+const trackById = new Map(tracks.map(track => [track.id, track] as const));
+
 export const usePlayerStore = defineStore("player", () => {
   const queue = ref<Track[]>([...tracks]);
   const currentIndex = ref(0);
@@ -163,6 +171,31 @@ export const usePlayerStore = defineStore("player", () => {
   const likedTrackIdList = computed(() => [...likedIds.value]);
   const likedCount = computed(() => likedIds.value.size);
   const recentPlayIds = ref<string[]>([]);
+  const recentPlayTracks = computed(() => recentPlayIds.value
+    .map(trackId => trackById.get(trackId))
+    .filter((track): track is Track => Boolean(track)));
+  const recentPlayCount = computed(() => recentPlayIds.value.length);
+  const activeModeLabel = computed(() => playbackModeLabelMap[mode.value]);
+  const favoriteMoodTags = computed(() => {
+    const seedTrackIds = recentPlayIds.value.length > 0 ? recentPlayIds.value : likedTrackIdList.value;
+    const tagCounter = new Map<string, number>();
+
+    for (const trackId of seedTrackIds) {
+      const track = trackById.get(trackId);
+      if (!track) {
+        continue;
+      }
+
+      for (const moodTag of track.moodTags) {
+        tagCounter.set(moodTag, (tagCounter.get(moodTag) ?? 0) + 1);
+      }
+    }
+
+    return [...tagCounter.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "zh-Hans-CN"))
+      .map(([tag]) => tag)
+      .slice(0, 6);
+  });
   const errorMessage = ref("");
   const errorTrackId = ref<string | null>(null);
   const currentTrack = computed(() => queue.value[currentIndex.value] ?? null);
@@ -508,6 +541,10 @@ export const usePlayerStore = defineStore("player", () => {
     likedTrackIdList,
     likedCount,
     recentPlayIds,
+    recentPlayTracks,
+    recentPlayCount,
+    activeModeLabel,
+    favoriteMoodTags,
     errorMessage,
     errorTrackId,
     playContext,
