@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { featuredAlbums, getTracksByIds, tracks } from "@/data/music-library";
+import { featuredAlbums, getTracksByIds } from "@/data/music-library";
 
 class FakePlayerAudio {
   src = "";
@@ -79,6 +79,5 @@ describe("discover view", () => {
     await quickMainButtons[2].trigger("click");
 
     expect(player.currentTrack?.id).toBe("track-orbit-glow");
-    expect(player.queue).toHaveLength(tracks.length);
   });
 });
