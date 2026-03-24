@@ -2,6 +2,7 @@
 import { RouterView } from "vue-router";
 import AppSidebar from "@/components/chrome/AppSidebar.vue";
 import AppTopbar from "@/components/chrome/AppTopbar.vue";
+import PlayerDock from "@/components/dock/PlayerDock.vue";
 </script>
 
 <template>
@@ -13,6 +14,7 @@ import AppTopbar from "@/components/chrome/AppTopbar.vue";
         <RouterView />
       </main>
     </div>
+    <PlayerDock />
   </div>
 </template>
 
@@ -22,6 +24,7 @@ import AppTopbar from "@/components/chrome/AppTopbar.vue";
   display: flex;
   gap: var(--space-4);
   padding: var(--space-4);
+  padding-bottom: calc(var(--space-10) + 104px);
   background:
     radial-gradient(980px 560px at 115% -15%, rgba(56, 189, 248, 0.18), transparent 50%),
     radial-gradient(880px 500px at -25% 105%, rgba(129, 140, 248, 0.14), transparent 52%),
@@ -51,6 +54,7 @@ import AppTopbar from "@/components/chrome/AppTopbar.vue";
   .app-shell {
     flex-direction: column;
     padding: var(--space-4);
+    padding-bottom: calc(var(--space-8) + 168px);
   }
 
   .app-shell__sidebar {

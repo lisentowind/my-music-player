@@ -64,6 +64,14 @@ function clampVolume(nextVolume: number) {
   return Math.min(1, Math.max(0, nextVolume));
 }
 
+function formatPlaybackTime(value: number) {
+  const safeValue = toSafeTime(value);
+  const minutes = Math.floor(safeValue / 60);
+  const seconds = Math.floor(safeValue % 60);
+  const secondText = seconds.toString().padStart(2, "0");
+  return `${minutes}:${secondText}`;
+}
+
 function toErrorMessage(audio: AudioLike, error: unknown) {
   if (error instanceof Error && error.message) {
     return error.message;
@@ -199,6 +207,16 @@ export const usePlayerStore = defineStore("player", () => {
   const errorMessage = ref("");
   const errorTrackId = ref<string | null>(null);
   const currentTrack = computed(() => queue.value[currentIndex.value] ?? null);
+  const progressRatio = computed(() => {
+    const safeDuration = toSafeDuration(duration.value);
+    if (safeDuration <= 0) {
+      return 0;
+    }
+
+    return Math.min(1, toSafeTime(currentTime.value) / safeDuration);
+  });
+  const currentTimeLabel = computed(() => formatPlaybackTime(currentTime.value));
+  const durationLabel = computed(() => formatPlaybackTime(duration.value));
 
   const audio = getSharedAudio();
   audio.volume = volume.value;
@@ -547,6 +565,9 @@ export const usePlayerStore = defineStore("player", () => {
     favoriteMoodTags,
     errorMessage,
     errorTrackId,
+    progressRatio,
+    currentTimeLabel,
+    durationLabel,
     playContext,
     playTrackById,
     togglePlay,
