@@ -1,10 +1,15 @@
 import { computed, ref, watch } from "vue";
 import { defineStore } from "pinia";
 import { applyThemeToDocument } from "@/lib/theme/apply-theme";
-import { themePresets, type AppearanceMode, type ThemePresetId } from "@/lib/theme/presets";
+import {
+  defaultThemePresetId,
+  resolveThemePreset,
+  themePresets,
+  type AppearanceMode,
+  type ThemePresetId,
+} from "@/lib/theme/presets";
 
 const STORAGE_KEY = "my-player:appearance";
-const DEFAULT_PRESET_ID: ThemePresetId = "mist";
 const DEFAULT_FALLBACK_MODE: Exclude<AppearanceMode, "system"> = "light";
 
 interface PersistedAppearanceState {
@@ -29,10 +34,11 @@ function isValidAccentColor(value: unknown): value is string {
 
 export const useAppearanceStore = defineStore("appearance", () => {
   const mode = ref<AppearanceMode>("system");
-  const presetId = ref<ThemePresetId>(DEFAULT_PRESET_ID);
+  const presetId = ref<ThemePresetId>(defaultThemePresetId);
   const customAccent = ref("");
+  const isHydrating = ref(false);
 
-  const preset = computed(() => themePresets.find(item => item.id === presetId.value) ?? themePresets[0]);
+  const preset = computed(() => resolveThemePreset(presetId.value));
   const resolvedAccent = computed(() => isValidAccentColor(customAccent.value)
     ? customAccent.value
     : preset.value.accent);
@@ -66,6 +72,8 @@ export const useAppearanceStore = defineStore("appearance", () => {
   }
 
   function hydrate() {
+    isHydrating.value = true;
+
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) {
@@ -74,12 +82,14 @@ export const useAppearanceStore = defineStore("appearance", () => {
 
       const parsed = JSON.parse(raw) as PersistedAppearanceState;
       mode.value = isValidAppearanceMode(parsed.mode) ? parsed.mode : "system";
-      presetId.value = isValidPresetId(parsed.presetId) ? parsed.presetId : DEFAULT_PRESET_ID;
+      presetId.value = isValidPresetId(parsed.presetId) ? parsed.presetId : defaultThemePresetId;
       customAccent.value = isValidAccentColor(parsed.customAccent) ? parsed.customAccent : "";
     } catch {
       mode.value = DEFAULT_FALLBACK_MODE;
-      presetId.value = DEFAULT_PRESET_ID;
+      presetId.value = defaultThemePresetId;
       customAccent.value = "";
+    } finally {
+      isHydrating.value = false;
     }
   }
 
@@ -92,6 +102,10 @@ export const useAppearanceStore = defineStore("appearance", () => {
   }
 
   watch([mode, presetId, customAccent], () => {
+    if (isHydrating.value) {
+      return;
+    }
+
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         mode: mode.value,
@@ -103,7 +117,7 @@ export const useAppearanceStore = defineStore("appearance", () => {
     }
 
     apply();
-  });
+  }, { flush: "sync" });
 
   return {
     mode,
