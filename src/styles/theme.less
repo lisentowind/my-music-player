@@ -1,35 +1,70 @@
-@color-bg: #f3f6fb;
-@color-surface: #ffffff;
-@color-text: #0f172a;
-@color-text-secondary: #475569;
-@color-border: #dbe3ef;
+@color-bg: #e9eff6;
+@color-bg-elevated: #f2f6fb;
+@color-surface: rgba(255, 255, 255, 0.72);
+@color-surface-strong: rgba(255, 255, 255, 0.88);
+@color-text: #111827;
+@color-text-secondary: #44556b;
+@color-text-tertiary: #6e7d90;
+@color-border: rgba(143, 162, 185, 0.32);
+@color-border-strong: rgba(120, 143, 168, 0.42);
+@color-accent: #5f7f9b;
+@color-accent-pressed: #4e6f8d;
 
-@radius-sm: 10px;
-@radius-md: 16px;
+@radius-xs: 8px;
+@radius-sm: 12px;
+@radius-md: 18px;
+@radius-lg: 26px;
 
-@shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.08);
-@shadow-md: 0 12px 30px rgba(2, 6, 23, 0.12);
+@shadow-sm: 0 8px 20px rgba(15, 23, 42, 0.08);
+@shadow-md: 0 16px 36px rgba(15, 23, 42, 0.12);
+@shadow-lg: 0 28px 56px rgba(15, 23, 42, 0.15);
 
+@space-1: 4px;
 @space-2: 8px;
+@space-3: 12px;
 @space-4: 16px;
+@space-5: 20px;
 @space-6: 24px;
 @space-8: 32px;
+@space-10: 40px;
+
+@blur-sm: 10px;
+@blur-md: 18px;
+@blur-lg: 28px;
 
 :root {
   --color-bg: @color-bg;
+  --color-bg-elevated: @color-bg-elevated;
   --color-surface: @color-surface;
+  --color-surface-strong: @color-surface-strong;
   --color-text: @color-text;
   --color-text-secondary: @color-text-secondary;
+  --color-text-tertiary: @color-text-tertiary;
   --color-border: @color-border;
+  --color-border-strong: @color-border-strong;
+  --color-accent: @color-accent;
+  --color-accent-pressed: @color-accent-pressed;
 
+  --radius-xs: @radius-xs;
   --radius-sm: @radius-sm;
   --radius-md: @radius-md;
+  --radius-lg: @radius-lg;
 
   --shadow-sm: @shadow-sm;
   --shadow-md: @shadow-md;
+  --shadow-lg: @shadow-lg;
 
+  --space-1: @space-1;
   --space-2: @space-2;
+  --space-3: @space-3;
   --space-4: @space-4;
+  --space-5: @space-5;
   --space-6: @space-6;
   --space-8: @space-8;
+  --space-10: @space-10;
+
+  --blur-sm: @blur-sm;
+  --blur-md: @blur-md;
+  --blur-lg: @blur-lg;
+  --focus-ring: 0 0 0 3px rgba(95, 127, 155, 0.22);
 }
