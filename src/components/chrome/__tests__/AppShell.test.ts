@@ -113,6 +113,25 @@ describe("app shell chrome", () => {
     expect(wrapper.find("#profile-page").exists()).toBe(true);
   });
 
+  it("renders the fixed shell regions for sidebar and scrollable content", async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes,
+    });
+    const pinia = createPinia();
+    await router.push("/");
+    await router.isReady();
+
+    const wrapper = mount(AppShell, {
+      global: {
+        plugins: [router, pinia],
+      },
+    });
+
+    expect(wrapper.find("[data-testid='app-shell-sidebar']").exists()).toBe(true);
+    expect(wrapper.find("[data-testid='app-shell-scroll']").exists()).toBe(true);
+  });
+
   it("discover 喜欢与播放能联动到 liked，并把最近播放回写到 discover", async () => {
     const pinia = createPinia();
     const { usePlayerStore } = await import("@/stores/player");

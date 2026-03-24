@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Icon } from "@iconify/vue";
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import GlassPanel from "@/components/chrome/GlassPanel.vue";
@@ -12,6 +13,7 @@ const navItems = computed(() => {
       return {
         to: String(route.path),
         label,
+        icon: typeof route.meta?.icon === "string" ? route.meta.icon : "solar:music-notes-linear",
       };
     });
 });
@@ -28,13 +30,16 @@ const navItems = computed(() => {
         </div>
       </div>
 
-      <ul class="nav-list">
-        <li v-for="item in navItems" :key="item.to">
-          <RouterLink :to="item.to" class="nav-link" exact-active-class="is-active">
-            {{ item.label }}
-          </RouterLink>
-        </li>
-      </ul>
+      <div class="app-sidebar__nav-wrap">
+        <ul class="nav-list">
+          <li v-for="item in navItems" :key="item.to">
+            <RouterLink :to="item.to" class="nav-link" exact-active-class="is-active">
+              <Icon :icon="item.icon" width="18" height="18" />
+              <span>{{ item.label }}</span>
+            </RouterLink>
+          </li>
+        </ul>
+      </div>
     </GlassPanel>
   </aside>
 </template>
@@ -51,6 +56,12 @@ const navItems = computed(() => {
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
+}
+
+.app-sidebar__nav-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
 }
 
 .brand {
@@ -97,7 +108,9 @@ const navItems = computed(() => {
 }
 
 .nav-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   border-radius: 12px;
   padding: 12px 14px;
   text-decoration: none;
@@ -124,11 +137,16 @@ const navItems = computed(() => {
     gap: var(--space-4);
   }
 
+  .app-sidebar__nav-wrap {
+    display: block;
+  }
+
   .nav-list {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .nav-link {
+    justify-content: center;
     text-align: center;
   }
 }

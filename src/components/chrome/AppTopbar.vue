@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRoute } from "vue-router";
+import AppearanceControls from "@/components/chrome/AppearanceControls.vue";
 import GlassPanel from "@/components/chrome/GlassPanel.vue";
 
 const route = useRoute();
@@ -20,10 +21,7 @@ const title = computed(() => {
         <h1 class="meta__title">{{ title }}</h1>
         <p class="meta__subtitle">页面框架已就绪，可继续填充音乐业务模块</p>
       </div>
-      <div class="status" aria-label="页面状态">
-        <span class="status__dot" />
-        <span>结构稳定</span>
-      </div>
+      <AppearanceControls class="app-topbar__appearance" />
     </GlassPanel>
   </header>
 </template>
@@ -49,20 +47,8 @@ const title = computed(() => {
   font-size: 12px;
 }
 
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--color-text-secondary);
-  font-size: 12px;
-}
-
-.status__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #22c55e;
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+.app-topbar__appearance {
+  justify-items: end;
 }
 
 @media (max-width: 720px) {
@@ -70,6 +56,11 @@ const title = computed(() => {
     padding: var(--space-4);
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .app-topbar__appearance {
+    width: 100%;
+    justify-items: stretch;
   }
 }
 </style>

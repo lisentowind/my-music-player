@@ -9,6 +9,7 @@ export const Discover: RouteRecordRaw = {
   component: DiscoverView,
   meta: {
     title: "推荐",
+    icon: "solar:music-notes-linear",
     showInSidebar: true,
   },
 };
@@ -19,6 +20,7 @@ export const Liked: RouteRecordRaw = {
   component: LikedView,
   meta: {
     title: "我喜欢",
+    icon: "solar:heart-angle-linear",
     showInSidebar: true,
   },
 };
@@ -29,6 +31,7 @@ export const Profile: RouteRecordRaw = {
   component: ProfileView,
   meta: {
     title: "个人中心",
+    icon: "solar:user-circle-linear",
     showInSidebar: true,
   },
 };
