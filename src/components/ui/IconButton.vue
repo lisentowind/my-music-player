@@ -6,8 +6,6 @@ withDefaults(defineProps<{
   icon: string;
   active?: boolean;
   pressed?: boolean;
-  checked?: boolean;
-  role?: string;
 }>(), {
   active: false,
 });
@@ -18,9 +16,7 @@ withDefaults(defineProps<{
     class="icon-button"
     type="button"
     :aria-label="label"
-    :aria-pressed="pressed"
-    :aria-checked="checked"
-    :role="role"
+    :aria-pressed="pressed ?? undefined"
     :data-active="active ? 'true' : 'false'"
   >
     <Icon :icon="icon" width="18" height="18" />

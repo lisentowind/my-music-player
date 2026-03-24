@@ -52,13 +52,12 @@ function updateCustomAccent(event: Event) {
   <section class="appearance-controls app-scroll-area" aria-label="外观控制">
     <div class="appearance-controls__row">
       <span class="appearance-controls__label">模式</span>
-      <div class="segmented-button" role="radiogroup" aria-label="主题模式">
+      <div class="segmented-button" role="group" aria-label="主题模式">
         <IconButton
           label="跟随系统"
           icon="solar:monitor-outline"
           :active="appearance.mode === 'system'"
-          role="radio"
-          :checked="appearance.mode === 'system'"
+          :pressed="appearance.mode === 'system'"
           data-testid="theme-mode-system"
           @click="selectMode('system')"
         />
@@ -66,8 +65,7 @@ function updateCustomAccent(event: Event) {
           label="浅色"
           icon="solar:sun-2-outline"
           :active="appearance.mode === 'light'"
-          role="radio"
-          :checked="appearance.mode === 'light'"
+          :pressed="appearance.mode === 'light'"
           data-testid="theme-mode-light"
           @click="selectMode('light')"
         />
@@ -75,8 +73,7 @@ function updateCustomAccent(event: Event) {
           label="深色"
           icon="solar:moon-outline"
           :active="appearance.mode === 'dark'"
-          role="radio"
-          :checked="appearance.mode === 'dark'"
+          :pressed="appearance.mode === 'dark'"
           data-testid="theme-mode-dark"
           @click="selectMode('dark')"
         />

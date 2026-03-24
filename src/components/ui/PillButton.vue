@@ -6,8 +6,6 @@ withDefaults(defineProps<{
   icon?: string;
   active?: boolean;
   pressed?: boolean;
-  checked?: boolean;
-  role?: string;
 }>(), {
   active: false,
 });
@@ -17,9 +15,7 @@ withDefaults(defineProps<{
   <button
     class="pill-button"
     type="button"
-    :aria-pressed="pressed"
-    :aria-checked="checked"
-    :role="role"
+    :aria-pressed="pressed ?? undefined"
     :data-active="active ? 'true' : 'false'"
   >
     <Icon v-if="icon" :icon="icon" width="16" height="16" />
