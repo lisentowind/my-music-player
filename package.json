@@ -21,6 +21,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@iconify/vue": "^5.0.0",
     "@tauri-apps/api": "^2",
     "pinia": "^3.0.4",
     "vue": "^3.5.13",
@@ -28,8 +29,8 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^7.7.3",
-    "@types/node": "^24.6.1",
     "@tauri-apps/cli": "^2",
+    "@types/node": "^24.6.1",
     "@unocss/preset-attributify": "^66.6.7",
     "@unocss/preset-uno": "^66.6.7",
     "@vitejs/plugin-vue": "^5.2.1",
