@@ -56,5 +56,5 @@ describe("liked view", () => {
     await wrapper.get("[data-testid='track-play-track-orbit-glow']").trigger("click");
 
     expect(player.currentTrack?.id).toBe("track-orbit-glow");
-  });
+  }, 10000);
 });

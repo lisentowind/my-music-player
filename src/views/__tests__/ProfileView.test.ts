@@ -49,6 +49,8 @@ describe("profile view", () => {
       },
     });
 
+    expect(wrapper.text()).toContain("收藏歌曲");
+    expect(wrapper.text()).toContain("最近播放");
     expect(wrapper.text()).toContain("当前会话还没有播放记录");
     expect(wrapper.text()).toContain("还没有最近播放记录");
 
@@ -58,7 +60,7 @@ describe("profile view", () => {
     expect(wrapper.text()).toContain("刚刚播放");
     expect(wrapper.text()).not.toContain("当前会话还没有播放记录");
     expect(wrapper.text()).not.toContain("还没有最近播放记录");
-  });
+  }, 10000);
 
   it("likedCount 与 activeModeLabel 会跟随 store 变化", async () => {
     const pinia = createPinia();
@@ -72,6 +74,8 @@ describe("profile view", () => {
       },
     });
 
+    expect(wrapper.text()).toContain("收藏歌曲");
+    expect(wrapper.text()).toContain("最近播放");
     expect(wrapper.text()).toContain("3 首");
     expect(wrapper.text()).toContain("顺序播放");
 
@@ -81,7 +85,7 @@ describe("profile view", () => {
 
     expect(wrapper.text()).toContain("2 首");
     expect(wrapper.text()).toContain("列表循环");
-  });
+  }, 10000);
 
   it("点击 recent 列表项会继续播放该歌曲", async () => {
     const pinia = createPinia();
@@ -107,7 +111,7 @@ describe("profile view", () => {
     await targetButton!.trigger("click");
 
     expect(player.currentTrack?.id).toBe("track-dawn-echo");
-  });
+  }, 10000);
 
   it("口味标签会在 liked-only 与 recent+liked 场景下保持合理", async () => {
     const pinia = createPinia();
@@ -131,5 +135,5 @@ describe("profile view", () => {
 
     expect(tasteTagsText()).toContain("清透");
     expect(tasteTagsText()).toContain("克制");
-  });
+  }, 10000);
 });

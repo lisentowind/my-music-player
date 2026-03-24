@@ -10,11 +10,7 @@ import { usePlayerStore } from "@/stores/player";
 const player = usePlayerStore();
 
 const currentTrackId = computed(() => player.currentTrack?.id ?? null);
-const favoriteMoods = computed(() => (
-  player.favoriteMoodTags.length > 0
-    ? player.favoriteMoodTags
-    : profileSeed.signatureTags
-));
+const favoriteMoods = computed(() => player.favoriteMoodTags);
 
 const metricCards = computed(() => [
   {

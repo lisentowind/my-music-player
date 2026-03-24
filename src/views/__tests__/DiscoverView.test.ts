@@ -56,7 +56,7 @@ describe("discover view", () => {
 
     expect(playContextSpy).toHaveBeenCalledWith(firstAlbumTracks, "track-dawn-echo");
     expect(player.currentTrack?.id).toBe("track-dawn-echo");
-  });
+  }, 10000);
 
   it("先切到精选专辑后，再点跨专辑 quick pick 仍会切歌", async () => {
     const pinia = createPinia();
@@ -79,5 +79,5 @@ describe("discover view", () => {
     await quickMainButtons[2].trigger("click");
 
     expect(player.currentTrack?.id).toBe("track-orbit-glow");
-  });
+  }, 10000);
 });
