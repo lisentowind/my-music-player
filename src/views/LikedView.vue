@@ -1,26 +1,24 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { getActivePinia } from "pinia";
 import MetricCard from "@/components/music/MetricCard.vue";
 import SectionHeader from "@/components/music/SectionHeader.vue";
 import TrackTable from "@/components/music/TrackTable.vue";
 import GlassPanel from "@/components/chrome/GlassPanel.vue";
-import { likedTrackIds, tracks } from "@/data/music-library";
+import { tracks } from "@/data/music-library";
 import { usePlayerStore } from "@/stores/player";
 
 type SortMode = "recent" | "title" | "artist";
 
-const activePinia = getActivePinia();
-const player = activePinia ? usePlayerStore(activePinia) : null;
+const player = usePlayerStore();
 const sortMode = ref<SortMode>("recent");
-const likedIdSet = computed(() => new Set(player?.likedTrackIdList ?? likedTrackIds));
-const likedCount = computed(() => player?.likedCount ?? likedTrackIds.length);
-const likedIdList = computed(() => player?.likedTrackIdList ?? likedTrackIds);
+const likedIdSet = computed(() => new Set(player.likedTrackIdList));
+const likedCount = computed(() => player.likedCount);
+const likedIdList = computed(() => player.likedTrackIdList);
 
 const likedTracks = computed(() => tracks.filter(track => likedIdSet.value.has(track.id)));
 
 const recentRankMap = computed(() => new Map(
-  (player?.recentPlayIds ?? []).map((trackId, index) => [trackId, index] as const),
+  player.recentPlayIds.map((trackId, index) => [trackId, index] as const),
 ));
 
 const sortedLikedTracks = computed(() => {
@@ -52,23 +50,15 @@ const trackRows = computed(() => sortedLikedTracks.value.map(track => ({
   durationLabel: track.durationLabel,
 })));
 
-const activeTrackId = computed(() => player?.currentTrack?.id ?? null);
+const activeTrackId = computed(() => player.currentTrack?.id ?? null);
 
 const likedArtistCount = computed(() => new Set(likedTracks.value.map(track => track.artist)).size);
 
 function playTrack(trackId: string) {
-  if (!player) {
-    return;
-  }
-
   void player.playTrackById(trackId);
 }
 
 function toggleLike(trackId: string) {
-  if (!player) {
-    return;
-  }
-
   player.toggleLike(trackId);
 }
 </script>
@@ -132,7 +122,7 @@ function toggleLike(trackId: string) {
       <GlassPanel class="block">
         <SectionHeader title="偏好洞察" description="保持清透、冷感、低干扰，是你当前的听感主线。" />
         <p class="liked-view__insight">
-          当前正在播放：{{ player?.currentTrack?.title ?? "暂无" }}。在本页点击行内播放与喜欢按钮，会即时同步到底部播放器和推荐页。
+          当前正在播放：{{ player.currentTrack?.title ?? "暂无" }}。在本页点击行内播放与喜欢按钮，会即时同步到底部播放器和推荐页。
         </p>
       </GlassPanel>
     </section>

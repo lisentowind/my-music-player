@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { featuredAlbums, getTracksByIds } from "@/data/music-library";
+import { featuredAlbums, getTracksByIds, tracks } from "@/data/music-library";
 
 class FakePlayerAudio {
   src = "";
@@ -56,5 +56,29 @@ describe("discover view", () => {
 
     expect(playContextSpy).toHaveBeenCalledWith(firstAlbumTracks, "track-dawn-echo");
     expect(player.currentTrack?.id).toBe("track-dawn-echo");
+  });
+
+  it("先切到精选专辑后，再点跨专辑 quick pick 仍会切歌", async () => {
+    const pinia = createPinia();
+    const { usePlayerStore } = await import("@/stores/player");
+    const { default: DiscoverView } = await import("@/views/DiscoverView.vue");
+    const player = usePlayerStore(pinia);
+
+    const wrapper = mount(DiscoverView, {
+      global: {
+        plugins: [pinia],
+      },
+    });
+
+    await wrapper.get("[data-album-card]").trigger("click");
+    expect(player.currentTrack?.id).toBe("track-dawn-echo");
+    expect(player.queue.map(track => track.id)).toEqual(featuredAlbums[0]?.trackIds);
+
+    const quickMainButtons = wrapper.findAll(".discover-view__quick-main");
+    expect(quickMainButtons.length).toBeGreaterThan(2);
+    await quickMainButtons[2].trigger("click");
+
+    expect(player.currentTrack?.id).toBe("track-orbit-glow");
+    expect(player.queue).toHaveLength(tracks.length);
   });
 });

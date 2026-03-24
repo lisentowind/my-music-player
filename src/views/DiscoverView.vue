@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { getActivePinia } from "pinia";
 import AlbumCard from "@/components/music/AlbumCard.vue";
 import RecentPlayList from "@/components/music/RecentPlayList.vue";
 import SectionHeader from "@/components/music/SectionHeader.vue";
@@ -9,19 +8,17 @@ import {
   discoverAtmospheres,
   featuredAlbums,
   getTracksByIds,
-  likedTrackIds,
   tracks,
 } from "@/data/music-library";
 import { profileSeed } from "@/data/profile";
 import { usePlayerStore } from "@/stores/player";
 
-const activePinia = getActivePinia();
-const player = activePinia ? usePlayerStore(activePinia) : null;
+const player = usePlayerStore();
 
-const currentTrackId = computed(() => player?.currentTrack?.id ?? null);
-const likedSet = computed(() => new Set(player?.likedTrackIdList ?? []));
-const queueCount = computed(() => player?.queue.length ?? tracks.length);
-const likedCount = computed(() => player?.likedCount ?? likedTrackIds.length);
+const currentTrackId = computed(() => player.currentTrack?.id ?? null);
+const likedSet = computed(() => new Set(player.likedTrackIdList));
+const queueCount = computed(() => tracks.length);
+const likedCount = computed(() => player.likedCount);
 
 const featuredItems = computed(() => featuredAlbums.map((album) => {
   const albumTracks = getTracksByIds(album.trackIds);
@@ -63,13 +60,9 @@ const atmosphereCards = computed(() => discoverAtmospheres
   })
   .filter((card): card is NonNullable<typeof card> => Boolean(card)));
 
-const recentTracks = computed(() => getTracksByIds(player?.recentPlayIds ?? []));
+const recentTracks = computed(() => getTracksByIds(player.recentPlayIds));
 
 function playFeaturedAlbum(albumId: string) {
-  if (!player) {
-    return;
-  }
-
   const target = featuredItems.value.find(item => item.album.id === albumId);
   if (!target || !target.leadTrackId) {
     return;
@@ -79,18 +72,10 @@ function playFeaturedAlbum(albumId: string) {
 }
 
 function playTrack(trackId: string) {
-  if (!player) {
-    return;
-  }
-
   void player.playTrackById(trackId);
 }
 
 function toggleLike(trackId: string) {
-  if (!player) {
-    return;
-  }
-
   player.toggleLike(trackId);
 }
 </script>

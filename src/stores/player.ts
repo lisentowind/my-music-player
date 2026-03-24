@@ -391,12 +391,24 @@ export const usePlayerStore = defineStore("player", () => {
       trackIds: toTrackIds(queue.value),
       trackId,
     });
-    if (!selection.found) {
+
+    if (selection.found) {
+      const token = beginAction();
+      await playAtIndexWithToken(selection.nextIndex, token);
+      return;
+    }
+
+    const fallbackSelection = resolveQueueSelection({
+      trackIds: toTrackIds(tracks),
+      trackId,
+    });
+    if (!fallbackSelection.found) {
       return;
     }
 
     const token = beginAction();
-    await playAtIndexWithToken(selection.nextIndex, token);
+    queue.value = [...tracks];
+    await playAtIndexWithToken(fallbackSelection.nextIndex, token);
   }
 
   async function togglePlay() {
