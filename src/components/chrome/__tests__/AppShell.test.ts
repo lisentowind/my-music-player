@@ -1,9 +1,33 @@
 import { flushPromises, mount } from "@vue/test-utils";
-import { createPinia } from "pinia";
+import { createPinia, setActivePinia } from "pinia";
 import { createMemoryHistory, createRouter } from "vue-router";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import AppShell from "@/components/AppShell.vue";
 import { routes } from "@/router/routes";
+
+class FakePlayerAudio {
+  src = "";
+  currentTime = 0;
+  duration = 0;
+  volume = 1;
+  muted = false;
+  paused = true;
+  error: { message?: string } | null = null;
+
+  play = vi.fn(async () => {
+    this.paused = false;
+  });
+
+  pause = vi.fn(() => {
+    this.paused = true;
+  });
+
+  load = vi.fn(() => {});
+
+  addEventListener = vi.fn(() => {});
+
+  removeEventListener = vi.fn(() => {});
+}
 
 function expectLinkTarget(actualHref: string | undefined, expectedPath: string) {
   expect(actualHref).toBeTruthy();
@@ -11,6 +35,15 @@ function expectLinkTarget(actualHref: string | undefined, expectedPath: string) 
 }
 
 describe("app shell chrome", () => {
+  beforeEach(async () => {
+    vi.resetModules();
+    setActivePinia(createPinia());
+
+    const fakeAudio = new FakePlayerAudio();
+    const { configurePlayerAudioFactory } = await import("@/lib/player/audio");
+    configurePlayerAudioFactory(() => fakeAudio);
+  });
+
   it("主导航包含三条链接且目标地址正确", async () => {
     const router = createRouter({
       history: createMemoryHistory(),
@@ -78,5 +111,52 @@ describe("app shell chrome", () => {
     await flushPromises();
     expect(wrapper.find(".meta__title").text()).toBe("个人中心");
     expect(wrapper.find("#profile-page").exists()).toBe(true);
+  });
+
+  it("discover 喜欢与播放能联动到 liked，并把最近播放回写到 discover", async () => {
+    const pinia = createPinia();
+    const { usePlayerStore } = await import("@/stores/player");
+    const player = usePlayerStore(pinia);
+    const likedCountBefore = player.likedCount;
+    const targetTrackId = "track-glacier-pulse";
+    const targetTrackTitle = "冰川脉冲";
+
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes,
+    });
+    await router.push("/");
+    await router.isReady();
+
+    const wrapper = mount(AppShell, {
+      global: {
+        plugins: [router, pinia],
+      },
+    });
+
+    const targetQuickCard = wrapper.findAll(".discover-view__quick-card")
+      .find(card => card.text().includes(targetTrackTitle));
+    expect(targetQuickCard).toBeTruthy();
+    await targetQuickCard!.get(".discover-view__quick-like").trigger("click");
+    await flushPromises();
+
+    await router.push("/liked");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain(`${likedCountBefore + 1} 首`);
+    expect(wrapper.find(`[data-testid='track-row-${targetTrackId}']`).exists()).toBe(true);
+
+    await wrapper.get(`[data-testid='track-play-${targetTrackId}']`).trigger("click");
+    await flushPromises();
+
+    expect(wrapper.get(`[data-testid='track-row-${targetTrackId}']`).attributes("data-active")).toBe("true");
+
+    await router.push("/");
+    await flushPromises();
+
+    const recentActiveTitle = wrapper.get(
+      "#discover-recent-plays .recent-play-list__item[data-active='true'] .recent-play-list__title",
+    );
+    expect(recentActiveTitle.text()).toContain(targetTrackTitle);
   });
 });

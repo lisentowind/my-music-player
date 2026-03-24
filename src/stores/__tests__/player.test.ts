@@ -1,6 +1,6 @@
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { tracks } from "@/data/music-library";
+import { featuredAlbums, getTracksByIds, tracks } from "@/data/music-library";
 
 type AudioEventListener = (event: Event) => void;
 
@@ -143,6 +143,19 @@ describe("usePlayerStore", () => {
     expect(store.currentTrack?.id).toBe(originalTrackId);
     expect(store.isPlaying).toBe(originalPlaying);
     expect(fakeAudio.src).toBe(originalSrc);
+  });
+
+  it("先进入专辑上下文后，playTrackById 命中队列外歌曲会回退到全局并播放目标曲目", async () => {
+    const store = usePlayerStore();
+    const albumTracks = getTracksByIds(featuredAlbums[0]!.trackIds);
+    await store.playContext(albumTracks, "track-dawn-echo");
+    expect(store.queue.map(track => track.id)).toEqual(featuredAlbums[0]!.trackIds);
+
+    await store.playTrackById("track-orbit-glow");
+
+    expect(store.queue.map(track => track.id)).toEqual(tracks.map(track => track.id));
+    expect(store.currentTrack?.id).toBe("track-orbit-glow");
+    expect(store.isPlaying).toBe(true);
   });
 
   it("seekTo 只更新播放进度，不改变播放状态", async () => {
