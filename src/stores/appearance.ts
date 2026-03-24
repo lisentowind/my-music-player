@@ -33,7 +33,9 @@ export const useAppearanceStore = defineStore("appearance", () => {
   const customAccent = ref("");
 
   const preset = computed(() => themePresets.find(item => item.id === presetId.value) ?? themePresets[0]);
-  const resolvedAccent = computed(() => customAccent.value || preset.value.accent);
+  const resolvedAccent = computed(() => isValidAccentColor(customAccent.value)
+    ? customAccent.value
+    : preset.value.accent);
 
   function setMode(nextMode: AppearanceMode) {
     mode.value = nextMode;
@@ -84,7 +86,7 @@ export const useAppearanceStore = defineStore("appearance", () => {
   function apply() {
     applyThemeToDocument({
       mode: resolveMode(),
-      preset: presetId.value,
+      preset: preset.value.id,
       accent: resolvedAccent.value,
     });
   }
