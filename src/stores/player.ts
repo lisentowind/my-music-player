@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { computed, ref } from "vue";
+import { computed, onScopeDispose, ref } from "vue";
 import { likedTrackIds, tracks } from "@/data/music-library";
 import { createPlayerAudio } from "@/lib/player/audio";
 import {
@@ -12,16 +12,25 @@ import {
 import type { AudioLike } from "@/lib/player/audio";
 import type { PlaybackMode, Track } from "@/types/music";
 
-interface LifecycleBridge {
+interface LifecycleSubscriber {
   onLoadedMetadata: () => void;
   onTimeUpdate: () => void;
   onEnded: () => void;
   onError: () => void;
 }
 
+interface AudioLifecycleBinding {
+  subscribers: Set<LifecycleSubscriber>;
+  handlers: {
+    loadedmetadata: () => void;
+    timeupdate: () => void;
+    ended: () => void;
+    error: () => void;
+  };
+}
+
 let sharedAudio: AudioLike | null = null;
-let lifecycleBound = false;
-let lifecycleBridge: LifecycleBridge | null = null;
+const lifecycleBindings = new WeakMap<AudioLike, AudioLifecycleBinding>();
 
 function getSharedAudio() {
   if (!sharedAudio) {
@@ -72,24 +81,73 @@ function toErrorMessage(audio: AudioLike, error: unknown) {
   return "播放失败，请稍后重试。";
 }
 
-function bindLifecycleOnce(audio: AudioLike) {
-  if (lifecycleBound) {
-    return;
+function getOrCreateLifecycleBinding(audio: AudioLike) {
+  const existingBinding = lifecycleBindings.get(audio);
+  if (existingBinding) {
+    return existingBinding;
   }
 
-  audio.addEventListener("loadedmetadata", () => {
-    lifecycleBridge?.onLoadedMetadata();
-  });
-  audio.addEventListener("timeupdate", () => {
-    lifecycleBridge?.onTimeUpdate();
-  });
-  audio.addEventListener("ended", () => {
-    lifecycleBridge?.onEnded();
-  });
-  audio.addEventListener("error", () => {
-    lifecycleBridge?.onError();
-  });
-  lifecycleBound = true;
+  const subscribers = new Set<LifecycleSubscriber>();
+  const binding: AudioLifecycleBinding = {
+    subscribers,
+    handlers: {
+      loadedmetadata: () => {
+        for (const subscriber of [...binding.subscribers]) {
+          subscriber.onLoadedMetadata();
+        }
+      },
+      timeupdate: () => {
+        for (const subscriber of [...binding.subscribers]) {
+          subscriber.onTimeUpdate();
+        }
+      },
+      ended: () => {
+        for (const subscriber of [...binding.subscribers]) {
+          subscriber.onEnded();
+        }
+      },
+      error: () => {
+        for (const subscriber of [...binding.subscribers]) {
+          subscriber.onError();
+        }
+      },
+    },
+  };
+
+  audio.addEventListener("loadedmetadata", binding.handlers.loadedmetadata);
+  audio.addEventListener("timeupdate", binding.handlers.timeupdate);
+  audio.addEventListener("ended", binding.handlers.ended);
+  audio.addEventListener("error", binding.handlers.error);
+  lifecycleBindings.set(audio, binding);
+
+  return binding;
+}
+
+function bindAudioLifecycle(audio: AudioLike, subscriber: LifecycleSubscriber) {
+  const binding = getOrCreateLifecycleBinding(audio);
+  binding.subscribers.add(subscriber);
+
+  return () => {
+    const currentBinding = lifecycleBindings.get(audio);
+    if (!currentBinding) {
+      return;
+    }
+
+    currentBinding.subscribers.delete(subscriber);
+    if (currentBinding.subscribers.size > 0) {
+      return;
+    }
+
+    audio.removeEventListener("loadedmetadata", currentBinding.handlers.loadedmetadata);
+    audio.removeEventListener("timeupdate", currentBinding.handlers.timeupdate);
+    audio.removeEventListener("ended", currentBinding.handlers.ended);
+    audio.removeEventListener("error", currentBinding.handlers.error);
+    lifecycleBindings.delete(audio);
+  };
+}
+
+function toTrackIds(queue: readonly Track[]) {
+  return queue.map(track => track.id);
 }
 
 export const usePlayerStore = defineStore("player", () => {
@@ -110,6 +168,18 @@ export const usePlayerStore = defineStore("player", () => {
   const audio = getSharedAudio();
   audio.volume = volume.value;
   audio.muted = muted.value;
+
+  let actionToken = 0;
+  let disposed = false;
+
+  function beginAction() {
+    actionToken += 1;
+    return actionToken;
+  }
+
+  function isActionCurrent(token: number) {
+    return !disposed && token === actionToken;
+  }
 
   function clampIndex(nextIndex: number) {
     if (queue.value.length <= 0) {
@@ -146,67 +216,82 @@ export const usePlayerStore = defineStore("player", () => {
     isPlaying.value = false;
   }
 
-  async function resumeCurrent() {
+  function isBoundToCurrentAudioSource() {
+    const track = currentTrack.value;
+    return Boolean(track && track.audioSrc === audio.src);
+  }
+
+  async function playCurrentWithToken(token: number) {
+    if (!isActionCurrent(token)) {
+      return false;
+    }
+
     const track = currentTrack.value;
     if (!track) {
-      pausePlayback();
+      if (isActionCurrent(token)) {
+        pausePlayback();
+      }
       return false;
     }
 
     if (audio.src !== track.audioSrc) {
       audio.src = track.audioSrc;
+      audio.currentTime = 0;
+      currentTime.value = 0;
+      duration.value = 0;
       audio.load();
     }
 
     try {
       await audio.play();
-      isPlaying.value = true;
-      rememberRecent(track.id);
-      clearPlaybackError();
-      return true;
     } catch (error) {
-      isPlaying.value = false;
-      setPlaybackError(track.id, error);
+      if (isActionCurrent(token) && currentTrack.value?.id === track.id) {
+        isPlaying.value = false;
+        setPlaybackError(track.id, error);
+      }
       return false;
     }
+
+    if (!isActionCurrent(token) || currentTrack.value?.id !== track.id) {
+      return false;
+    }
+
+    isPlaying.value = true;
+    rememberRecent(track.id);
+    clearPlaybackError();
+    return true;
   }
 
-  async function playAtIndex(nextIndex: number) {
-    const safeIndex = clampIndex(nextIndex);
-    currentIndex.value = safeIndex;
-
-    const track = currentTrack.value;
-    if (!track) {
-      pausePlayback();
+  async function playAtIndexWithToken(nextIndex: number, token: number) {
+    if (!isActionCurrent(token)) {
       return false;
     }
 
+    const safeIndex = clampIndex(nextIndex);
+    const track = queue.value[safeIndex];
+    if (!track) {
+      if (isActionCurrent(token)) {
+        pausePlayback();
+      }
+      return false;
+    }
+
+    currentIndex.value = safeIndex;
     currentTime.value = 0;
     duration.value = 0;
     audio.src = track.audioSrc;
     audio.currentTime = 0;
     audio.load();
 
-    return resumeCurrent();
+    return playCurrentWithToken(token);
   }
 
-  async function recoverFromPlaybackError() {
-    const next = resolveErrorRecovery({
-      currentIndex: currentIndex.value,
-      trackCount: queue.value.length,
-      mode: mode.value,
-    });
-
-    currentIndex.value = clampIndex(next.nextIndex);
-    if (!next.shouldPlay) {
-      pausePlayback();
+  async function handleEndedEvent() {
+    if (!isBoundToCurrentAudioSource()) {
       return;
     }
 
-    await playAtIndex(next.nextIndex);
-  }
-
-  async function handleEnded() {
+    const token = beginAction();
     const next = resolveEndedAction({
       currentIndex: currentIndex.value,
       trackCount: queue.value.length,
@@ -215,78 +300,116 @@ export const usePlayerStore = defineStore("player", () => {
 
     currentIndex.value = clampIndex(next.nextIndex);
     if (!next.shouldPlay) {
-      pausePlayback();
+      if (isActionCurrent(token)) {
+        pausePlayback();
+      }
       return;
     }
 
     if (next.shouldReplay) {
       seekTo(0);
-      await resumeCurrent();
+      await playCurrentWithToken(token);
       return;
     }
 
-    await playAtIndex(next.nextIndex);
+    await playAtIndexWithToken(next.nextIndex, token);
   }
 
-  lifecycleBridge = {
+  async function handleErrorEvent() {
+    const failedTrack = currentTrack.value;
+    if (!failedTrack || failedTrack.audioSrc !== audio.src) {
+      return;
+    }
+
+    const token = beginAction();
+    setPlaybackError(failedTrack.id, null);
+
+    const recovery = resolveErrorRecovery({
+      currentIndex: currentIndex.value,
+      trackCount: queue.value.length,
+      mode: mode.value,
+    });
+
+    currentIndex.value = clampIndex(recovery.nextIndex);
+    if (!recovery.shouldPlay) {
+      if (isActionCurrent(token)) {
+        pausePlayback();
+      }
+      return;
+    }
+
+    await playAtIndexWithToken(recovery.nextIndex, token);
+  }
+
+  const unbindAudioLifecycle = bindAudioLifecycle(audio, {
     onLoadedMetadata: () => {
+      if (!isBoundToCurrentAudioSource()) {
+        return;
+      }
+
       syncDurationFromAudio();
     },
     onTimeUpdate: () => {
+      if (!isBoundToCurrentAudioSource()) {
+        return;
+      }
+
       syncCurrentTimeFromAudio();
     },
     onEnded: () => {
-      void handleEnded();
+      void handleEndedEvent();
     },
     onError: () => {
-      setPlaybackError(currentTrack.value?.id ?? null, null);
-      void recoverFromPlaybackError();
+      void handleErrorEvent();
     },
-  };
-  bindLifecycleOnce(audio);
+  });
+
+  onScopeDispose(() => {
+    disposed = true;
+    beginAction();
+    unbindAudioLifecycle();
+  });
 
   async function playContext(nextQueue: Track[], trackId: string) {
-    queue.value = [...nextQueue];
-
     const selection = resolveQueueSelection({
-      trackIds: queue.value.map(track => track.id),
+      trackIds: toTrackIds(nextQueue),
       trackId,
     });
-
-    currentIndex.value = clampIndex(selection.nextIndex);
-    currentTime.value = 0;
-    duration.value = 0;
-
     if (!selection.found) {
-      pausePlayback();
       return;
     }
 
-    await playAtIndex(selection.nextIndex);
+    const token = beginAction();
+    queue.value = [...nextQueue];
+    await playAtIndexWithToken(selection.nextIndex, token);
   }
 
   async function playTrackById(trackId: string) {
     const selection = resolveQueueSelection({
-      trackIds: queue.value.map(track => track.id),
+      trackIds: toTrackIds(queue.value),
       trackId,
     });
     if (!selection.found) {
       return;
     }
 
-    await playAtIndex(selection.nextIndex);
+    const token = beginAction();
+    await playAtIndexWithToken(selection.nextIndex, token);
   }
 
   async function togglePlay() {
     if (isPlaying.value) {
+      beginAction();
       pausePlayback();
       return;
     }
 
-    await resumeCurrent();
+    const token = beginAction();
+    await playCurrentWithToken(token);
   }
 
   async function playNext() {
+    const token = beginAction();
     const next = resolveNextAction({
       currentIndex: currentIndex.value,
       trackCount: queue.value.length,
@@ -295,11 +418,13 @@ export const usePlayerStore = defineStore("player", () => {
 
     currentIndex.value = clampIndex(next.nextIndex);
     if (!next.shouldPlay) {
-      pausePlayback();
+      if (isActionCurrent(token)) {
+        pausePlayback();
+      }
       return;
     }
 
-    await playAtIndex(next.nextIndex);
+    await playAtIndexWithToken(next.nextIndex, token);
   }
 
   async function playPrevious() {
@@ -309,13 +434,14 @@ export const usePlayerStore = defineStore("player", () => {
       trackCount: queue.value.length,
     });
 
+    const token = beginAction();
     currentIndex.value = clampIndex(previous.nextIndex);
     if (previous.shouldRestart) {
       seekTo(0);
       return;
     }
 
-    await playAtIndex(previous.nextIndex);
+    await playAtIndexWithToken(previous.nextIndex, token);
   }
 
   function seekTo(nextTime: number) {

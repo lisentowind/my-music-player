@@ -4,6 +4,17 @@ import { tracks } from "@/data/music-library";
 
 type AudioEventListener = (event: Event) => void;
 
+function createDeferred<T = void>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((nextResolve, nextReject) => {
+    resolve = nextResolve;
+    reject = nextReject;
+  });
+
+  return { promise, resolve, reject };
+}
+
 class FakePlayerAudio {
   src = "";
   currentTime = 0;
@@ -13,6 +24,7 @@ class FakePlayerAudio {
   paused = true;
   error: { message?: string } | null = null;
   private listeners = new Map<string, Set<AudioEventListener>>();
+  private listenerMap = new Map<string, Map<EventListenerOrEventListenerObject, AudioEventListener>>();
 
   play = vi.fn(async () => {
     this.paused = false;
@@ -28,15 +40,27 @@ class FakePlayerAudio {
     const normalized = typeof listener === "function"
       ? listener
       : (event: Event) => listener.handleEvent(event);
+    const mappings = this.listenerMap.get(type) ?? new Map<EventListenerOrEventListenerObject, AudioEventListener>();
+    mappings.set(listener, normalized);
+    this.listenerMap.set(type, mappings);
+
     const group = this.listeners.get(type) ?? new Set<AudioEventListener>();
     group.add(normalized);
     this.listeners.set(type, group);
   });
 
   removeEventListener = vi.fn((type: string, listener: EventListenerOrEventListenerObject) => {
-    const normalized = typeof listener === "function"
-      ? listener
-      : (event: Event) => listener.handleEvent(event);
+    const mappings = this.listenerMap.get(type);
+    const normalized = mappings?.get(listener);
+    if (!normalized) {
+      return;
+    }
+
+    mappings?.delete(listener);
+    if (mappings && mappings.size === 0) {
+      this.listenerMap.delete(type);
+    }
+
     const group = this.listeners.get(type);
     if (!group) {
       return;
@@ -100,6 +124,25 @@ describe("usePlayerStore", () => {
     expect(store.currentIndex).toBe(1);
     expect(store.currentTrack?.id).toBe(tracks[3].id);
     expect(store.isPlaying).toBe(true);
+  });
+
+  it("playContext 目标不存在时保持 queue/currentIndex/isPlaying 不变", async () => {
+    const store = usePlayerStore();
+    await store.playTrackById(tracks[2].id);
+
+    const originalQueue = store.queue.map(track => track.id);
+    const originalIndex = store.currentIndex;
+    const originalTrackId = store.currentTrack?.id;
+    const originalPlaying = store.isPlaying;
+    const originalSrc = fakeAudio.src;
+
+    await store.playContext([tracks[4], tracks[5]], "missing-track-id");
+
+    expect(store.queue.map(track => track.id)).toEqual(originalQueue);
+    expect(store.currentIndex).toBe(originalIndex);
+    expect(store.currentTrack?.id).toBe(originalTrackId);
+    expect(store.isPlaying).toBe(originalPlaying);
+    expect(fakeAudio.src).toBe(originalSrc);
   });
 
   it("seekTo 只更新播放进度，不改变播放状态", async () => {
@@ -166,18 +209,82 @@ describe("usePlayerStore", () => {
     expect(store.errorMessage).toBe("");
   });
 
-  it("音频生命周期事件只会绑定一次", async () => {
-    const store = usePlayerStore();
+  it("多 store 实例不会重复绑定事件，也不会覆盖前一个实例的生命周期同步", async () => {
+    const firstStore = usePlayerStore();
+    await firstStore.playTrackById(tracks[0].id);
 
-    await store.playTrackById(tracks[0].id);
-    await store.playTrackById(tracks[1].id);
-    await store.togglePlay();
-    await store.togglePlay();
+    const secondPinia = createPinia();
+    const secondStore = usePlayerStore(secondPinia);
+
+    fakeAudio.currentTime = 21;
+    fakeAudio.emit("timeupdate");
+
+    expect(firstStore.currentTime).toBe(21);
+    expect(secondStore.currentTime).toBe(21);
 
     expect(fakeAudio.addEventListener).toHaveBeenCalledTimes(4);
     expect(fakeAudio.addEventListener).toHaveBeenCalledWith("loadedmetadata", expect.any(Function));
     expect(fakeAudio.addEventListener).toHaveBeenCalledWith("timeupdate", expect.any(Function));
     expect(fakeAudio.addEventListener).toHaveBeenCalledWith("ended", expect.any(Function));
     expect(fakeAudio.addEventListener).toHaveBeenCalledWith("error", expect.any(Function));
+
+    firstStore.$dispose();
+    expect(fakeAudio.removeEventListener).toHaveBeenCalledTimes(0);
+
+    secondStore.$dispose();
+    expect(fakeAudio.removeEventListener).toHaveBeenCalledTimes(4);
+  });
+
+  it("ended 异步流程过期后不会覆盖用户后续操作", async () => {
+    const store = usePlayerStore();
+    const delayedPlay = createDeferred<void>();
+    let playCallCount = 0;
+    fakeAudio.play.mockImplementation(async () => {
+      playCallCount += 1;
+      fakeAudio.paused = false;
+      if (playCallCount === 2) {
+        await delayedPlay.promise;
+      }
+    });
+
+    await store.playTrackById(tracks[0].id);
+    fakeAudio.emit("ended");
+    await store.playTrackById(tracks[5].id);
+    await store.togglePlay();
+    expect(store.isPlaying).toBe(false);
+
+    delayedPlay.resolve();
+    await delayedPlay.promise;
+    await Promise.resolve();
+
+    expect(store.currentTrack?.id).toBe(tracks[5].id);
+    expect(store.isPlaying).toBe(false);
+  });
+
+  it("error 异步恢复流程过期后不会冲掉最新手动状态", async () => {
+    const store = usePlayerStore();
+    const delayedRecoveryPlay = createDeferred<void>();
+    let playCallCount = 0;
+    fakeAudio.play.mockImplementation(async () => {
+      playCallCount += 1;
+      fakeAudio.paused = false;
+      if (playCallCount === 2) {
+        await delayedRecoveryPlay.promise;
+      }
+    });
+
+    await store.playTrackById(tracks[0].id);
+    fakeAudio.error = { message: "decode failed" };
+    fakeAudio.emit("error");
+    await store.playTrackById(tracks[4].id);
+    await store.togglePlay();
+    expect(store.isPlaying).toBe(false);
+
+    delayedRecoveryPlay.resolve();
+    await delayedRecoveryPlay.promise;
+    await Promise.resolve();
+
+    expect(store.currentTrack?.id).toBe(tracks[4].id);
+    expect(store.isPlaying).toBe(false);
   });
 });
