@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import type { Track } from "@/types/music";
+interface RecentPlayItem {
+  id: string;
+  title: string;
+  artist: string;
+  coverSrc: string;
+  durationLabel: string;
+}
 
 withDefaults(
   defineProps<{
-    tracks: Track[];
+    tracks: RecentPlayItem[];
     activeTrackId?: string | null;
   }>(),
   {
@@ -75,12 +81,16 @@ function playTrack(trackId: string) {
 }
 
 .recent-play-list__item:hover {
-  background: rgba(255, 255, 255, 0.42);
+  background: var(--color-state-hover);
 }
 
 .recent-play-list__item[data-active="true"] {
-  border-color: rgba(95, 127, 155, 0.32);
-  background: rgba(195, 216, 236, 0.26);
+  border-color: var(--color-state-border-emphasis);
+  background: var(--color-state-selected);
+}
+
+.recent-play-list__item:focus-visible {
+  box-shadow: var(--focus-ring);
 }
 
 .recent-play-list__cover {
@@ -88,7 +98,7 @@ function playTrack(trackId: string) {
   height: 44px;
   object-fit: cover;
   border-radius: var(--radius-xs);
-  border: 1px solid rgba(143, 162, 185, 0.24);
+  border: 1px solid var(--color-state-border-subtle);
 }
 
 .recent-play-list__meta {

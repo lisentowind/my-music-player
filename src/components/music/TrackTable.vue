@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { Track } from "@/types/music";
+
+interface TrackTableRow {
+  id: string;
+  title: string;
+  artist: string;
+  album: string;
+  durationLabel: string;
+}
 
 const props = withDefaults(
   defineProps<{
-    tracks: Track[];
+    tracks: TrackTableRow[];
     likedIds?: string[];
     activeTrackId?: string | null;
   }>(),
@@ -27,6 +34,20 @@ function isLiked(trackId: string) {
 
 function playTrack(trackId: string) {
   emit("play", trackId);
+}
+
+function handleRowKeydown(event: KeyboardEvent, trackId: string) {
+  const isPlayKey
+    = ["Enter", " ", "Space", "Spacebar"].includes(event.key)
+      || ["Enter", "Space"].includes(event.code)
+      || event.keyCode === 13
+      || event.keyCode === 32;
+  if (!isPlayKey) {
+    return;
+  }
+
+  event.preventDefault();
+  playTrack(trackId);
 }
 
 function toggleLike(trackId: string) {
@@ -59,7 +80,11 @@ function toggleLike(trackId: string) {
           :key="track.id"
           :data-testid="`track-row-${track.id}`"
           :data-active="track.id === activeTrackId ? 'true' : 'false'"
+          role="button"
+          tabindex="0"
+          :aria-label="`播放 ${track.title}`"
           @click="playTrack(track.id)"
+          @keydown="handleRowKeydown($event, track.id)"
         >
           <td>
             <p class="track-table__title">
@@ -119,16 +144,21 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.48);
+  background-color: var(--color-state-hover);
 }
 
 tbody tr[data-active="true"] {
-  background-color: rgba(195, 216, 236, 0.32);
+  background-color: var(--color-state-selected);
+}
+
+tbody tr:focus-visible {
+  position: relative;
+  box-shadow: inset 0 0 0 1px var(--color-state-border-emphasis), var(--focus-ring);
 }
 
 td {
   padding: var(--space-3);
-  border-top: 1px solid rgba(143, 162, 185, 0.2);
+  border-top: 1px solid var(--color-state-border-subtle);
   vertical-align: middle;
   color: var(--color-text-secondary);
   font-size: 14px;
@@ -175,8 +205,8 @@ td {
 }
 
 .track-table__like-button[aria-pressed="true"] {
-  border-color: rgba(95, 127, 155, 0.35);
-  background: rgba(95, 127, 155, 0.12);
+  border-color: var(--color-state-border-emphasis);
+  background: var(--color-state-accent-soft);
   color: var(--color-accent-pressed);
 }
 </style>

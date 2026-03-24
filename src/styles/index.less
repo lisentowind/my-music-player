@@ -46,10 +46,18 @@ button {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.58)),
+    linear-gradient(145deg, var(--color-glass-highlight-start), var(--color-glass-highlight-end)),
     var(--color-surface);
+  -webkit-backdrop-filter: blur(var(--blur-md));
   backdrop-filter: blur(var(--blur-md));
   box-shadow: var(--shadow-md);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-surface {
+    background: var(--color-glass-fallback);
+    border-color: var(--color-state-border-subtle);
+  }
 }
 
 .text-primary {
@@ -74,7 +82,7 @@ button {
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
   background:
-    linear-gradient(140deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.62)),
+    linear-gradient(140deg, var(--color-glass-highlight-start), var(--color-glass-highlight-end)),
     var(--color-surface);
   color: var(--color-text);
   cursor: pointer;
@@ -82,22 +90,29 @@ button {
 }
 
 .ui-button:hover {
-  border-color: rgba(95, 127, 155, 0.4);
+  border-color: var(--color-state-border-emphasis);
   box-shadow: var(--shadow-sm);
 }
 
 .ui-button:active {
   transform: translateY(1px);
+  background: var(--color-state-active);
 }
 
 .ui-button--primary {
   border-color: transparent;
-  background: linear-gradient(135deg, #7f9ab3 0%, #5f7f9b 100%);
+  background: var(--gradient-primary);
   color: #f8fbff;
 }
 
 .ui-button--primary:hover {
-  box-shadow: 0 10px 24px rgba(61, 86, 112, 0.22);
+  background: var(--gradient-primary-hover);
+  box-shadow: var(--shadow-primary-hover);
+}
+
+.ui-button--primary:active {
+  background: var(--gradient-primary-active);
+  box-shadow: var(--shadow-primary-active);
 }
 
 input[type="range"] {
@@ -105,11 +120,27 @@ input[type="range"] {
   width: 100%;
   height: 4px;
   border-radius: 999px;
-  background: rgba(120, 143, 168, 0.24);
+  background: var(--color-state-border-subtle);
 }
 
 input[type="range"]::-webkit-slider-thumb {
   appearance: none;
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(120, 143, 168, 0.45);
+  border-radius: 50%;
+  background: #f7fbff;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-state-border-subtle);
+}
+
+input[type="range"]::-moz-range-thumb {
   width: 14px;
   height: 14px;
   border: 1px solid rgba(120, 143, 168, 0.45);

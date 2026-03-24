@@ -1,9 +1,16 @@
 <script setup lang="ts">
-import type { FeaturedAlbum } from "@/types/music";
+interface AlbumCardData {
+  id: string;
+  title: string;
+  artist: string;
+  coverSrc: string;
+  subtitle: string;
+  description: string;
+}
 
 const props = withDefaults(
   defineProps<{
-    album: FeaturedAlbum;
+    album: AlbumCardData;
     active?: boolean;
   }>(),
   {
@@ -58,7 +65,7 @@ function playAlbum() {
 }
 
 .album-card[data-active="true"] {
-  border-color: rgba(95, 127, 155, 0.42);
+  border-color: var(--color-state-border-emphasis);
 }
 
 .album-card__cover {
@@ -66,7 +73,7 @@ function playAlbum() {
   aspect-ratio: 1;
   object-fit: cover;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(143, 162, 185, 0.3);
+  border: 1px solid var(--color-state-border-subtle);
 }
 
 .album-card__meta {
