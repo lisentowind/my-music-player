@@ -30,18 +30,11 @@ export interface QuickPick {
   trackId: string;
 }
 
-export interface ProfileMetric {
-  id: string;
-  label: string;
-  value: string;
-}
-
 export interface UserProfileSeed {
   id: string;
   displayName: string;
   headline: string;
   avatarSrc: string;
   signatureTags: string[];
-  metrics: ProfileMetric[];
   quickPicks: QuickPick[];
 }

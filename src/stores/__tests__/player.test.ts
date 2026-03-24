@@ -300,4 +300,32 @@ describe("usePlayerStore", () => {
     expect(store.currentTrack?.id).toBe(tracks[4].id);
     expect(store.isPlaying).toBe(false);
   });
+
+  it("recentTrackCount 统计会话内最近播放的不同歌曲数量", async () => {
+    const store = usePlayerStore();
+
+    await store.playTrackById("track-dawn-echo");
+    await store.playTrackById("track-orbit-glow");
+    await store.playTrackById("track-dawn-echo");
+
+    expect(store.recentPlayIds).toEqual(["track-dawn-echo", "track-orbit-glow"]);
+    expect(store.recentTrackCount).toBe(2);
+  });
+
+  it("favoriteMoodTags 在无 recent 时使用 liked 源进行聚合", () => {
+    const store = usePlayerStore();
+
+    expect(store.recentPlayIds).toEqual([]);
+    expect(store.favoriteMoodTags).toContain("清透");
+    expect(store.favoriteMoodTags).not.toContain("克制");
+  });
+
+  it("favoriteMoodTags 会合并 recent 与 liked 源", async () => {
+    const store = usePlayerStore();
+
+    await store.playTrackById("track-glacier-pulse");
+
+    expect(store.favoriteMoodTags).toContain("克制");
+    expect(store.favoriteMoodTags).toContain("清透");
+  });
 });

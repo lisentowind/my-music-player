@@ -174,10 +174,10 @@ export const usePlayerStore = defineStore("player", () => {
   const recentPlayTracks = computed(() => recentPlayIds.value
     .map(trackId => trackById.get(trackId))
     .filter((track): track is Track => Boolean(track)));
-  const recentPlayCount = computed(() => recentPlayIds.value.length);
+  const recentTrackCount = computed(() => recentPlayIds.value.length);
   const activeModeLabel = computed(() => playbackModeLabelMap[mode.value]);
   const favoriteMoodTags = computed(() => {
-    const seedTrackIds = recentPlayIds.value.length > 0 ? recentPlayIds.value : likedTrackIdList.value;
+    const seedTrackIds = [...new Set([...recentPlayIds.value, ...likedTrackIdList.value])];
     const tagCounter = new Map<string, number>();
 
     for (const trackId of seedTrackIds) {
@@ -542,7 +542,7 @@ export const usePlayerStore = defineStore("player", () => {
     likedCount,
     recentPlayIds,
     recentPlayTracks,
-    recentPlayCount,
+    recentTrackCount,
     activeModeLabel,
     favoriteMoodTags,
     errorMessage,

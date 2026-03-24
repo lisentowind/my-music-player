@@ -25,9 +25,9 @@ const metricCards = computed(() => [
   },
   {
     id: "profile-recent",
-    label: "最近播放",
-    value: `${player.recentPlayCount} 次`,
-    hint: "仅记录本次会话的播放轨迹",
+    label: "最近播放歌曲",
+    value: `${player.recentTrackCount} 首`,
+    hint: "仅记录本次会话播放过的不同歌曲",
   },
   {
     id: "profile-mode",
