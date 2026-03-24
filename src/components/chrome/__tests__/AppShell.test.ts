@@ -128,6 +128,7 @@ describe("app shell chrome", () => {
       },
     });
 
+    expect(wrapper.find("[data-testid='app-shell-root']").exists()).toBe(true);
     expect(wrapper.find("[data-testid='app-shell-sidebar']").exists()).toBe(true);
     expect(wrapper.find("[data-testid='app-shell-scroll']").exists()).toBe(true);
   });
