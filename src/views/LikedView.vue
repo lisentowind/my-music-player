@@ -4,6 +4,7 @@ import MetricCard from "@/components/music/MetricCard.vue";
 import SectionHeader from "@/components/music/SectionHeader.vue";
 import TrackTable from "@/components/music/TrackTable.vue";
 import GlassPanel from "@/components/chrome/GlassPanel.vue";
+import PillButton from "@/components/ui/PillButton.vue";
 import { tracks } from "@/data/music-library";
 import { usePlayerStore } from "@/stores/player";
 
@@ -79,30 +80,27 @@ function toggleLike(trackId: string) {
       <GlassPanel class="block">
         <SectionHeader title="喜欢列表" description="可按最近播放、歌曲名、歌手排序。" />
         <div class="liked-view__sort">
-          <button
-            type="button"
+          <PillButton
             class="liked-view__sort-button"
-            :data-active="sortMode === 'recent' ? 'true' : 'false'"
+            label="最近播放"
+            icon="solar:history-line-duotone"
+            :active="sortMode === 'recent'"
             @click="sortMode = 'recent'"
-          >
-            最近播放
-          </button>
-          <button
-            type="button"
+          />
+          <PillButton
             class="liked-view__sort-button"
-            :data-active="sortMode === 'title' ? 'true' : 'false'"
+            label="歌曲名"
+            icon="solar:music-notes-line-duotone"
+            :active="sortMode === 'title'"
             @click="sortMode = 'title'"
-          >
-            歌曲名
-          </button>
-          <button
-            type="button"
+          />
+          <PillButton
             class="liked-view__sort-button"
-            :data-active="sortMode === 'artist' ? 'true' : 'false'"
+            label="歌手"
+            icon="solar:microphone-2-line-duotone"
+            :active="sortMode === 'artist'"
             @click="sortMode = 'artist'"
-          >
-            歌手
-          </button>
+          />
         </div>
         <TrackTable
           v-if="trackRows.length > 0"

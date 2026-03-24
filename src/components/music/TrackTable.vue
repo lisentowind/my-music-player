@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import IconButton from "@/components/ui/IconButton.vue";
 
 interface TrackTableRow {
   id: string;
@@ -71,15 +72,13 @@ function toggleLike(trackId: string) {
           :data-active="track.id === activeTrackId ? 'true' : 'false'"
         >
           <td class="track-table__play">
-            <button
+            <IconButton
               :data-testid="`track-play-${track.id}`"
-              class="track-table__play-button"
-              type="button"
-              :aria-label="`播放 ${track.title}`"
+              class="track-table__action-button"
+              :label="`播放 ${track.title}`"
+              icon="solar:play-line-duotone"
               @click="playTrack(track.id)"
-            >
-              播放
-            </button>
+            />
           </td>
           <td>
             <p class="track-table__title">
@@ -96,16 +95,15 @@ function toggleLike(trackId: string) {
             {{ track.durationLabel }}
           </td>
           <td class="track-table__like">
-            <button
+            <IconButton
               :data-testid="`track-like-${track.id}`"
-              class="track-table__like-button"
-              type="button"
-              :aria-label="isLiked(track.id) ? `取消喜欢 ${track.title}` : `喜欢 ${track.title}`"
-              :aria-pressed="isLiked(track.id) ? 'true' : 'false'"
+              class="track-table__action-button"
+              :label="isLiked(track.id) ? `取消喜欢 ${track.title}` : `喜欢 ${track.title}`"
+              :icon="isLiked(track.id) ? 'solar:heart-bold' : 'solar:heart-line-duotone'"
+              :active="isLiked(track.id)"
+              :pressed="isLiked(track.id)"
               @click.stop="toggleLike(track.id)"
-            >
-              {{ isLiked(track.id) ? "已喜欢" : "喜欢" }}
-            </button>
+            />
           </td>
         </tr>
       </tbody>
@@ -186,39 +184,7 @@ td {
   width: 86px;
 }
 
-.track-table__play-button {
-  min-width: 56px;
-  border: 1px solid var(--color-state-border-subtle);
-  border-radius: var(--radius-xs);
-  background: transparent;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  font-size: 12px;
-  line-height: 1;
-  padding: 8px;
-  transition: border-color 120ms ease, background-color 120ms ease;
-}
-
-.track-table__play-button:hover {
-  border-color: var(--color-state-border-emphasis);
-  background: var(--color-state-hover);
-}
-
-.track-table__like-button {
-  min-width: 56px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-xs);
-  background: transparent;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  font-size: 12px;
-  line-height: 1;
-  padding: 8px;
-}
-
-.track-table__like-button[aria-pressed="true"] {
-  border-color: var(--color-state-border-emphasis);
-  background: var(--color-state-accent-soft);
-  color: var(--color-accent-pressed);
+.track-table__action-button {
+  margin-left: auto;
 }
 </style>

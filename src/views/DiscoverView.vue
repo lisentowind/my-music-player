@@ -4,6 +4,7 @@ import AlbumCard from "@/components/music/AlbumCard.vue";
 import RecentPlayList from "@/components/music/RecentPlayList.vue";
 import SectionHeader from "@/components/music/SectionHeader.vue";
 import GlassPanel from "@/components/chrome/GlassPanel.vue";
+import PillButton from "@/components/ui/PillButton.vue";
 import {
   discoverAtmospheres,
   featuredAlbums,
@@ -129,14 +130,14 @@ function toggleLike(trackId: string) {
                 {{ pick.track.title }} · {{ pick.track.artist }}
               </p>
             </button>
-            <button
-              type="button"
+            <PillButton
               class="discover-view__quick-like"
-              :aria-pressed="likedSet.has(pick.track.id) ? 'true' : 'false'"
+              :label="likedSet.has(pick.track.id) ? '已喜欢' : '喜欢'"
+              icon="solar:heart-line-duotone"
+              :active="likedSet.has(pick.track.id)"
+              :pressed="likedSet.has(pick.track.id)"
               @click="toggleLike(pick.track.id)"
-            >
-              {{ likedSet.has(pick.track.id) ? "已喜欢" : "喜欢" }}
-            </button>
+            />
           </article>
         </div>
       </GlassPanel>

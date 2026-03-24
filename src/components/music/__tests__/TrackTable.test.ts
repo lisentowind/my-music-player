@@ -20,6 +20,23 @@ const tracks = [
 ];
 
 describe("track table", () => {
+  it("渲染为图标化播放/喜欢按钮并保留可访问标签", () => {
+    const wrapper = mount(TrackTable, {
+      props: {
+        tracks,
+        likedIds: [],
+        activeTrackId: null,
+      },
+    });
+
+    const playButton = wrapper.get('[data-testid="track-play-track-dawn-echo"]');
+    const likeButton = wrapper.get('[data-testid="track-like-track-dawn-echo"]');
+    expect(playButton.classes()).toContain("icon-button");
+    expect(likeButton.classes()).toContain("icon-button");
+    expect(playButton.attributes("aria-label")).toContain("播放");
+    expect(likeButton.attributes("aria-label")).toContain("喜欢");
+  });
+
   it("点击播放按钮时发出 play(trackId)", async () => {
     const wrapper = mount(TrackTable, {
       props: {

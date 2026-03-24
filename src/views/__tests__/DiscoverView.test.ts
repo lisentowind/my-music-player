@@ -80,4 +80,30 @@ describe("discover view", () => {
 
     expect(player.currentTrack?.id).toBe("track-orbit-glow");
   }, 10000);
+
+  it("quick actions 使用图标按钮后仍调用 store 方法", async () => {
+    const pinia = createPinia();
+    const { usePlayerStore } = await import("@/stores/player");
+    const { default: DiscoverView } = await import("@/views/DiscoverView.vue");
+    const player = usePlayerStore(pinia);
+    const playTrackByIdSpy = vi.spyOn(player, "playTrackById");
+    const toggleLikeSpy = vi.spyOn(player, "toggleLike");
+
+    const wrapper = mount(DiscoverView, {
+      global: {
+        plugins: [pinia],
+      },
+    });
+
+    const quickMainButtons = wrapper.findAll(".discover-view__quick-main");
+    expect(quickMainButtons.length).toBeGreaterThan(0);
+    await quickMainButtons[0].trigger("click");
+    expect(playTrackByIdSpy).toHaveBeenCalled();
+
+    const quickLikeButtons = wrapper.findAll(".discover-view__quick-like");
+    expect(quickLikeButtons.length).toBeGreaterThan(0);
+    await quickLikeButtons[0].trigger("click");
+    expect(toggleLikeSpy).toHaveBeenCalled();
+    expect(quickLikeButtons[0]?.classes()).toContain("pill-button");
+  }, 10000);
 });

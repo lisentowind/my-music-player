@@ -57,4 +57,23 @@ describe("liked view", () => {
 
     expect(player.currentTrack?.id).toBe("track-orbit-glow");
   }, 10000);
+
+  it("排序控件改为组件按钮后仍可点击切换 active", async () => {
+    const pinia = createPinia();
+    const { default: LikedView } = await import("@/views/LikedView.vue");
+    const wrapper = mount(LikedView, {
+      global: {
+        plugins: [pinia],
+      },
+    });
+
+    const sortButtons = wrapper.findAll(".liked-view__sort .pill-button");
+    expect(sortButtons).toHaveLength(3);
+
+    await sortButtons[1]!.trigger("click");
+    expect(sortButtons[1]!.attributes("data-active")).toBe("true");
+
+    await sortButtons[2]!.trigger("click");
+    expect(sortButtons[2]!.attributes("data-active")).toBe("true");
+  });
 });
