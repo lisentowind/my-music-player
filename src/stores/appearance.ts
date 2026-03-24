@@ -5,12 +5,12 @@ import {
   defaultThemePresetId,
   resolveThemePreset,
   themePresets,
-  type AppearanceMode,
-  type ThemePresetId,
 } from "@/lib/theme/presets";
+import type { AppearanceMode, ThemePresetId } from "@/lib/theme/presets";
 
 const STORAGE_KEY = "my-player:appearance";
 const DEFAULT_FALLBACK_MODE: Exclude<AppearanceMode, "system"> = "light";
+const ACCENT_COLOR_PATTERN = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 
 interface PersistedAppearanceState {
   mode?: unknown;
@@ -29,7 +29,7 @@ function isValidAppearanceMode(value: unknown): value is AppearanceMode {
 
 function isValidAccentColor(value: unknown): value is string {
   return typeof value === "string"
-    && /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value);
+    && ACCENT_COLOR_PATTERN.test(value);
 }
 
 export const useAppearanceStore = defineStore("appearance", () => {

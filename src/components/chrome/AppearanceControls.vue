@@ -8,14 +8,19 @@ import { useAppearanceStore } from "@/stores/appearance";
 
 const appearance = useAppearanceStore();
 const customAccentInput = ref<HTMLInputElement>();
-const supportsColorInput = typeof document !== "undefined"
-  && (() => {
-    const input = document.createElement("input");
-    input.setAttribute("type", "color");
-    return input.type === "color";
-  })();
+const supportsColorInput = isColorInputSupported();
 
 const hasCustomAccent = computed(() => appearance.customAccent.length > 0);
+
+function isColorInputSupported() {
+  if (typeof document === "undefined") {
+    return false;
+  }
+
+  const input = document.createElement("input");
+  input.setAttribute("type", "color");
+  return input.type === "color";
+}
 
 function selectMode(mode: AppearanceMode) {
   appearance.setMode(mode);
@@ -47,11 +52,13 @@ function updateCustomAccent(event: Event) {
   <section class="appearance-controls app-scroll-area" aria-label="外观控制">
     <div class="appearance-controls__row">
       <span class="appearance-controls__label">模式</span>
-      <div class="segmented-button" role="group" aria-label="主题模式">
+      <div class="segmented-button" role="radiogroup" aria-label="主题模式">
         <IconButton
           label="跟随系统"
           icon="solar:monitor-outline"
           :active="appearance.mode === 'system'"
+          role="radio"
+          :checked="appearance.mode === 'system'"
           data-testid="theme-mode-system"
           @click="selectMode('system')"
         />
@@ -59,6 +66,8 @@ function updateCustomAccent(event: Event) {
           label="浅色"
           icon="solar:sun-2-outline"
           :active="appearance.mode === 'light'"
+          role="radio"
+          :checked="appearance.mode === 'light'"
           data-testid="theme-mode-light"
           @click="selectMode('light')"
         />
@@ -66,6 +75,8 @@ function updateCustomAccent(event: Event) {
           label="深色"
           icon="solar:moon-outline"
           :active="appearance.mode === 'dark'"
+          role="radio"
+          :checked="appearance.mode === 'dark'"
           data-testid="theme-mode-dark"
           @click="selectMode('dark')"
         />
@@ -81,6 +92,7 @@ function updateCustomAccent(event: Event) {
           :label="preset.label"
           icon="solar:pallete-2-outline"
           :active="appearance.presetId === preset.id && !hasCustomAccent"
+          :pressed="appearance.presetId === preset.id && !hasCustomAccent"
           :data-testid="`theme-preset-${preset.id}`"
           @click="selectPreset(preset.id)"
         />
@@ -90,6 +102,7 @@ function updateCustomAccent(event: Event) {
           icon="solar:pallete-outline"
           data-testid="theme-custom-accent"
           :active="hasCustomAccent"
+          :pressed="hasCustomAccent"
           @click="openCustomAccentPicker"
         />
         <PillButton
