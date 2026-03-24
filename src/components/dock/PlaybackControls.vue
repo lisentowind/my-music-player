@@ -1,5 +1,9 @@
 <script setup lang="ts">
-defineProps<{
+import { computed } from "vue";
+import IconButton from "@/components/ui/IconButton.vue";
+import PillButton from "@/components/ui/PillButton.vue";
+
+const props = defineProps<{
   isPlaying: boolean;
   modeLabel: string;
 }>();
@@ -10,47 +14,52 @@ const emit = defineEmits<{
   next: [];
   cycleMode: [];
 }>();
+
+const modeIcon = computed(() => {
+  const iconMap: Record<string, string> = {
+    顺序播放: "solar:list-line-duotone",
+    列表循环: "solar:repeat-line-duotone",
+    单曲循环: "solar:repeat-one-line-duotone",
+  };
+
+  return iconMap[props.modeLabel] ?? "solar:music-library-2-line-duotone";
+});
 </script>
 
 <template>
   <div class="playback-controls">
-    <button
+    <PillButton
       class="playback-controls__mode"
       data-testid="player-dock-mode"
-      type="button"
-      aria-label="切换播放模式"
+      :label="modeLabel"
+      :icon="modeIcon"
+      :aria-label="`切换播放模式，当前 ${modeLabel}`"
       @click="emit('cycleMode')"
-    >
-      {{ modeLabel }}
-    </button>
+    />
     <div class="playback-controls__transport">
-      <button
+      <IconButton
         class="playback-controls__button"
         data-testid="player-dock-prev"
-        type="button"
-        aria-label="上一首"
+        label="上一首"
+        icon="solar:skip-previous-bold"
         @click="emit('previous')"
-      >
-        上一首
-      </button>
-      <button
-        class="playback-controls__button playback-controls__button--primary"
+      />
+      <IconButton
+        class="playback-controls__button playback-controls__button--primary primary-control"
         data-testid="player-dock-toggle"
-        type="button"
-        :aria-label="isPlaying ? '暂停' : '播放'"
+        :label="isPlaying ? '暂停' : '播放'"
+        :icon="isPlaying ? 'solar:pause-bold' : 'solar:play-bold'"
+        :active="isPlaying"
+        :pressed="isPlaying"
         @click="emit('toggle')"
-      >
-        {{ isPlaying ? "暂停" : "播放" }}
-      </button>
-      <button
+      />
+      <IconButton
         class="playback-controls__button"
         data-testid="player-dock-next"
-        type="button"
-        aria-label="下一首"
+        label="下一首"
+        icon="solar:skip-next-bold"
         @click="emit('next')"
-      >
-        下一首
-      </button>
+      />
     </div>
   </div>
 </template>
@@ -64,20 +73,10 @@ const emit = defineEmits<{
 }
 
 .playback-controls__mode {
-  min-width: 82px;
-  height: 30px;
-  border: 1px solid rgba(126, 147, 172, 0.35);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.55);
-  color: var(--color-text-secondary);
+  min-width: 118px;
+  padding-inline: 14px;
   font-size: 11px;
-  cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease;
-}
-
-.playback-controls__mode:hover {
-  border-color: rgba(99, 129, 164, 0.48);
-  background: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
 }
 
 .playback-controls__transport {
@@ -87,45 +86,18 @@ const emit = defineEmits<{
 }
 
 .playback-controls__button {
-  min-width: 62px;
-  height: 34px;
-  border: 1px solid rgba(121, 144, 169, 0.33);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.55);
-  color: var(--color-text-secondary);
-  font-size: 12px;
-  cursor: pointer;
-  transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease;
-}
-
-.playback-controls__button:hover {
-  border-color: rgba(98, 126, 161, 0.46);
-  background: rgba(255, 255, 255, 0.72);
-}
-
-.playback-controls__button:active {
-  transform: translateY(1px);
 }
 
 .playback-controls__button--primary {
-  min-width: 76px;
-  height: 40px;
-  border: 1px solid rgba(110, 133, 160, 0.54);
-  background:
-    linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(239, 246, 255, 0.88) 100%),
-    rgba(255, 255, 255, 0.74);
-  color: #24374e;
-  font-weight: 600;
+  width: 46px;
+  height: 46px;
   box-shadow:
-    0 6px 14px rgba(30, 41, 59, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.92),
-    inset 0 -2px 4px rgba(112, 130, 152, 0.18);
+    var(--shadow-primary-hover),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26);
 }
 
-.playback-controls__button--primary:hover {
-  border-color: rgba(86, 110, 139, 0.64);
-  background:
-    linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 241, 252, 0.92) 100%),
-    rgba(255, 255, 255, 0.8);
+.playback-controls__button--primary[data-active="true"] {
+  color: #f8fbff;
 }
 </style>

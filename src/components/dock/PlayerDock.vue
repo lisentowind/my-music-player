@@ -18,6 +18,7 @@ const trackArtist = computed(() => {
 });
 const playbackStatus = computed(() => player.isPlaying ? "播放中" : "已暂停");
 const hasError = computed(() => Boolean(player.errorTrackId && player.errorMessage));
+const volumeStatus = computed(() => player.muted ? "静音中" : `音量 ${Math.round(player.volume * 100)}%`);
 const errorText = computed(() => {
   if (!hasError.value) {
     return "";
@@ -95,13 +96,14 @@ function toggleMute() {
 
       <div class="player-dock__aside">
         <VolumeControl
+          class="player-dock__volume"
           :volume="player.volume"
           :muted="player.muted"
           @set-volume="setVolume"
           @toggle-mute="toggleMute"
         />
-        <p class="player-dock__mode">
-          模式：{{ player.activeModeLabel }}
+        <p class="player-dock__mode" data-testid="player-dock-volume-status">
+          {{ volumeStatus }} · {{ player.activeModeLabel }}
         </p>
       </div>
     </section>
@@ -123,30 +125,38 @@ function toggleMute() {
 .player-dock__ambient {
   position: absolute;
   inset: auto 10% -18px;
-  height: 56px;
+  height: 64px;
   border-radius: 999px;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.66) 0%, rgba(171, 196, 228, 0.2) 40%, transparent 80%);
-  filter: blur(18px);
-  opacity: 0.72;
+  background:
+    radial-gradient(
+      ellipse at center,
+      color-mix(in srgb, var(--color-accent) 22%, white) 0%,
+      color-mix(in srgb, var(--color-accent) 14%, transparent) 40%,
+      transparent 82%
+    );
+  filter: blur(20px);
+  opacity: 0.84;
   animation: dock-breathing 4.5s ease-in-out infinite;
 }
 
 .player-dock__surface {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(210px, 260px) minmax(290px, 1fr) minmax(190px, 240px);
+  grid-template-columns: minmax(220px, 280px) minmax(320px, 1fr) minmax(190px, 240px);
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-3) var(--space-4);
-  border-radius: 22px;
-  border-color: rgba(136, 156, 182, 0.36);
+  border-radius: 24px;
+  border: 1px solid var(--color-border-strong);
   background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.9) 0%, rgba(245, 250, 255, 0.76) 55%, rgba(236, 244, 252, 0.72) 100%),
-    rgba(255, 255, 255, 0.56);
+    radial-gradient(circle at 14% 10%, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 34%),
+    linear-gradient(145deg, var(--color-glass-highlight-start), var(--color-glass-highlight-end)),
+    var(--color-surface);
   box-shadow:
-    0 20px 40px rgba(31, 41, 55, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.86);
+    var(--shadow-lg),
+    inset 0 1px 0 color-mix(in srgb, white 34%, transparent);
   pointer-events: auto;
+  overflow: hidden;
 }
 
 .player-dock__meta {
@@ -159,12 +169,12 @@ function toggleMute() {
 .player-dock__cover {
   width: 54px;
   height: 54px;
-  border: 1px solid rgba(133, 154, 180, 0.34);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.84), rgba(241, 248, 255, 0.64)),
-    rgba(255, 255, 255, 0.55);
-  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
+    linear-gradient(145deg, var(--color-glass-highlight-start), var(--color-glass-highlight-end)),
+    var(--color-surface-strong);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 
@@ -200,18 +210,23 @@ function toggleMute() {
 
 .player-dock__status {
   margin: 6px 0 0;
-  color: var(--color-text-tertiary);
+  color: var(--color-accent);
   font-size: 11px;
 }
 
 .player-dock__center {
   display: grid;
-  gap: var(--space-2);
+  gap: 10px;
 }
 
 .player-dock__aside {
   display: grid;
   gap: var(--space-2);
+  justify-items: end;
+}
+
+.player-dock__volume {
+  width: min(100%, 240px);
 }
 
 .player-dock__mode {
@@ -224,10 +239,10 @@ function toggleMute() {
 .player-dock__error {
   margin: var(--space-2) 0 0;
   padding: 6px 10px;
-  border: 1px solid rgba(193, 118, 118, 0.28);
+  border: 1px solid color-mix(in srgb, #d87575 34%, transparent);
   border-radius: 999px;
-  background: rgba(255, 244, 244, 0.72);
-  color: #9f4444;
+  background: color-mix(in srgb, #f3b4b4 12%, var(--color-surface-strong));
+  color: color-mix(in srgb, #cf6666 74%, var(--color-text));
   font-size: 12px;
   text-align: center;
   pointer-events: auto;
@@ -256,7 +271,13 @@ function toggleMute() {
     padding: var(--space-3);
   }
 
+  .player-dock__aside {
+    justify-items: stretch;
+  }
+
+  .player-dock__volume,
   .player-dock__mode {
+    width: 100%;
     text-align: left;
   }
 }

@@ -90,6 +90,33 @@ describe("player dock", () => {
     expect(wrapper.get('[data-testid="player-dock-artist"]').text()).toContain("NOVA 北纬");
   });
 
+  it("渲染图标化控制与真实进度条语义", () => {
+    const pinia = createPinia();
+    const wrapper = mount(PlayerDock, {
+      global: {
+        plugins: [pinia],
+      },
+    });
+
+    const prevButton = wrapper.get('[data-testid="player-dock-prev"]');
+    const toggleButton = wrapper.get('[data-testid="player-dock-toggle"]');
+    const nextButton = wrapper.get('[data-testid="player-dock-next"]');
+    const modeButton = wrapper.get('[data-testid="player-dock-mode"]');
+    const muteButton = wrapper.get('[data-testid="player-dock-mute"]');
+    const progress = wrapper.get('[data-testid="player-dock-progress"]');
+
+    expect(prevButton.classes()).toContain("icon-button");
+    expect(toggleButton.classes()).toContain("icon-button");
+    expect(nextButton.classes()).toContain("icon-button");
+    expect(modeButton.classes()).toContain("pill-button");
+    expect(muteButton.classes()).toContain("icon-button");
+    expect(prevButton.text()).toBe("");
+    expect(nextButton.text()).toBe("");
+    expect(muteButton.text()).toBe("");
+    expect(progress.element.tagName).toBe("INPUT");
+    expect(progress.attributes("type")).toBe("range");
+  });
+
   it("点击播放/暂停按钮会切换 player.isPlaying", async () => {
     const pinia = createPinia();
     const { usePlayerStore } = await import("@/stores/player");
