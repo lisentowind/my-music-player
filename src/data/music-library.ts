@@ -108,3 +108,39 @@ export const featuredAlbums: FeaturedAlbum[] = [
     trackIds: ["track-silver-steps", "track-midnight-mirror"],
   },
 ];
+
+export interface DiscoverAtmosphere {
+  id: string;
+  title: string;
+  subtitle: string;
+  trackId: string;
+}
+
+export const discoverAtmospheres: DiscoverAtmosphere[] = [
+  {
+    id: "atmo-cool-air",
+    title: "冷空气模式",
+    subtitle: "稀薄节拍，保留思路留白",
+    trackId: "track-glacier-pulse",
+  },
+  {
+    id: "atmo-city-night",
+    title: "城市夜行",
+    subtitle: "空间混响和柔和低频",
+    trackId: "track-orbit-glow",
+  },
+  {
+    id: "atmo-soft-focus",
+    title: "柔焦专注",
+    subtitle: "温和颗粒，循环不疲劳",
+    trackId: "track-silver-steps",
+  },
+];
+
+const trackById = new Map(tracks.map(track => [track.id, track] as const));
+
+export function getTracksByIds(trackIds: readonly string[]) {
+  return trackIds
+    .map(trackId => trackById.get(trackId))
+    .filter((track): track is Track => Boolean(track));
+}

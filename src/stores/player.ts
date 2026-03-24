@@ -160,6 +160,8 @@ export const usePlayerStore = defineStore("player", () => {
   const muted = ref(false);
   const mode = ref<PlaybackMode>("sequential");
   const likedIds = ref(new Set(likedTrackIds));
+  const likedTrackIdList = computed(() => [...likedIds.value]);
+  const likedCount = computed(() => likedIds.value.size);
   const recentPlayIds = ref<string[]>([]);
   const errorMessage = ref("");
   const errorTrackId = ref<string | null>(null);
@@ -491,6 +493,8 @@ export const usePlayerStore = defineStore("player", () => {
     muted,
     mode,
     likedIds,
+    likedTrackIdList,
+    likedCount,
     recentPlayIds,
     errorMessage,
     errorTrackId,
