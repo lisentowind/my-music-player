@@ -1,6 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { featuredAlbums, getTracksByIds } from "@/data/music-library";
 
 class FakePlayerAudio {
   src = "";
@@ -41,6 +42,8 @@ describe("discover view", () => {
     const { usePlayerStore } = await import("@/stores/player");
     const { default: DiscoverView } = await import("@/views/DiscoverView.vue");
     const player = usePlayerStore(pinia);
+    const firstAlbumTracks = getTracksByIds(featuredAlbums[0]!.trackIds);
+    const playContextSpy = vi.spyOn(player, "playContext");
 
     const wrapper = mount(DiscoverView, {
       global: {
@@ -51,6 +54,7 @@ describe("discover view", () => {
     expect(wrapper.text()).toContain("最近播放");
     await wrapper.get("[data-album-card]").trigger("click");
 
+    expect(playContextSpy).toHaveBeenCalledWith(firstAlbumTracks, "track-dawn-echo");
     expect(player.currentTrack?.id).toBe("track-dawn-echo");
   });
 });
