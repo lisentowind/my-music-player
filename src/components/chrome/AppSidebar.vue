@@ -1,0 +1,127 @@
+<script setup lang="ts">
+import { RouterLink } from "vue-router";
+import GlassPanel from "@/components/chrome/GlassPanel.vue";
+
+const navItems = [
+  { to: "/", label: "推荐" },
+  { to: "/liked", label: "我喜欢" },
+  { to: "/profile", label: "个人中心" },
+];
+</script>
+
+<template>
+  <aside class="app-sidebar">
+    <GlassPanel class="app-sidebar__panel" tag="nav" aria-label="主导航">
+      <div class="brand">
+        <span class="brand__logo">MP</span>
+        <div class="brand__copy">
+          <strong class="brand__title">My Player</strong>
+          <span class="brand__subtitle">Liquid Glass Music</span>
+        </div>
+      </div>
+
+      <ul class="nav-list">
+        <li v-for="item in navItems" :key="item.to">
+          <RouterLink :to="item.to" class="nav-link" exact-active-class="is-active">
+            {{ item.label }}
+          </RouterLink>
+        </li>
+      </ul>
+    </GlassPanel>
+  </aside>
+</template>
+
+<style scoped lang="less">
+.app-sidebar {
+  height: 100%;
+}
+
+.app-sidebar__panel {
+  height: 100%;
+  min-height: calc(100vh - var(--space-8));
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.brand__logo {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  background: linear-gradient(135deg, #7dd3fc 0%, #a7f3d0 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.brand__copy {
+  display: grid;
+  gap: 2px;
+}
+
+.brand__title {
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.brand__subtitle {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.nav-link {
+  display: block;
+  border-radius: 12px;
+  padding: 12px 14px;
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  transition: all 180ms ease;
+}
+
+.nav-link:hover {
+  color: var(--color-text);
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.nav-link.is-active {
+  color: var(--color-text);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(16, 185, 129, 0.25));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
+}
+
+@media (max-width: 960px) {
+  .app-sidebar__panel {
+    min-height: auto;
+    padding: var(--space-4);
+    gap: var(--space-4);
+  }
+
+  .nav-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .nav-link {
+    text-align: center;
+  }
+}
+</style>

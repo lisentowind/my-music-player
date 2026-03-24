@@ -1,17 +1,24 @@
 import type { RouteRecordRaw } from "vue-router";
-import AboutView from "@/views/AboutView.vue";
-import HomeView from "@/views/HomeView.vue";
+import DiscoverView from "@/views/DiscoverView.vue";
+import LikedView from "@/views/LikedView.vue";
+import ProfileView from "@/views/ProfileView.vue";
 
-export const Home: RouteRecordRaw = {
+export const Discover: RouteRecordRaw = {
   path: "/",
-  name: "home",
-  component: HomeView,
+  name: "discover",
+  component: DiscoverView,
 };
 
-export const About: RouteRecordRaw = {
-  path: "/about",
-  name: "about",
-  component: AboutView,
+export const Liked: RouteRecordRaw = {
+  path: "/liked",
+  name: "liked",
+  component: LikedView,
 };
 
-export const routes: RouteRecordRaw[] = [Home, About];
+export const Profile: RouteRecordRaw = {
+  path: "/profile",
+  name: "profile",
+  component: ProfileView,
+};
+
+export const routes: RouteRecordRaw[] = [Discover, Liked, Profile];

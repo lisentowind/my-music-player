@@ -1,27 +1,31 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from "vue-router";
+import { computed } from "vue";
+import { RouterView, useRoute } from "vue-router";
+import AppSidebar from "@/components/chrome/AppSidebar.vue";
+import AppTopbar from "@/components/chrome/AppTopbar.vue";
+
+const route = useRoute();
+const titleMap: Record<string, string> = {
+  discover: "推荐",
+  liked: "我喜欢",
+  profile: "个人中心",
+};
+
+const currentTitle = computed(() => {
+  const routeName = typeof route.name === "string" ? route.name : "";
+  return titleMap[routeName] ?? "推荐";
+});
 </script>
 
 <template>
   <div class="app-shell">
-    <header class="app-shell__header">
-      <div class="brand">
-        <span class="brand__dot" />
-        <div class="brand__text">
-          <span class="brand__title">My Player</span>
-          <span class="brand__subtitle">Desktop Starter</span>
-        </div>
-      </div>
-
-      <nav class="nav">
-        <RouterLink to="/" class="nav__link" exact-active-class="is-active">Home</RouterLink>
-        <RouterLink to="/about" class="nav__link" exact-active-class="is-active">About</RouterLink>
-      </nav>
-    </header>
-
-    <main class="app-shell__main">
-      <RouterView />
-    </main>
+    <AppSidebar class="app-shell__sidebar" />
+    <div class="app-shell__content">
+      <AppTopbar :title="currentTitle" />
+      <main class="app-shell__main">
+        <RouterView />
+      </main>
+    </div>
   </div>
 </template>
 
@@ -29,90 +33,41 @@ import { RouterLink, RouterView } from "vue-router";
 .app-shell {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
   background:
-    radial-gradient(1200px 600px at 120% -10%, rgba(59, 130, 246, 0.16), transparent 50%),
-    radial-gradient(900px 500px at -20% 100%, rgba(14, 165, 233, 0.12), transparent 50%),
+    radial-gradient(980px 560px at 115% -15%, rgba(56, 189, 248, 0.18), transparent 50%),
+    radial-gradient(880px 500px at -25% 105%, rgba(129, 140, 248, 0.14), transparent 52%),
+    linear-gradient(155deg, #eff4ff 0%, #eefaf7 100%),
     var(--color-bg);
 }
 
-.app-shell__header {
-  padding: var(--space-4) var(--space-6);
-  border-bottom: 1px solid var(--color-border);
-  background-color: rgba(255, 255, 255, 0.76);
-  backdrop-filter: blur(8px);
+.app-shell__sidebar {
+  width: 250px;
+  flex-shrink: 0;
+}
+
+.app-shell__content {
+  flex: 1;
+  min-width: 0;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.brand__text {
-  display: grid;
-  gap: 1px;
-}
-
-.brand__dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #0284c7, #0ea5e9);
-  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.18);
-}
-
-.brand__title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.brand__subtitle {
-  font-size: 11px;
-  color: var(--color-text-secondary);
-}
-
-.nav {
-  display: inline-flex;
-  gap: var(--space-2);
-}
-
-.nav__link {
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  color: var(--color-text-secondary);
-  text-decoration: none;
-  transition: all 180ms ease;
-}
-
-.nav__link:hover {
-  background-color: rgba(2, 132, 199, 0.1);
-  color: var(--color-text);
-}
-
-.nav__link.is-active {
-  background: linear-gradient(135deg, #0284c7, #0ea5e9);
-  color: #fff;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 .app-shell__main {
   flex: 1;
-  padding: var(--space-8) var(--space-6);
-  width: min(1120px, 100%);
-  margin: 0 auto;
+  min-height: 0;
 }
 
-@media (max-width: 640px) {
-  .app-shell__header {
+@media (max-width: 960px) {
+  .app-shell {
+    flex-direction: column;
     padding: var(--space-4);
   }
 
-  .app-shell__main {
-    padding: var(--space-6) var(--space-4);
+  .app-shell__sidebar {
+    width: 100%;
   }
 }
 </style>
