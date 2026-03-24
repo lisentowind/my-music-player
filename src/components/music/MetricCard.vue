@@ -2,7 +2,7 @@
 withDefaults(
   defineProps<{
     label: string;
-    value: string;
+    value: string | number;
     hint?: string;
   }>(),
   {

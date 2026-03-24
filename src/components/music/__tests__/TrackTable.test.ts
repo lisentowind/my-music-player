@@ -20,14 +20,14 @@ const tracks = [
 ];
 
 describe("track table", () => {
-  it("点击歌曲行时发出 play(trackId)", async () => {
+  it("点击播放按钮时发出 play(trackId)", async () => {
     const wrapper = mount(TrackTable, {
       props: {
         tracks,
       },
     });
 
-    await wrapper.get('[data-testid="track-row-track-glacier-pulse"]').trigger("click");
+    await wrapper.get('[data-testid="track-play-track-glacier-pulse"]').trigger("click");
 
     expect(wrapper.emitted("play")).toEqual([["track-glacier-pulse"]]);
   });
@@ -61,6 +61,20 @@ describe("track table", () => {
     expect(wrapper.emitted("play")).toBeUndefined();
   });
 
+  it("喜欢按钮键盘回车/空格不会误触发 play", async () => {
+    const wrapper = mount(TrackTable, {
+      props: {
+        tracks,
+      },
+    });
+
+    const likeButton = wrapper.get('[data-testid="track-like-track-dawn-echo"]');
+    await likeButton.trigger("keydown.enter");
+    await likeButton.trigger("keydown.space");
+
+    expect(wrapper.emitted("play")).toBeUndefined();
+  });
+
   it("liked 状态变化时更新 like 按钮 aria-label", async () => {
     const wrapper = mount(TrackTable, {
       props: {
@@ -79,7 +93,7 @@ describe("track table", () => {
     expect(likeButton.attributes("aria-label")).toBe("取消喜欢 晨雾回声");
   });
 
-  it("行元素可聚焦且支持回车/空格触发播放", async () => {
+  it("行不暴露按钮语义，播放语义集中在明确按钮上", () => {
     const wrapper = mount(TrackTable, {
       props: {
         tracks,
@@ -87,12 +101,10 @@ describe("track table", () => {
     });
 
     const row = wrapper.get('[data-testid="track-row-track-dawn-echo"]');
-    expect(row.attributes("role")).toBe("button");
-    expect(row.attributes("tabindex")).toBe("0");
-
-    await row.trigger("keydown.enter");
-    await row.trigger("keydown.space");
-
-    expect(wrapper.emitted("play")).toEqual([["track-dawn-echo"], ["track-dawn-echo"]]);
+    expect(row.attributes("role")).toBeUndefined();
+    expect(row.attributes("tabindex")).toBeUndefined();
+    expect(
+      wrapper.get('[data-testid="track-play-track-dawn-echo"]').attributes("aria-label"),
+    ).toBe("播放 晨雾回声");
   });
 });

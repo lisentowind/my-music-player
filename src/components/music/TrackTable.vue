@@ -36,20 +36,6 @@ function playTrack(trackId: string) {
   emit("play", trackId);
 }
 
-function handleRowKeydown(event: KeyboardEvent, trackId: string) {
-  const isPlayKey
-    = ["Enter", " ", "Space", "Spacebar"].includes(event.key)
-      || ["Enter", "Space"].includes(event.code)
-      || event.keyCode === 13
-      || event.keyCode === 32;
-  if (!isPlayKey) {
-    return;
-  }
-
-  event.preventDefault();
-  playTrack(trackId);
-}
-
 function toggleLike(trackId: string) {
   emit("toggleLike", trackId);
 }
@@ -60,6 +46,9 @@ function toggleLike(trackId: string) {
     <table>
       <thead>
         <tr>
+          <th scope="col" class="track-table__play-col">
+            播放
+          </th>
           <th scope="col">
             歌曲
           </th>
@@ -80,12 +69,18 @@ function toggleLike(trackId: string) {
           :key="track.id"
           :data-testid="`track-row-${track.id}`"
           :data-active="track.id === activeTrackId ? 'true' : 'false'"
-          role="button"
-          tabindex="0"
-          :aria-label="`播放 ${track.title}`"
-          @click="playTrack(track.id)"
-          @keydown="handleRowKeydown($event, track.id)"
         >
+          <td class="track-table__play">
+            <button
+              :data-testid="`track-play-${track.id}`"
+              class="track-table__play-button"
+              type="button"
+              :aria-label="`播放 ${track.title}`"
+              @click="playTrack(track.id)"
+            >
+              播放
+            </button>
+          </td>
           <td>
             <p class="track-table__title">
               {{ track.title }}
@@ -139,7 +134,6 @@ th {
 }
 
 tbody tr {
-  cursor: pointer;
   transition: background-color 120ms ease;
 }
 
@@ -149,11 +143,6 @@ tbody tr:hover {
 
 tbody tr[data-active="true"] {
   background-color: var(--color-state-selected);
-}
-
-tbody tr:focus-visible {
-  position: relative;
-  box-shadow: inset 0 0 0 1px var(--color-state-border-emphasis), var(--focus-ring);
 }
 
 td {
@@ -190,6 +179,29 @@ td {
 .track-table__like {
   width: 96px;
   text-align: right;
+}
+
+.track-table__play-col,
+.track-table__play {
+  width: 86px;
+}
+
+.track-table__play-button {
+  min-width: 56px;
+  border: 1px solid var(--color-state-border-subtle);
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 8px;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.track-table__play-button:hover {
+  border-color: var(--color-state-border-emphasis);
+  background: var(--color-state-hover);
 }
 
 .track-table__like-button {
