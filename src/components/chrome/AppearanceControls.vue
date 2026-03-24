@@ -49,7 +49,7 @@ function updateCustomAccent(event: Event) {
 </script>
 
 <template>
-  <section class="appearance-controls app-scroll-area" aria-label="外观控制">
+  <section class="appearance-controls" aria-label="外观控制">
     <div class="appearance-controls__row">
       <span class="appearance-controls__label">模式</span>
       <div class="segmented-button" role="group" aria-label="主题模式">

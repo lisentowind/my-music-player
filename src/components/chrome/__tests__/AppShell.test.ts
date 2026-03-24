@@ -131,6 +131,63 @@ describe("app shell chrome", () => {
     expect(wrapper.find("[data-testid='app-shell-root']").exists()).toBe(true);
     expect(wrapper.find("[data-testid='app-shell-sidebar']").exists()).toBe(true);
     expect(wrapper.find("[data-testid='app-shell-scroll']").exists()).toBe(true);
+
+    const scrollMain = wrapper.get("[data-testid='app-shell-scroll']");
+    expect(scrollMain.element.tagName).toBe("MAIN");
+    expect(wrapper.findAll("main")).toHaveLength(1);
+    expect(scrollMain.find("#discover-page").exists()).toBe(true);
+    expect(scrollMain.find("[data-testid='app-shell-sidebar']").exists()).toBe(false);
+    expect(scrollMain.find(".player-dock").exists()).toBe(false);
+  });
+
+  it("topbar 中的外观控件不是滚动容器", async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes,
+    });
+    await router.push("/");
+    await router.isReady();
+
+    const wrapper = mount(AppShell, {
+      global: {
+        plugins: [router, createPinia()],
+      },
+    });
+
+    const appearanceControls = wrapper.get(".app-topbar__appearance");
+    expect(appearanceControls.classes("app-scroll-area")).toBe(false);
+  });
+
+  it("sidebar 会跳过没有标题的路由项", async () => {
+    const likedRoute = routes.find(route => String(route.name) === "liked");
+    expect(likedRoute).toBeTruthy();
+    const originalTitle = likedRoute?.meta?.title;
+    if (likedRoute?.meta) {
+      likedRoute.meta.title = "";
+    }
+
+    try {
+      const router = createRouter({
+        history: createMemoryHistory(),
+        routes,
+      });
+      await router.push("/");
+      await router.isReady();
+
+      const wrapper = mount(AppShell, {
+        global: {
+          plugins: [router, createPinia()],
+        },
+      });
+
+      const navLinks = wrapper.findAll("nav[aria-label='主导航'] .nav-link");
+      expect(navLinks).toHaveLength(2);
+      expect(navLinks.map(link => link.text().trim())).not.toContain("");
+    } finally {
+      if (likedRoute?.meta) {
+        likedRoute.meta.title = originalTitle;
+      }
+    }
   });
 
   it("discover 喜欢与播放能联动到 liked，并把最近播放回写到 discover", async () => {

@@ -9,13 +9,18 @@ const navItems = computed(() => {
   return routes
     .filter(route => route.meta?.showInSidebar)
     .map((route) => {
-      const label = typeof route.meta?.title === "string" ? route.meta.title : "";
+      const label = typeof route.meta?.title === "string" ? route.meta.title.trim() : "";
+      if (!label) {
+        return null;
+      }
+
       return {
         to: String(route.path),
         label,
         icon: typeof route.meta?.icon === "string" ? route.meta.icon : "solar:music-notes-linear",
       };
-    });
+    })
+    .filter(item => item !== null);
 });
 </script>
 
@@ -51,7 +56,7 @@ const navItems = computed(() => {
 
 .app-sidebar__panel {
   height: 100%;
-  min-height: calc(100vh - var(--space-8));
+  min-height: 0;
   padding: var(--space-4);
   display: flex;
   flex-direction: column;
@@ -132,7 +137,6 @@ const navItems = computed(() => {
 
 @media (max-width: 960px) {
   .app-sidebar__panel {
-    min-height: auto;
     padding: var(--space-4);
     gap: var(--space-4);
   }

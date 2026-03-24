@@ -20,7 +20,10 @@ import PlayerDock from "@/components/dock/PlayerDock.vue";
 
 <style scoped lang="less">
 .app-shell {
-  --app-shell-dock-space: 104px;
+  --app-shell-dock-space-desktop: 104px;
+  --app-shell-dock-space-mobile: 168px;
+  --app-shell-content-bottom-offset: var(--space-4);
+  --app-shell-dock-space: var(--app-shell-dock-space-desktop);
   height: 100vh;
   overflow: hidden;
   display: flex;
@@ -46,7 +49,7 @@ import PlayerDock from "@/components/dock/PlayerDock.vue";
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  padding-bottom: calc(var(--space-4) + var(--app-shell-dock-space));
+  padding-bottom: calc(var(--app-shell-content-bottom-offset) + var(--app-shell-dock-space));
 }
 
 .app-shell__scroll {
@@ -58,7 +61,8 @@ import PlayerDock from "@/components/dock/PlayerDock.vue";
 
 @media (max-width: 960px) {
   .app-shell {
-    --app-shell-dock-space: 168px;
+    --app-shell-dock-space: var(--app-shell-dock-space-mobile);
+    --app-shell-content-bottom-offset: var(--space-3);
     height: auto;
     min-height: 100vh;
     overflow: visible;
@@ -71,7 +75,7 @@ import PlayerDock from "@/components/dock/PlayerDock.vue";
   }
 
   .app-shell__content {
-    padding-bottom: calc(var(--space-3) + var(--app-shell-dock-space));
+    padding-bottom: calc(var(--app-shell-content-bottom-offset) + var(--app-shell-dock-space));
   }
 }
 </style>
