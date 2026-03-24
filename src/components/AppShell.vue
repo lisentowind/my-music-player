@@ -1,27 +1,14 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { RouterView, useRoute } from "vue-router";
+import { RouterView } from "vue-router";
 import AppSidebar from "@/components/chrome/AppSidebar.vue";
 import AppTopbar from "@/components/chrome/AppTopbar.vue";
-
-const route = useRoute();
-const titleMap: Record<string, string> = {
-  discover: "推荐",
-  liked: "我喜欢",
-  profile: "个人中心",
-};
-
-const currentTitle = computed(() => {
-  const routeName = typeof route.name === "string" ? route.name : "";
-  return titleMap[routeName] ?? "推荐";
-});
 </script>
 
 <template>
   <div class="app-shell">
     <AppSidebar class="app-shell__sidebar" />
     <div class="app-shell__content">
-      <AppTopbar :title="currentTitle" />
+      <AppTopbar />
       <main class="app-shell__main">
         <RouterView />
       </main>

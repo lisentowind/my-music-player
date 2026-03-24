@@ -3,7 +3,7 @@ import GlassPanel from "@/components/chrome/GlassPanel.vue";
 </script>
 
 <template>
-  <main id="discover-page" class="page discover-view">
+  <section id="discover-page" class="page discover-view">
     <section id="discover-hero">
       <GlassPanel class="block">
         <h2>推荐</h2>
@@ -24,7 +24,7 @@ import GlassPanel from "@/components/chrome/GlassPanel.vue";
         <p>保留稳定挂点，供后续任务接入播放器行为。</p>
       </GlassPanel>
     </section>
-  </main>
+  </section>
 </template>
 
 <style scoped lang="less">

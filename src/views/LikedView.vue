@@ -3,7 +3,7 @@ import GlassPanel from "@/components/chrome/GlassPanel.vue";
 </script>
 
 <template>
-  <main id="liked-page" class="page liked-view">
+  <section id="liked-page" class="page liked-view">
     <section id="liked-summary">
       <GlassPanel class="block">
         <h2>我喜欢</h2>
@@ -24,7 +24,7 @@ import GlassPanel from "@/components/chrome/GlassPanel.vue";
         <p>预留信息区，用于展示本周听歌偏好摘要。</p>
       </GlassPanel>
     </section>
-  </main>
+  </section>
 </template>
 
 <style scoped lang="less">

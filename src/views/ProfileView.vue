@@ -3,7 +3,7 @@ import GlassPanel from "@/components/chrome/GlassPanel.vue";
 </script>
 
 <template>
-  <main id="profile-page" class="page profile-view">
+  <section id="profile-page" class="page profile-view">
     <section id="profile-overview">
       <GlassPanel class="block">
         <h2>个人中心</h2>
@@ -24,7 +24,7 @@ import GlassPanel from "@/components/chrome/GlassPanel.vue";
         <p>保留设置挂点，后续任务补充可配置项。</p>
       </GlassPanel>
     </section>
-  </main>
+  </section>
 </template>
 
 <style scoped lang="less">

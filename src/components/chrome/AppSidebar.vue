@@ -1,12 +1,20 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import GlassPanel from "@/components/chrome/GlassPanel.vue";
+import { routes } from "@/router/routes";
 
-const navItems = [
-  { to: "/", label: "推荐" },
-  { to: "/liked", label: "我喜欢" },
-  { to: "/profile", label: "个人中心" },
-];
+const navItems = computed(() => {
+  return routes
+    .filter(route => route.meta?.showInSidebar)
+    .map((route) => {
+      const label = typeof route.meta?.title === "string" ? route.meta.title : "";
+      return {
+        to: String(route.path),
+        label,
+      };
+    });
+});
 </script>
 
 <template>
