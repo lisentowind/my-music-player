@@ -1,36 +1,68 @@
 import type { RouteRecordRaw } from "vue-router";
-import DiscoverView from "@/views/DiscoverView.vue";
-import LikedView from "@/views/LikedView.vue";
-import ProfileView from "@/views/ProfileView.vue";
+import ExploreView from "@/views/ExploreView.vue";
+import HomeView from "@/views/HomeView.vue";
+import LibraryView from "@/views/LibraryView.vue";
+import PlayerView from "@/views/PlayerView.vue";
+import PlaylistView from "@/views/PlaylistView.vue";
 
-export const Discover: RouteRecordRaw = {
+export const Home: RouteRecordRaw = {
   path: "/",
-  name: "discover",
-  component: DiscoverView,
+  name: "home",
+  component: HomeView,
   meta: {
-    title: "推荐",
+    title: "首页",
     showInSidebar: true,
   },
 };
 
-export const Liked: RouteRecordRaw = {
-  path: "/liked",
-  name: "liked",
-  component: LikedView,
+export const Explore: RouteRecordRaw = {
+  path: "/explore",
+  name: "explore",
+  component: ExploreView,
   meta: {
-    title: "我喜欢",
+    title: "探索",
     showInSidebar: true,
   },
 };
 
-export const Profile: RouteRecordRaw = {
-  path: "/profile",
-  name: "profile",
-  component: ProfileView,
+export const Playlist: RouteRecordRaw = {
+  path: "/playlist",
+  name: "playlist",
+  component: PlaylistView,
   meta: {
-    title: "个人中心",
+    title: "歌单",
     showInSidebar: true,
   },
 };
 
-export const routes: RouteRecordRaw[] = [Discover, Liked, Profile];
+export const PlaylistDetail: RouteRecordRaw = {
+  path: "/playlist/:playlistId",
+  name: "playlist-detail",
+  component: PlaylistView,
+  meta: {
+    title: "歌单详情",
+    showInSidebar: false,
+  },
+};
+
+export const Library: RouteRecordRaw = {
+  path: "/library",
+  name: "library",
+  component: LibraryView,
+  meta: {
+    title: "资料库",
+    showInSidebar: true,
+  },
+};
+
+export const Player: RouteRecordRaw = {
+  path: "/player",
+  name: "player",
+  component: PlayerView,
+  meta: {
+    title: "播放器",
+    showInSidebar: true,
+  },
+};
+
+export const routes: RouteRecordRaw[] = [Home, Explore, Playlist, PlaylistDetail, Library, Player];
