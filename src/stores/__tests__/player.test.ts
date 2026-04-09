@@ -274,6 +274,43 @@ describe("usePlayerStore", () => {
     expect(fakeAudio.pause).toHaveBeenCalled();
   });
 
+  it("shuffle 模式下重新进入同一逻辑队列时，下一首顺序保持稳定", async () => {
+    const store = usePlayerStore();
+    const currentTrackId = tracks[2]!.id;
+
+    store.cycleMode();
+    await store.playContext([...tracks], currentTrackId);
+    await store.playNext();
+    const firstNextTrackId = store.currentTrack?.id;
+
+    await store.playContext([...tracks], currentTrackId);
+    await store.playNext();
+
+    expect(store.currentTrack?.id).toBe(firstNextTrackId);
+  });
+
+  it("shuffle 模式下连续 playNext 可以走完整个队列", async () => {
+    const store = usePlayerStore();
+    const currentTrackId = tracks[2]!.id;
+    const visitedTrackIds = new Set<string>();
+
+    store.cycleMode();
+    await store.playContext([...tracks], currentTrackId);
+    visitedTrackIds.add(store.currentTrack!.id);
+
+    for (let step = 0; step < tracks.length + 1; step += 1) {
+      await store.playNext();
+      if (store.currentTrack) {
+        visitedTrackIds.add(store.currentTrack.id);
+      }
+      if (!store.isPlaying) {
+        break;
+      }
+    }
+
+    expect(visitedTrackIds).toEqual(new Set(tracks.map(track => track.id)));
+  });
+
   it("音频事件会同步 duration 与 currentTime", async () => {
     const store = usePlayerStore();
     await store.playTrackById("track-dawn-echo");

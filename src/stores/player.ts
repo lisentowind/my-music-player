@@ -158,6 +158,10 @@ function toTrackIds(queue: readonly Track[]) {
   return queue.map(track => track.id);
 }
 
+function createPlaybackContextId(trackIds: readonly string[]) {
+  return `ctx:${trackIds.join("|")}`;
+}
+
 function findTrackIndexByAudioSource(queue: readonly Track[], audioSrc: string) {
   if (!audioSrc) {
     return -1;
@@ -185,7 +189,7 @@ export const usePlayerStore = defineStore("player", () => {
   const volume = ref(clampVolume(audio.volume));
   const muted = ref(Boolean(audio.muted));
   const mode = ref<PlaybackMode>("sequential");
-  const playbackContextVersion = ref(0);
+  const playbackContextId = ref(createPlaybackContextId(toTrackIds(queue.value)));
   const shuffleAnchorTrackId = ref<string | null>(queue.value[currentIndex.value]?.id ?? null);
   const likedIds = ref(new Set(likedTrackIds));
   const likedTrackIdList = computed(() => [...likedIds.value]);
@@ -254,7 +258,7 @@ export const usePlayerStore = defineStore("player", () => {
   }
 
   function getPlaybackContextId() {
-    return `ctx-${playbackContextVersion.value}`;
+    return playbackContextId.value;
   }
 
   function getShuffleAnchorTrackId() {
@@ -267,7 +271,7 @@ export const usePlayerStore = defineStore("player", () => {
 
   function replaceQueue(nextQueue: Track[]) {
     queue.value = [...nextQueue];
-    playbackContextVersion.value += 1;
+    playbackContextId.value = createPlaybackContextId(toTrackIds(queue.value));
   }
 
   function syncCurrentTimeFromAudio() {
