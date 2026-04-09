@@ -1,10 +1,15 @@
-import fs from "node:fs";
-import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { featuredAlbums, likedTrackIds, tracks } from "@/data/music-library";
+import {
+  auraTracks,
+  auraRecommendationPlaylists,
+} from "@/data/aura-content";
+import {
+  featuredAlbums,
+  getTracksByIds,
+  likedTrackIds,
+  tracks,
+} from "@/data/music-library";
 import { profileSeed } from "@/data/profile";
-
-const publicDir = path.resolve(process.cwd(), "public");
 
 function formatDuration(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -20,13 +25,13 @@ describe("music-library 数据契约", () => {
     expect(new Set(trackIds).size).toBe(trackIds.length);
   });
 
-  it("每首歌的 coverSrc/audioSrc 前缀正确，audio 对应文件实际存在", () => {
-    for (const track of tracks) {
-      expect(track.coverSrc.startsWith("/covers/")).toBe(true);
-      expect(track.audioSrc.startsWith("/media/")).toBe(true);
+  it("tracks 与 aura 全曲库保持一致，且资源地址为 https", () => {
+    expect(tracks).toEqual(auraTracks);
+    expect(tracks).toBe(auraTracks);
 
-      const audioFilePath = path.resolve(publicDir, track.audioSrc.slice(1));
-      expect(fs.existsSync(audioFilePath)).toBe(true);
+    for (const track of tracks) {
+      expect(track.coverSrc.startsWith("https://")).toBe(true);
+      expect(track.audioSrc.startsWith("https://")).toBe(true);
     }
   });
 
@@ -41,11 +46,11 @@ describe("music-library 数据契约", () => {
     expect(likedFromIds).toEqual(likedFromTracks);
   });
 
-  it("featuredAlbums 至少包含 3 张专辑", () => {
-    expect(featuredAlbums.length).toBeGreaterThanOrEqual(3);
-  });
+  it("featuredAlbums 与 aura 推荐区歌单保持一致", () => {
+    expect(featuredAlbums.map(album => album.trackIds)).toEqual(
+      auraRecommendationPlaylists.map(playlist => playlist.trackIds),
+    );
 
-  it("featuredAlbums.trackIds 都存在于 tracks", () => {
     const trackIdSet = new Set(tracks.map(track => track.id));
 
     for (const album of featuredAlbums) {
@@ -53,6 +58,17 @@ describe("music-library 数据契约", () => {
         expect(trackIdSet.has(trackId)).toBe(true);
       }
     }
+  });
+
+  it("getTracksByIds 保持兼容层查询行为", () => {
+    const trackIds = tracks.map(track => track.id);
+    expect(getTracksByIds(trackIds)).toEqual(tracks);
+  });
+
+  it("getTracksByIds 在混合 missing id 时忽略缺失并保留重复顺序", () => {
+    const mixedIds = [tracks[0]!.id, "missing-track-id", tracks[0]!.id, tracks[2]!.id];
+
+    expect(getTracksByIds(mixedIds)).toEqual([tracks[0]!, tracks[0]!, tracks[2]!]);
   });
 
   it("profileSeed.quickPicks[].trackId 都存在于 tracks", () => {

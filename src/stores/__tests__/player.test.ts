@@ -201,7 +201,7 @@ describe("usePlayerStore", () => {
 
     expect(store.currentTrack?.id).toBe("track-dawn-echo");
     expect(store.isPlaying).toBe(true);
-    expect(fakeAudio.src).toBe("/media/sample-track-01.mp3");
+    expect(fakeAudio.src).toBe(tracks[0]!.audioSrc);
   });
 
   it("playContext 会切换队列并从目标曲目开始播放", async () => {
@@ -502,7 +502,7 @@ describe("howler player adapter", () => {
     audio.addEventListener("error", onError);
 
     const nextDuration = 126;
-    audio.src = "/media/sample-track-01.mp3";
+    audio.src = tracks[0]!.audioSrc;
     audio.load();
     await Promise.resolve();
     expect(howlInstance).not.toBeNull();
@@ -540,7 +540,7 @@ describe("howler player adapter", () => {
     }));
 
     const audio = createHowlerPlayerAudio();
-    audio.src = "/media/sample-track-01.mp3";
+    audio.src = tracks[0]!.audioSrc;
     audio.load();
     await Promise.resolve();
 
