@@ -52,8 +52,8 @@ describe("player rules (Task 4)", () => {
     });
     const currentTrackId = "t2";
     const shuffleIndex = shuffleQueue.indexOf(currentTrackId);
-    const nextTrackId = shuffleQueue[shuffleIndex + 1]!;
-    const previousTrackId = shuffleQueue[shuffleIndex - 1] ?? shuffleQueue.at(-1)!;
+    const nextTrackId = shuffleQueue[shuffleIndex + 1] as (typeof trackIds)[number];
+    const previousTrackId = (shuffleQueue[shuffleIndex - 1] ?? shuffleQueue[shuffleQueue.length - 1]) as (typeof trackIds)[number];
 
     expect(resolveNextAction({
       currentIndex: trackIds.indexOf(currentTrackId),
@@ -89,7 +89,7 @@ describe("player rules (Task 4)", () => {
       currentTrackId: "t2",
       contextId,
     });
-    const lastTrackId = shuffleQueue.at(-1)!;
+    const lastTrackId = shuffleQueue[shuffleQueue.length - 1] as (typeof trackIds)[number];
 
     expect(resolveEndedAction({
       currentIndex: trackIds.indexOf(lastTrackId),
@@ -149,7 +149,7 @@ describe("player rules (Task 4)", () => {
     });
     const currentTrackId = "t2";
     const currentIndex = trackIds.indexOf(currentTrackId);
-    const nextTrackId = shuffleQueue[shuffleQueue.indexOf(currentTrackId) + 1]!;
+    const nextTrackId = shuffleQueue[shuffleQueue.indexOf(currentTrackId) + 1] as (typeof trackIds)[number];
 
     expect(resolveErrorRecovery({
       currentIndex,

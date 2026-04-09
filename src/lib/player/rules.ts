@@ -169,7 +169,7 @@ export function resolvePreviousAction({
     });
     if (shuffleState) {
       const { shuffledTrackIds, shuffleIndex } = shuffleState;
-      const previousTrackId = shuffledTrackIds[shuffleIndex - 1] ?? shuffledTrackIds.at(-1);
+      const previousTrackId = shuffledTrackIds[shuffleIndex - 1] ?? shuffledTrackIds[shuffledTrackIds.length - 1];
       if (!previousTrackId || previousTrackId === (trackIds ?? [])[safeIndex]) {
         return {
           nextIndex: safeIndex,
