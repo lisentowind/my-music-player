@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aura Hi-Fi | Full Screen Player</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "background": "#0e0e0e",
+                    "on-primary": "#47007c",
+                    "primary-dim": "#9c48ea",
+                    "tertiary-fixed-dim": "#fa7c8d",
+                    "on-surface-variant": "#adaaaa",
+                    "on-secondary": "#005a3c",
+                    "tertiary-dim": "#f47788",
+                    "surface-container-high": "#20201f",
+                    "surface-tint": "#cc97ff",
+                    "surface-dim": "#0e0e0e",
+                    "inverse-primary": "#842cd3",
+                    "inverse-surface": "#fcf9f8",
+                    "secondary-dim": "#58e7ab",
+                    "error-dim": "#d73357",
+                    "secondary-fixed-dim": "#58e7ab",
+                    "surface": "#0e0e0e",
+                    "primary-container": "#c284ff",
+                    "on-tertiary-container": "#4d0015",
+                    "surface-container-lowest": "#000000",
+                    "on-primary-fixed-variant": "#430076",
+                    "on-secondary-fixed": "#00452d",
+                    "surface-variant": "#262626",
+                    "primary": "#cc97ff",
+                    "on-secondary-fixed-variant": "#006544",
+                    "surface-container": "#1a1a1a",
+                    "on-error": "#490013",
+                    "tertiary-fixed": "#ff909e",
+                    "surface-container-highest": "#262626",
+                    "on-surface": "#ffffff",
+                    "tertiary-container": "#f7798b",
+                    "surface-container-low": "#131313",
+                    "primary-fixed-dim": "#b971ff",
+                    "on-primary-container": "#360061",
+                    "primary-fixed": "#c284ff",
+                    "on-error-container": "#ffb2b9",
+                    "on-primary-fixed": "#000000",
+                    "tertiary": "#ff8b9a",
+                    "on-secondary-container": "#e1ffec",
+                    "secondary-container": "#006c49",
+                    "error-container": "#a70138",
+                    "on-tertiary-fixed": "#39000e",
+                    "inverse-on-surface": "#565555",
+                    "secondary": "#69f6b8",
+                    "error": "#ff6e84",
+                    "on-background": "#ffffff",
+                    "on-tertiary-fixed-variant": "#711229",
+                    "outline": "#767575",
+                    "surface-bright": "#2c2c2c",
+                    "on-tertiary": "#62041f",
+                    "secondary-fixed": "#69f6b8",
+                    "outline-variant": "#484847"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .lyrics-gradient-mask {
+            mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+        }
+        .glow-aura {
+            filter: blur(80px);
+            opacity: 0.4;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container/30 overflow-hidden h-screen w-full">
+<!-- Dynamic Background Layer -->
+<div class="fixed inset-0 z-0">
+<div class="absolute inset-0 bg-gradient-to-br from-surface-dim via-surface-container-low to-background"></div>
+<!-- Blurred Bloom Blobs -->
+<div class="absolute top-[-10%] left-[-5%] w-[60%] h-[60%] rounded-full bg-primary-dim/20 blur-[120px]"></div>
+<div class="absolute bottom-[0%] right-[0%] w-[50%] h-[50%] rounded-full bg-secondary-container/10 blur-[150px]"></div>
+</div>
+<!-- Main Player Shell -->
+<main class="relative z-10 grid grid-cols-12 h-full w-full max-w-[1920px] mx-auto px-12 pt-12 pb-32 overflow-hidden">
+<!-- Top Controls (Floating) -->
+<div class="col-span-12 h-16 flex items-center justify-between mb-8">
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container-highest transition-colors group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface">expand_more</span>
+</button>
+<div class="flex flex-col">
+<span class="text-[0.65rem] uppercase tracking-[0.2em] font-bold text-on-surface-variant/60">Now Playing</span>
+<span class="text-sm font-headline font-semibold text-primary">Midnight City Anthology</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-on-surface cursor-pointer">devices</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-on-surface cursor-pointer">share</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-on-surface cursor-pointer">more_vert</span>
+</div>
+</div>
+<!-- Left: Visual Art Section -->
+<section class="col-span-12 lg:col-span-6 flex flex-col justify-center items-center relative pr-0 lg:pr-12">
+<!-- Glow Aura Effect behind Art -->
+<div class="absolute w-[80%] aspect-square bg-primary-dim glow-aura rounded-full"></div>
+<!-- Hero Album Art -->
+<div class="relative w-full max-w-[500px] aspect-square rounded-lg overflow-hidden shadow-2xl shadow-black/60 group">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Cyberpunk aesthetic album cover with neon violet and deep teal gradients, abstract geometric shapes, and a cinematic high-contrast lighting style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmRYTyqnsgHi1h4B79z_3_lHiOuKiBRpLjdXF8QLXmXa0OxoDDlCIeaXxrpLZpwLO6Qpmuoak_L2vznCwfM16osgzh7WbnNOKook_iwL_TQksi6ti1Gh7mEeL5pEIBN9DJIYZyFGcsIrXXIJKL7dnKKhXo-ynIYBDE7ciaCx150AW7KNyomw914MiiWY_5B6835ryAubuTeT2bZq9ubZ6q9iZXnJwKFed_q95KDs8keUBTuZqT-n4fTkZR4NYYYCnLjXjjA7Q6hQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<!-- Song Identity -->
+<div class="w-full max-w-[500px] mt-10">
+<div class="flex justify-between items-end">
+<div>
+<h1 class="font-headline font-extrabold text-4xl lg:text-5xl tracking-tighter text-on-surface mb-2">Electric Dreams</h1>
+<p class="font-body text-lg lg:text-xl text-on-surface-variant font-medium">Synthetic Soul feat. LINA</p>
+</div>
+<button class="p-3 rounded-full hover:bg-surface-container-highest text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Right: Lyrics Section -->
+<section class="hidden lg:flex col-span-6 flex-col justify-center h-full relative pl-12">
+<div class="lyrics-gradient-mask overflow-y-auto h-[614px] py-12 space-y-8 scrollbar-hide">
+<p class="text-3xl font-headline font-bold text-on-surface-variant/20 transition-all duration-500">I saw the stars descend upon the city lights</p>
+<p class="text-3xl font-headline font-bold text-on-surface-variant/40 transition-all duration-500">A thousand echoes in the dead of night</p>
+<p class="text-4xl font-headline font-extrabold text-on-surface tracking-tight leading-tight transition-all duration-500">We were chasing shadows, building electric dreams</p>
+<p class="text-3xl font-headline font-bold text-on-surface-variant transition-all duration-500">Lost within the frequency, or so it seems</p>
+<p class="text-3xl font-headline font-bold text-on-surface-variant/40 transition-all duration-500">The neon pulse is all we've ever known</p>
+<p class="text-3xl font-headline font-bold text-on-surface-variant/20 transition-all duration-500">A digital kingdom on a glass throne</p>
+<p class="text-3xl font-headline font-bold text-on-surface-variant/10 transition-all duration-500">Waiting for the signal to bring us home</p>
+</div>
+</section>
+</main>
+<!-- Bottom Playback Dock (Shared Component Implementation) -->
+<!-- JSON Reference: BottomNavBar - Type: playback_dock -->
+<nav class="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-between w-[92%] z-50 overflow-hidden bg-neutral-900/60 backdrop-blur-2xl border border-white/10 shadow-2xl shadow-purple-900/20 rounded-full px-8 py-4 font-inter text-xs tracking-wide">
+<!-- Left: Mini Meta (Contextual adaptation for Full Screen) -->
+<div class="hidden md:flex items-center gap-4 w-1/4">
+<div class="flex flex-col">
+<span class="text-white font-bold text-sm truncate">Electric Dreams</span>
+<span class="text-on-surface-variant text-[10px]">Synthetic Soul</span>
+</div>
+</div>
+<!-- Center: Playback Controls -->
+<div class="flex items-center gap-8 lg:gap-12 flex-1 justify-center">
+<span class="material-symbols-outlined text-white hover:scale-110 hover:text-purple-300 transition-transform cursor-pointer" data-icon="shuffle">shuffle</span>
+<span class="material-symbols-outlined text-white hover:scale-110 hover:text-purple-300 transition-transform cursor-pointer" data-icon="skip_previous">skip_previous</span>
+<div class="bg-primary text-on-primary-fixed w-14 h-14 rounded-full flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary-dim/40">
+<span class="material-symbols-outlined text-4xl" data-icon="play_circle" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+<span class="material-symbols-outlined text-white hover:scale-110 hover:text-purple-300 transition-transform cursor-pointer" data-icon="skip_next">skip_next</span>
+<span class="material-symbols-outlined text-white hover:scale-110 hover:text-purple-300 transition-transform cursor-pointer" data-icon="repeat">repeat</span>
+</div>
+<!-- Right: Utility Controls (Volume/Queue) -->
+<div class="hidden md:flex items-center justify-end gap-6 w-1/4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">volume_up</span>
+<div class="w-24 h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="bg-primary w-2/3 h-full rounded-full"></div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-white cursor-pointer">playlist_play</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-white cursor-pointer">fullscreen_exit</span>
+</div>
+</nav>
+<!-- Progress Scrubber Overlay -->
+<div class="fixed bottom-28 left-1/2 -translate-x-1/2 w-[85%] max-w-5xl z-40 group">
+<div class="flex justify-between text-[10px] font-bold tracking-widest text-on-surface-variant mb-3 px-1">
+<span>2:45</span>
+<span>4:12</span>
+</div>
+<div class="relative h-1.5 w-full bg-surface-container-highest/50 rounded-full cursor-pointer">
+<div class="absolute top-0 left-0 h-full w-[65%] bg-gradient-to-r from-primary-dim to-primary rounded-full group-hover:shadow-[0_0_15px_rgba(204,151,255,0.6)] transition-all"></div>
+<div class="absolute top-1/2 -translate-y-1/2 left-[65%] w-4 h-4 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+</div>
+</body></html>

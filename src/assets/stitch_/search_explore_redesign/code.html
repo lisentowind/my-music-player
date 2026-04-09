@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-secondary": "#005a3c",
+                "on-primary-fixed-variant": "#430076",
+                "primary-dim": "#9c48ea",
+                "surface-bright": "#2c2c2c",
+                "primary": "#cc97ff",
+                "surface-container-low": "#131313",
+                "primary-container": "#c284ff",
+                "on-primary-fixed": "#000000",
+                "tertiary-dim": "#f47788",
+                "on-secondary-fixed-variant": "#006544",
+                "error-container": "#a70138",
+                "tertiary-fixed-dim": "#fa7c8d",
+                "on-surface-variant": "#adaaaa",
+                "on-secondary-fixed": "#00452d",
+                "surface-variant": "#262626",
+                "on-tertiary": "#62041f",
+                "primary-fixed-dim": "#b971ff",
+                "surface-container-lowest": "#000000",
+                "secondary": "#69f6b8",
+                "error-dim": "#d73357",
+                "secondary-fixed-dim": "#58e7ab",
+                "on-primary-container": "#360061",
+                "tertiary-container": "#f7798b",
+                "tertiary-fixed": "#ff909e",
+                "surface-dim": "#0e0e0e",
+                "surface-tint": "#cc97ff",
+                "surface-container-highest": "#262626",
+                "on-surface": "#ffffff",
+                "secondary-fixed": "#69f6b8",
+                "on-background": "#ffffff",
+                "surface-container": "#1a1a1a",
+                "on-tertiary-fixed-variant": "#711229",
+                "surface": "#0e0e0e",
+                "on-error": "#490013",
+                "secondary-dim": "#58e7ab",
+                "outline": "#767575",
+                "on-secondary-container": "#e1ffec",
+                "surface-container-high": "#20201f",
+                "background": "#0e0e0e",
+                "tertiary": "#ff8b9a",
+                "primary-fixed": "#c284ff",
+                "inverse-primary": "#842cd3",
+                "inverse-on-surface": "#565555",
+                "on-error-container": "#ffb2b9",
+                "on-tertiary-fixed": "#39000e",
+                "outline-variant": "#484847",
+                "on-tertiary-container": "#4d0015",
+                "on-primary": "#47007c",
+                "error": "#ff6e84",
+                "secondary-container": "#006c49",
+                "inverse-surface": "#fcf9f8"
+            },
+            "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+            },
+            "fontFamily": {
+                "headline": ["Plus Jakarta Sans"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-effect { backdrop-filter: blur(40px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- SideNavBar (Shared Component) -->
+<aside class="flex flex-col h-screen p-6 gap-8 bg-neutral-950 dark:bg-[#131313] h-full w-64 fixed left-0 top-0 z-50">
+<div class="flex items-center gap-3">
+<span class="text-2xl font-bold tracking-tighter text-[#cc97ff]">Sonic Gallery</span>
+</div>
+<nav class="flex flex-col gap-2">
+<!-- Navigation Items Mapping -->
+<a class="flex items-center gap-4 px-4 py-3 font-plus-jakarta-sans text-sm font-medium tracking-tight text-[#adaaaa] hover:bg-[#20201f] hover:text-[#ffffff] transition-all duration-300 scale-102 transition-transform ease-in-out" href="#">
+<span class="material-symbols-outlined">home</span>
+                Home
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 font-plus-jakarta-sans text-sm tracking-tight transition-all duration-300 scale-102 transition-transform ease-in-out text-[#ffffff] font-bold bg-[#20201f] rounded-lg" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+                Explore
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 font-plus-jakarta-sans text-sm font-medium tracking-tight text-[#adaaaa] hover:bg-[#20201f] hover:text-[#ffffff] transition-all duration-300 scale-102 transition-transform ease-in-out" href="#">
+<span class="material-symbols-outlined">library_music</span>
+                Library
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 font-plus-jakarta-sans text-sm font-medium tracking-tight text-[#adaaaa] hover:bg-[#20201f] hover:text-[#ffffff] transition-all duration-300 scale-102 transition-transform ease-in-out" href="#">
+<span class="material-symbols-outlined">queue_music</span>
+                Playlists
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 font-plus-jakarta-sans text-sm font-medium tracking-tight text-[#adaaaa] hover:bg-[#20201f] hover:text-[#ffffff] transition-all duration-300 scale-102 transition-transform ease-in-out" href="#">
+<span class="material-symbols-outlined">radio</span>
+                Radios
+            </a>
+</nav>
+<div class="mt-auto">
+<button class="w-full py-4 bg-gradient-to-br from-primary to-primary-dim rounded-full text-on-primary-fixed font-bold text-sm hover:scale-105 transition-transform">
+                Upgrade to Pro
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 pb-32">
+<!-- TopNavBar (Shared Component Integration) -->
+<header class="flex justify-between items-center px-8 py-4 z-40 fixed top-0 right-0 w-[calc(100%-16rem)] bg-transparent">
+<div class="flex-1 max-w-xl">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-lowest border-none rounded-full py-3 pl-12 pr-6 text-body-md focus:ring-1 focus:ring-outline-variant/30 transition-all outline-none" placeholder="Search for tracks, artists, or moods..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6 ml-8">
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a stylish young man with a focused expression, warm cinematic lighting and dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC84RjbO6h0Pi-vYuiIQz8fs2hesUxO8uA-5cST9UTLHfF7zNWMeLmqCkvrhy1IKWO4VkObnVPjQaVhm8X91_yFzhGy_12sfDLrx3FsICacvlRbIrO7_fRnpBJZG2aBePZ0XJd8XhsWkfV9c5Vg8a33FJNHdxDBJJxCoaNlDeAapIvZxTviWcxA7hAWEIen66WJrDbFOIjANPvwgattnuIZy-XUkijyDBVOSzN8s_xgwVtjJJpNDFuH3wl1O-oN3tbW53w9Ea-PBQ"/>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<section class="px-10 pt-24">
+<div class="mb-10">
+<h1 class="font-headline text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Explore</h1>
+<p class="text-on-surface-variant text-lg">Discover your next favorite sound curated by Sonic Gallery.</p>
+</div>
+<!-- Featured Area (Asymmetric Bento) -->
+<div class="grid grid-cols-12 gap-6 mb-12">
+<div class="col-span-8 relative h-[400px] rounded-xl overflow-hidden group cursor-pointer">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="vibrant neon lights of a futuristic music festival stage with smoke and laser beams reflecting off a dark surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOd3MwmpPra85Oj40bQdeOUzF9XNawH3qOFQRF4j1FbrXkK-dH9dzLcTOAbgWVGBuh9M7j3eSlPf6RxDljE2e1ZvcAZLcR7oqCPHJ2zWoNwb8bdw-fWecLdVy1-FTIfotQFf39bYYi6i7a-6SG0w0r-zxl_wlJ6nqB7OKIIU5NJnvpCtsQ9SyUowNqEfgbBNu1EpMFKIfjEgBviZnnwL4QgA00jbd1ZCKMd-Sb9UCi3c3llvLDobJw57o_ou3S16KKPQyCwTqXfA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface/90 via-surface/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-10 w-full glass-effect bg-surface-container-low/30">
+<span class="px-3 py-1 bg-primary text-on-primary-fixed text-xs font-bold rounded-full mb-4 inline-block">TRENDING NOW</span>
+<h2 class="font-headline text-4xl font-bold text-on-surface mb-2">Electronic Pulse</h2>
+<p class="text-on-surface-variant max-w-md">The definitive collection of high-energy synthesis and deep driving basslines for your late-night sessions.</p>
+</div>
+</div>
+<div class="col-span-4 relative h-[400px] rounded-xl overflow-hidden group cursor-pointer">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="atmospheric close-up of a vintage saxophone and brass instruments under soft warm jazz club lighting with amber glows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxFmIo8zK7VKw8jj2OkcjelocZ1bfTg-CuUY4D6hbn_q9prMdnKTOdBrHsD9WwAcJbsr1WuAkyUTMODlV0VWhwcuimoC42MPb5nl9Z-R9qZEZfy6jUT1Ogq-ZNkPPwT_LYf1T6hGBOKaRsFhQzhm1Ar5CsXCQQcHy0ShlhbOziOeLnMGKdXrQpT031L_N0XwjC0k5J8ck5nhxXwZvjveWbO0doc058SotU3rhJytv8uJGu-wLMgPOUUCN9aGBUZat2BfSHagrtRw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface/90 via-surface/10 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-8 w-full glass-effect bg-surface-container-low/30">
+<span class="px-3 py-1 bg-secondary text-on-secondary text-xs font-bold rounded-full mb-4 inline-block">CURATED MOOD</span>
+<h2 class="font-headline text-3xl font-bold text-on-surface">Jazz Lounge</h2>
+</div>
+</div>
+</div>
+<!-- Category Grid -->
+<div class="mb-8 flex items-center justify-between">
+<h3 class="font-headline text-2xl font-bold text-on-surface">Browse Categories</h3>
+<a class="text-primary text-sm font-medium hover:underline" href="#">View All</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5">
+<!-- Category Tiles -->
+<div class="aspect-square rounded-xl bg-gradient-to-br from-purple-600 to-indigo-900 p-6 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-lg hover:shadow-purple-500/10 transition-all">
+<span class="material-symbols-outlined text-4xl opacity-40">music_note</span>
+<h4 class="text-xl font-bold text-on-surface">Pop</h4>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<div class="aspect-square rounded-xl bg-gradient-to-br from-red-600 to-orange-800 p-6 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-lg hover:shadow-red-500/10 transition-all">
+<span class="material-symbols-outlined text-4xl opacity-40">electric_bolt</span>
+<h4 class="text-xl font-bold text-on-surface">Rock</h4>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<div class="aspect-square rounded-xl bg-gradient-to-br from-green-600 to-teal-800 p-6 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-lg hover:shadow-green-500/10 transition-all">
+<span class="material-symbols-outlined text-4xl opacity-40">eco</span>
+<h4 class="text-xl font-bold text-on-surface">Indie</h4>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<div class="aspect-square rounded-xl bg-gradient-to-br from-blue-600 to-cyan-800 p-6 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-lg hover:shadow-blue-500/10 transition-all">
+<span class="material-symbols-outlined text-4xl opacity-40">waves</span>
+<h4 class="text-xl font-bold text-on-surface">Ambient</h4>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<div class="aspect-square rounded-xl bg-gradient-to-br from-pink-600 to-rose-900 p-6 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-lg hover:shadow-pink-500/10 transition-all">
+<span class="material-symbols-outlined text-4xl opacity-40">favorite</span>
+<h4 class="text-xl font-bold text-on-surface">Lo-Fi</h4>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<div class="aspect-square rounded-xl bg-gradient-to-br from-yellow-600 to-amber-900 p-6 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-lg hover:shadow-yellow-500/10 transition-all">
+<span class="material-symbols-outlined text-4xl opacity-40">nightlight</span>
+<h4 class="text-xl font-bold text-on-surface">Late Night</h4>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<div class="aspect-square rounded-xl bg-gradient-to-br from-gray-700 to-neutral-900 p-6 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-lg transition-all">
+<span class="material-symbols-outlined text-4xl opacity-40">theater_comedy</span>
+<h4 class="text-xl font-bold text-on-surface">Classics</h4>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<div class="aspect-square rounded-xl bg-gradient-to-br from-blue-800 to-indigo-950 p-6 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-lg transition-all">
+<span class="material-symbols-outlined text-4xl opacity-40">piano</span>
+<h4 class="text-xl font-bold text-on-surface">Classical</h4>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<div class="aspect-square rounded-xl bg-gradient-to-br from-emerald-600 to-green-900 p-6 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-lg transition-all">
+<span class="material-symbols-outlined text-4xl opacity-40">fitness_center</span>
+<h4 class="text-xl font-bold text-on-surface">Workout</h4>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<div class="aspect-square rounded-xl bg-gradient-to-br from-orange-600 to-red-900 p-6 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-lg transition-all">
+<span class="material-symbols-outlined text-4xl opacity-40">fireplace</span>
+<h4 class="text-xl font-bold text-on-surface">Soul</h4>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<div class="aspect-square rounded-xl bg-gradient-to-br from-violet-600 to-purple-950 p-6 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-lg transition-all">
+<span class="material-symbols-outlined text-4xl opacity-40">auto_awesome</span>
+<h4 class="text-xl font-bold text-on-surface">Modern</h4>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<div class="aspect-square rounded-xl bg-gradient-to-br from-slate-600 to-slate-900 p-6 flex flex-col justify-between relative overflow-hidden cursor-pointer hover:shadow-lg transition-all">
+<span class="material-symbols-outlined text-4xl opacity-40">keyboard</span>
+<h4 class="text-xl font-bold text-on-surface">Chillwave</h4>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Shared Component as Music Playback Bar) -->
+<footer class="fixed bottom-6 left-1/2 -translate-x-1/2 flex justify-between items-center px-10 py-4 z-50 bg-neutral-900/60 backdrop-blur-2xl w-[95%] max-w-6xl rounded-full border border-[#484847]/15 shadow-[0_20px_50px_rgba(204,151,255,0.06)] scale-102 hover:shadow-lg transition-all duration-300">
+<!-- Now Playing Track Info -->
+<div class="flex items-center gap-4 min-w-[240px]">
+<img class="w-12 h-12 rounded-sm object-cover" data-alt="album cover featuring abstract purple liquid motion art with digital distortions and glowing light particles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF6Ho5aJs5B_89Gr8o8BkP6DIRNDb4AAzhPiIp19AJu0IHyjTduQTyan53sAdyfxsIHQQS4yRVj2MhFf63hYb9_rJjSlnYPUmtIxAB7xRfhFmWv1u3w3ClFVmVWoRvVDLqSvMi2DqEetOyclJ7O49Sd7Te4dYJDN77E91o9RqgFRijZ7IBV5EyDNZ-aUXCE-UywqzA_uTLBXlQN29XRSwb7ALwr4u58k3vSEk8xzq9Pc9k_5-BibMiAQ7ABjkKxykiuFMrMb4Hkg"/>
+<div>
+<h5 class="text-sm font-bold text-on-surface truncate">Ethereal Drift</h5>
+<p class="text-xs text-on-surface-variant">Lumina Sky</p>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+</div>
+<!-- Music Controls Cluster -->
+<div class="flex flex-col items-center gap-2 flex-1 max-w-md px-10">
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">shuffle</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">skip_previous</span>
+</button>
+<button class="w-10 h-10 bg-on-surface text-surface rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">skip_next</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">repeat</span>
+</button>
+</div>
+<div class="w-full flex items-center gap-3">
+<span class="text-[10px] text-on-surface-variant font-medium">1:24</span>
+<div class="h-1 flex-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/3 rounded-full"></div>
+</div>
+<span class="text-[10px] text-on-surface-variant font-medium">3:45</span>
+</div>
+</div>
+<!-- Navigation Tab Mapping (from Shared Components) -->
+<div class="flex items-center gap-2 min-w-[240px] justify-end">
+<button class="text-[#cc97ff] bg-[#cc97ff]/10 rounded-full px-6 py-2 flex flex-col items-center gap-1 group">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+<span class="font-inter text-xs">Now Playing</span>
+</button>
+<button class="text-[#adaaaa] px-6 py-2 flex flex-col items-center gap-1 hover:text-[#ffffff] transition-colors group">
+<span class="material-symbols-outlined">list</span>
+<span class="font-inter text-xs">Queue</span>
+</button>
+<button class="text-[#adaaaa] px-6 py-2 flex flex-col items-center gap-1 hover:text-[#ffffff] transition-colors group">
+<span class="material-symbols-outlined">devices</span>
+<span class="font-inter text-xs">Devices</span>
+</button>
+<div class="ml-4 pl-4 border-l border-outline-variant/20 flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-lg">volume_up</span>
+<div class="w-20 h-1 bg-surface-container-highest rounded-full">
+<div class="h-full bg-on-surface-variant w-3/4 rounded-full"></div>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

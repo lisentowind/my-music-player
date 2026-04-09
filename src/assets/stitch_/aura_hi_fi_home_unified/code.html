@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary": "#005a3c",
+                    "surface-container-lowest": "#000000",
+                    "inverse-on-surface": "#565555",
+                    "secondary-container": "#006c49",
+                    "surface-container-low": "#131313",
+                    "on-error": "#490013",
+                    "tertiary": "#ff8b9a",
+                    "on-tertiary": "#62041f",
+                    "outline-variant": "#484847",
+                    "on-primary-fixed-variant": "#430076",
+                    "surface-bright": "#2c2c2c",
+                    "tertiary-fixed": "#ff909e",
+                    "on-secondary-fixed-variant": "#006544",
+                    "secondary-fixed": "#69f6b8",
+                    "primary-fixed-dim": "#b971ff",
+                    "surface-dim": "#0e0e0e",
+                    "on-tertiary-container": "#4d0015",
+                    "secondary": "#69f6b8",
+                    "surface": "#0e0e0e",
+                    "on-primary-fixed": "#000000",
+                    "surface-variant": "#262626",
+                    "on-tertiary-fixed": "#39000e",
+                    "inverse-primary": "#842cd3",
+                    "on-surface-variant": "#adaaaa",
+                    "error": "#ff6e84",
+                    "on-secondary-fixed": "#00452d",
+                    "inverse-surface": "#fcf9f8",
+                    "surface-container": "#1a1a1a",
+                    "secondary-fixed-dim": "#58e7ab",
+                    "tertiary-dim": "#f47788",
+                    "on-secondary-container": "#e1ffec",
+                    "tertiary-container": "#f7798b",
+                    "surface-container-highest": "#262626",
+                    "surface-container-high": "#20201f",
+                    "on-primary": "#47007c",
+                    "surface-tint": "#cc97ff",
+                    "on-primary-container": "#360061",
+                    "outline": "#767575",
+                    "on-tertiary-fixed-variant": "#711229",
+                    "error-container": "#a70138",
+                    "on-error-container": "#ffb2b9",
+                    "on-background": "#ffffff",
+                    "tertiary-fixed-dim": "#fa7c8d",
+                    "error-dim": "#d73357",
+                    "primary-dim": "#9c48ea",
+                    "background": "#0e0e0e",
+                    "on-surface": "#ffffff",
+                    "primary": "#cc97ff",
+                    "primary-fixed": "#c284ff",
+                    "secondary-dim": "#58e7ab",
+                    "primary-container": "#c284ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0e0e0e;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+        .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-panel {
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(204, 151, 255, 0.2) 0%, rgba(156, 72, 234, 0.1) 100%);
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #cc97ff 0%, #9c48ea 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="antialiased select-none">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 rounded-r-3xl bg-neutral-900/50 backdrop-blur-xl flex flex-col p-6 gap-8 shadow-2xl shadow-purple-500/5 z-40 font-plus-jakarta-sans antialiased">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 primary-gradient rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-black" style="font-variation-settings: 'FILL' 1;">graphic_eq</span>
+</div>
+<div>
+<h1 class="text-2xl font-bold tracking-tighter text-white">Aura Hi-Fi</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Premium Audio</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<!-- Home Active -->
+<a class="flex items-center gap-4 px-4 py-3 text-white font-bold bg-neutral-800/50 rounded-xl transition-all duration-300 scale-102 active:scale-98 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span>Home</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-neutral-400 hover:text-white hover:bg-neutral-800/80 transition-all duration-300 rounded-xl active:scale-98 ease-in-out" href="#">
+<span class="material-symbols-outlined">search</span>
+<span>Search</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-neutral-400 hover:text-white hover:bg-neutral-800/80 transition-all duration-300 rounded-xl active:scale-98 ease-in-out" href="#">
+<span class="material-symbols-outlined">library_music</span>
+<span>Library</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-neutral-400 hover:text-white hover:bg-neutral-800/80 transition-all duration-300 rounded-xl active:scale-98 ease-in-out" href="#">
+<span class="material-symbols-outlined">queue_music</span>
+<span>Playlists</span>
+</a>
+</nav>
+<div class="mt-auto">
+<button class="w-full primary-gradient py-4 rounded-xl font-bold text-black flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-98 transition-all">
+<span class="material-symbols-outlined">add_circle</span>
+                Create Playlist
+            </button>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-20 flex items-center justify-between px-8 w-full z-30 bg-transparent font-plus-jakarta-sans">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-lowest border-none rounded-full py-2.5 pl-12 pr-4 text-sm focus:ring-1 focus:ring-outline-variant/30 placeholder:text-on-surface-variant/50" placeholder="Search artists, songs, or albums" type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-neutral-400 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-neutral-400 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/20 cursor-pointer">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQaKmR3KPlaSvuZ2WQT6hyJ3ld9C-EuqwUgIqRHJSe_k5bnDl_vYd5A-5DqrjFc6ABkC0y9H9gbwZ1mNegHEIUJhUhS3xS1Mw2rn3c4He0DgIgKmeC3r-Byic9WMEKuwl_Eefy-Pjn6H4O8OU_rhC54OL4ubUrM9UxSO7IX456SbnBKFKDIXcYMI5CRVrB5ANeJICM-dHHk4dcbpVql20BgzKtVibGC8IDTKevOkIblNUy7_Eks3bzbKkgq-idJl8v8LEQtbXqEQ"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-20 pb-40 px-8">
+<!-- New Releases Hero -->
+<section class="mt-8 relative overflow-hidden rounded-xl h-[420px] group">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCZY3u8qNMV1-P6Dj56WeNDP6KXGuVoH0irD1zNZhV3csx-YEXRL_RWcUZnPmgGG4mh2okwe19NgMGqfN_TLbs84JQuhWFhrhwMFW3cnQblT5ihkLrd5Wn3l5Ldd2YsHF-oQ1K9lNvcvuHN7xjwxCmUDXoTNuzE3aMk7T6nSuEaQR0tqFgZwHyNodoT5WFhx9AIb9qY8r5PMfD0sd3Ch39aq1fMkpo5Zm7q87msNJWWSPCbzBPfNAr3sUjGY-luiX9OoLjCv8C0Ww');"></div>
+<div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
+<div class="relative h-full flex flex-col justify-end p-12 gap-4">
+<span class="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-bold w-fit backdrop-blur-md">NEW RELEASE</span>
+<h2 class="text-6xl font-extrabold tracking-tighter font-headline leading-tight max-w-2xl">Neon Dreams: The Remixes</h2>
+<p class="text-on-surface-variant max-w-md text-lg font-medium">Experience the critically acclaimed album reimagined by the world's top electronic producers.</p>
+<div class="flex items-center gap-4 mt-4">
+<button class="primary-gradient px-8 py-4 rounded-full font-bold text-black flex items-center gap-2 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                        Listen Now
+                    </button>
+<button class="bg-white/10 backdrop-blur-md hover:bg-white/20 px-8 py-4 rounded-full font-bold text-white transition-all border border-white/10">
+                        View Artist
+                    </button>
+</div>
+</div>
+</section>
+<!-- Your Top Mixes -->
+<section class="mt-12">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-2xl font-bold font-headline tracking-tight">Your Top Mixes</h3>
+<a class="text-primary text-sm font-semibold hover:underline" href="#">View All</a>
+</div>
+<div class="flex gap-6 overflow-x-auto no-scrollbar pb-4">
+<!-- Mix Card 1 -->
+<div class="flex-shrink-0 w-56 group cursor-pointer">
+<div class="relative aspect-square rounded-lg overflow-hidden mb-4 shadow-xl">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8iNqSgyiX_4AYyhPIKhGn_STmzBhRuVg2q-3xe7XHc-WHviFxzZsjnX0mIs-od5nVIHWp6lEC5QHeb0kaxKNTDX8AC4i2BaIOUHK-xVhul7tTNW5Q_IwV7o2NK-t9CuTAtxVfV7mNTXs49LZUevxRaoS6hrvxJW_vVkqZtxyMqucga9aVHj455tT1mr9on5ownGEzVVdQX_JFUuJFTkY7Prc1FqatOG5V4R7oKoO966hDqVhMdambkjQkJf2p2X7SsI7G2VD5Ag"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<div class="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-lg shadow-primary/40 transform translate-y-4 group-hover:translate-y-0 transition-transform">
+<span class="material-symbols-outlined text-black text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+</div>
+<h4 class="font-bold text-on-surface truncate">Late Night Chill</h4>
+<p class="text-sm text-on-surface-variant truncate">Lofi, Downtempo, Atmospheric</p>
+</div>
+<!-- Mix Card 2 -->
+<div class="flex-shrink-0 w-56 group cursor-pointer">
+<div class="relative aspect-square rounded-lg overflow-hidden mb-4 shadow-xl">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZRxIy_Jy3z8GzAWkXLZie5Gi5i7xK3d-VOdDQadwtTJWeK312zRFgzAW4ghn_4fc0YMrDMUVnfM-nAsFKHWfS6_5tJiab5gwgCjrG2T6BYfeKSWQFD4Yi1wlWUjtj3n5RvRwqaS9PpSJYJYVnYMo-8aaENUvQX1pmhrA-blYSY75918lder_R0onhKy0104Lqw46nlNhKBwh7jiRJ_RPeMSojkhAWRpqupyaWdHndsu3ezuw8-yTuicQAMc0ngwO4FydfGmPDNg"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<div class="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-lg shadow-primary/40 transform translate-y-4 group-hover:translate-y-0 transition-transform">
+<span class="material-symbols-outlined text-black text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+</div>
+<h4 class="font-bold text-on-surface truncate">Festival Anthems</h4>
+<p class="text-sm text-on-surface-variant truncate">EDM, House, Progressive</p>
+</div>
+<!-- Mix Card 3 -->
+<div class="flex-shrink-0 w-56 group cursor-pointer">
+<div class="relative aspect-square rounded-lg overflow-hidden mb-4 shadow-xl">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQBNKsoZJcnOAh46EojFg-JUZTdKmT5tbaaFMzzeJ6sX28z838HGuMfgJqeWqspmkvHyRWuR6LFgXMtPVmP_RuoTtB7RoRZxGj5QWkGHGb_Ma9JXxS_066au3PJAuwQPw0i-Fr4S2MHqArxuoFRh8auPItqf7uNkD9sZhJebwlN8yKm-RlvvlZHSl8AdJtbo49-ZV8LSM8-VftW0gj2vwI3hr2tW0LIo9xZReEHogCiyOq9fTiawbCz7GRT2TqL9d5mA2-pqhDWA"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<div class="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-lg shadow-primary/40 transform translate-y-4 group-hover:translate-y-0 transition-transform">
+<span class="material-symbols-outlined text-black text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+</div>
+<h4 class="font-bold text-on-surface truncate">Techno Bunker</h4>
+<p class="text-sm text-on-surface-variant truncate">Industrial, Deep, Acid</p>
+</div>
+<!-- Mix Card 4 -->
+<div class="flex-shrink-0 w-56 group cursor-pointer">
+<div class="relative aspect-square rounded-lg overflow-hidden mb-4 shadow-xl">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIshWGAVZpbSrKhd26Cc47FqTaaOBFQBtMy9m0veLkjYus9H9ZGMV__kXPbLEfZZ1CH38GdtHYyu58PbDZrQ-AETmdFk2XpBGEJsi7dhvi6sFwkNqM5lmHu9W1l6cbhfXn2WR_FbLn6dz4gW1VOABRbrRq-Y8OEoy2t08xxpUFjo351FxohhkZJkqifUxavRv6CivA36nLEicPYhAyeqn-pwS3NPygabYj36dfvoVgu29mJXtYBq-WjFyfwoasIMeiH7bnX6QVyg"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<div class="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-lg shadow-primary/40 transform translate-y-4 group-hover:translate-y-0 transition-transform">
+<span class="material-symbols-outlined text-black text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+</div>
+<h4 class="font-bold text-on-surface truncate">Jazz &amp; Coffee</h4>
+<p class="text-sm text-on-surface-variant truncate">Classic, Smooth, Soul</p>
+</div>
+<!-- Mix Card 5 -->
+<div class="flex-shrink-0 w-56 group cursor-pointer">
+<div class="relative aspect-square rounded-lg overflow-hidden mb-4 shadow-xl">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKSTuxCywUY0zj8vKms5BQkOMY1YHO3SgdaPJPL_TC3aF79VF9C9OJS3MQssv1o71gXQBvoWDQw4HK3VkmyAIJyyGIOgGmn8fb0bo9-RTxHGT3dzhvthAgWLpsJkc6c9vrJ9S6GvH9BBJgnppeoIP5gUoq98eU3jSRHOF9Cw5q-uOonUZas_ZEhjk_amQ-B0nAkRXFRb_5QGEgCIGfo_xpgTnzv932eAivqYsTEExUnTPlyu3CyOJ1gulqdZh7F3SZK_l2vPzfWg"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<div class="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-lg shadow-primary/40 transform translate-y-4 group-hover:translate-y-0 transition-transform">
+<span class="material-symbols-outlined text-black text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+</div>
+<h4 class="font-bold text-on-surface truncate">Morning Aura</h4>
+<p class="text-sm text-on-surface-variant truncate">Ambient, Piano, Nature</p>
+</div>
+</div>
+</section>
+<!-- Bento Grid: Recently Played & Trending -->
+<section class="mt-16 grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Recently Played -->
+<div class="lg:col-span-2">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-2xl font-bold font-headline tracking-tight">Recently Played</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Recent 1 -->
+<div class="bg-surface-container-low p-3 rounded-xl flex items-center gap-4 hover:bg-surface-container-high transition-colors group">
+<div class="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZ4bZ3n2xY7t40H4J4kbxl2joIfRSUXbufmNTqALb7xMvgUWSjqXhiuX61Wl6xnt6IYye3WiYL2ths2X_yZ37mMBR8ntPf6a4K9IanY-P5H7YgoaUd_VCGY7TbWhSl_D4Pt0tRzC27TvOZcxt9EN665jlZcFStdc4ldquvyw8_k0gliHxcNvvHJlF2p-jg81LFAn-tYCGAhpcUMYP0iBd8mVQEXtckbOBOrDcM05RIrr5aBrMv4q1LYehQrsSiA5KzhR1XAHg8qg"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<h5 class="font-bold truncate">Midnight City</h5>
+<p class="text-sm text-on-surface-variant truncate">M83</p>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-white/10">
+<span class="material-symbols-outlined text-primary">more_vert</span>
+</button>
+</div>
+<!-- Recent 2 -->
+<div class="bg-surface-container-low p-3 rounded-xl flex items-center gap-4 hover:bg-surface-container-high transition-colors group">
+<div class="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFrXS8bquN8Acip5EPc1Tg6nLxf30CIz8JiT2Oj9B97C4rlmbwZN8kM9T3pI7kBg9Q9p-GRM3AsO-l786znwvH5sW4-tgHjxnuZVGQwdxkVJTm_fl88rSqJbPYGIfuFuMwQrdY9qPOY1Japkwx7C6GfSrL-9P7TgRpj2VgA6DjhD3Ib2yt0dYWWIZk8V9DLNL9i3uCxpnChNjlv0nHRFdYT5K1tSOah9Ar9DlHvHElC9q-rh-7Y1znKTxz_7DZLm5dJy6wLVPdkw"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<h5 class="font-bold truncate">Starboy</h5>
+<p class="text-sm text-on-surface-variant truncate">The Weeknd</p>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-white/10">
+<span class="material-symbols-outlined text-primary">more_vert</span>
+</button>
+</div>
+<!-- Recent 3 -->
+<div class="bg-surface-container-low p-3 rounded-xl flex items-center gap-4 hover:bg-surface-container-high transition-colors group">
+<div class="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAH5tXfczhUUimcbqWyOCa8tJMNfiMokhcqGj8nXWNSNUMUXtIy5zX15XMN_V0Lxn02Tw2CH4NdaIaY3GZWu6Tjn6E3DabrCqHl_L69ChM1ffcisXWmLnJNz2Ir_7NSLaCQxADRqOB3TkHnZMteJFMDPBqso_ZWAlECAk3SjiA9iOxW3Meir_grPm8V46SNntD5qz8VJ8h1iqvwqArOBgYcNwxFF7sznodHs095y0IjmpQ_L3YcKVB63O3VK2S5yf_CHFTe-RnUHg"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<h5 class="font-bold truncate">Blinding Lights</h5>
+<p class="text-sm text-on-surface-variant truncate">The Weeknd</p>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-white/10">
+<span class="material-symbols-outlined text-primary">more_vert</span>
+</button>
+</div>
+<!-- Recent 4 -->
+<div class="bg-surface-container-low p-3 rounded-xl flex items-center gap-4 hover:bg-surface-container-high transition-colors group">
+<div class="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAATfs1pjyo3y0bbUdL1BJy0QF2EW--4heFGa59mnvSjjEN7UoRvoxSmkgbIBASu_UP6aaCBjF-WdfSM3OiboLQaoWU4Jp3Ih4SJXOdf6wup3qiVQsPS8eApHVr1e2QgdLsrxmLxuP_F8v_P4txEy4Rz_U1NTUIDc7SK4O2uHjxozMG9KpgT6yiZrkdkdPoWVWyV0EG4DR2_gUVHBIZiDsxfwkGQ-jTTOO_sDSqDZw7LzJ_V2kXHpkB1APuSFLG4_OvH_kvlOcKw"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<h5 class="font-bold truncate">Levitating</h5>
+<p class="text-sm text-on-surface-variant truncate">Dua Lipa</p>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-white/10">
+<span class="material-symbols-outlined text-primary">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Trending Now List -->
+<div class="bg-surface-container-low rounded-2xl p-6">
+<h3 class="text-xl font-bold font-headline tracking-tight mb-6">Trending Now</h3>
+<div class="flex flex-col gap-4">
+<!-- Trending 1 -->
+<div class="flex items-center gap-4 group cursor-pointer">
+<span class="text-lg font-bold text-on-surface-variant group-hover:text-primary transition-colors w-6">01</span>
+<div class="w-12 h-12 rounded overflow-hidden">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxkBruJ310AIpvZj0rf0Dk2gG6CGjT_EBjq1hKbH_5Cpndf40Xxoa8lLca6Ypn5qq0qvNdSvo437qZ_k2lxGRku4T_TPfeAbkvwVRA8N-0DifPNu0HVWOzYc_5uSRVLzEGNNTTFzvD1ipMv2egv7gmgZE0ouZC6t47LHGd7o3z8XowKRx98Ota48xTsfRFyNcPuWk5RSjTJ3XU4h9KwNoLEpS1E2CM5nciTxLQmTAV1UN7QX83LtCkNwkqrpauPonTVKSObFuQXQ"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<h5 class="font-bold text-sm truncate">Solaris</h5>
+<p class="text-xs text-on-surface-variant truncate">Orbital Pulse</p>
+</div>
+<span class="text-xs text-on-surface-variant">3:45</span>
+</div>
+<!-- Trending 2 -->
+<div class="flex items-center gap-4 group cursor-pointer">
+<span class="text-lg font-bold text-on-surface-variant group-hover:text-primary transition-colors w-6">02</span>
+<div class="w-12 h-12 rounded overflow-hidden">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFCLrxX7UFvH4YMw4nfaGLiPAeZenH3bPU4wnpeXFfIEI0aa6q0pGF73GIkXsvWxPdSHUp9ZyFY1DTBuom1neMpyoyJmIIGrKK_H_SS4odNhiRMS0Hah_RfGI_TfTeKroW8aXAVo8htdaEYf6FaBrZ-wTQ9RIisOcaJU6-XDPg35i_5GrgwSjBrF65mNTuC7xJjhQ2r8jfGKNeZpaHdS0d-fKiWEY7k_9qnV9BDp7P4Oj_fXbEtaee4e4Q_lxj7I5N5IZ6K4ZRxQ"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<h5 class="font-bold text-sm truncate">Deep Blue</h5>
+<p class="text-xs text-on-surface-variant truncate">Oceanic</p>
+</div>
+<span class="text-xs text-on-surface-variant">4:12</span>
+</div>
+<!-- Trending 3 -->
+<div class="flex items-center gap-4 group cursor-pointer">
+<span class="text-lg font-bold text-on-surface-variant group-hover:text-primary transition-colors w-6">03</span>
+<div class="w-12 h-12 rounded overflow-hidden">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRf_LQwvrDEetSPfo2GkdOfQMUqxrXySDfH-Z43c-lc60KJzwSRVjqpmtwDUBr2ZR9WA1W_tqMwRN16vUBkr234eC7ZEg9v1i7ha4_kO3UquuG3QEYfAFTYlx6q1dDa5rRHiS4Y4aF9qsL3cTRFqEJd-P-8UrIoIdJOeM_FLDcHgO5kndzWwkcfsXVbcYHEF8EZ-g7L0mQ69dIUPyYQ8i3tmqKD7oJvwgG_nBKD7At88-2gyvldAJqaN5Zwk8C0_xQVhH7e_RPlQ"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<h5 class="font-bold text-sm truncate">Cyberpunk</h5>
+<p class="text-xs text-on-surface-variant truncate">Neon Rider</p>
+</div>
+<span class="text-xs text-on-surface-variant">2:58</span>
+</div>
+<!-- Trending 4 -->
+<div class="flex items-center gap-4 group cursor-pointer">
+<span class="text-lg font-bold text-on-surface-variant group-hover:text-primary transition-colors w-6">04</span>
+<div class="w-12 h-12 rounded overflow-hidden">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQiEOJ1FSO7_Eo_WoaS2CTrgnF_GEu6MS6_-RR2wVvuJciG4CL7pYiNaIMgaxHMFb3km1s4evj4e54eDlNivhiuBpg-vkxXl-sbG2HJ8unI6Roy0nMP-xnTyKymLiUtTq-W97w1lFhxznGfaFiv89qWCgtD3du5uhFQWHs0C2Dk0Sv_ivIX3nXIh1oEyz6iqE031fdoq5uTrgGAP4j5ZtToB32-ElpR4Hzn2w_YwRLjih8NQKkHByOnAlB6gGak4CtLX7KunXKew"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<h5 class="font-bold text-sm truncate">Moonlight</h5>
+<p class="text-xs text-on-surface-variant truncate">Ethereal</p>
+</div>
+<span class="text-xs text-on-surface-variant">5:20</span>
+</div>
+</div>
+<button class="w-full mt-8 py-3 rounded-xl border border-outline-variant/20 hover:bg-white/5 transition-colors text-sm font-bold">
+                    View Charts
+                </button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Playback Control) -->
+<footer class="fixed bottom-6 left-72 right-6 h-24 rounded-full border border-white/10 bg-neutral-900/70 backdrop-blur-3xl flex items-center justify-between px-10 z-50 shadow-2xl shadow-black/50 font-inter text-sm cubic-bezier(0.4,0,0.2,1) transition-all">
+<!-- Now Playing -->
+<div class="flex items-center gap-4 w-1/4">
+<div class="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 shadow-lg border border-white/5">
+<img alt="Neon Dreams" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTcMOIaydEmNwM831s-da1fSFofRu6Oafg_ZXUJK6R20yoKobZJgHQPrH-qnF9mJ8KSWTpeF0VRzs7B5CmA_bt1RDRGVZ2Pcb49tNJMI4xQgrg88eNuqWlej0pfXu5ezxWrbgKvLha8Pk9g9FvS-yIPekmQj4jIhmhdhsTtlZpAttH8JBvdhAneGJT2g38y40YKOEf968X5suXhbHw47BMxqUcnRr09w8hovp2WkHTH68KvERdqGWadLTF9QgZpAoV2nCiArDTJA"/>
+</div>
+<div class="overflow-hidden">
+<h6 class="font-bold truncate text-white">Neon Dreams</h6>
+<p class="text-xs text-neutral-400 truncate">Luxe &amp; Frequency</p>
+</div>
+<button class="text-purple-400 hover:text-primary transition-colors ml-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</button>
+</div>
+<!-- Controls -->
+<div class="flex flex-col items-center gap-2 flex-1 max-w-lg">
+<div class="flex items-center gap-8">
+<button class="text-neutral-300 hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">shuffle</span>
+</button>
+<button class="text-neutral-300 hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">skip_previous</span>
+</button>
+<button class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-black hover:scale-110 active:scale-95 transition-transform shadow-lg shadow-white/10">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</button>
+<button class="text-neutral-300 hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">skip_next</span>
+</button>
+<button class="text-neutral-300 hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">repeat</span>
+</button>
+</div>
+<div class="w-full flex items-center gap-3">
+<span class="text-[10px] text-neutral-400 font-medium">1:24</span>
+<div class="flex-1 h-1.5 bg-neutral-800 rounded-full overflow-hidden relative group cursor-pointer">
+<div class="absolute h-full w-[35%] primary-gradient rounded-full"></div>
+<div class="absolute top-1/2 left-[35%] -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<span class="text-[10px] text-neutral-400 font-medium">3:52</span>
+</div>
+</div>
+<!-- Volume & Actions -->
+<div class="flex items-center justify-end gap-6 w-1/4">
+<button class="text-neutral-300 hover:text-white transition-colors">
+<span class="material-symbols-outlined">lyrics</span>
+</button>
+<button class="text-neutral-300 hover:text-white transition-colors">
+<span class="material-symbols-outlined">queue_music</span>
+</button>
+<div class="flex items-center gap-2 w-32">
+<span class="material-symbols-outlined text-neutral-400 text-lg">volume_up</span>
+<div class="flex-1 h-1 bg-neutral-800 rounded-full overflow-hidden">
+<div class="h-full w-[70%] bg-white/50 rounded-full"></div>
+</div>
+</div>
+<button class="text-neutral-300 hover:text-white transition-colors">
+<span class="material-symbols-outlined">fullscreen</span>
+</button>
+</div>
+</footer>
+</body></html>
