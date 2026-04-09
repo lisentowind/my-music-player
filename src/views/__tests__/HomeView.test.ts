@@ -5,6 +5,24 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { auraDefaultPlaylist, auraRecommendationPlaylists } from "@/data/aura-content";
 import { routes } from "@/router/routes";
 
+vi.mock("gsap", () => ({
+  gsap: {
+    fromTo: (_target: unknown, _from: unknown, to: { onComplete?: () => void }) => {
+      to.onComplete?.();
+      return { kill: vi.fn() };
+    },
+    to: (_target: unknown, to: { onComplete?: () => void }) => {
+      to.onComplete?.();
+      return { kill: vi.fn() };
+    },
+    registerPlugin: vi.fn(),
+  },
+}));
+
+vi.mock("gsap/ScrollTrigger", () => ({
+  ScrollTrigger: {},
+}));
+
 class FakePlayerAudio {
   src = "";
   currentTime = 0;

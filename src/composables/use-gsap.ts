@@ -38,12 +38,18 @@ function canUseDom() {
   return typeof window !== "undefined";
 }
 
+function canRunAnimations() {
+  return canUseDom()
+    && typeof window.requestAnimationFrame === "function"
+    && typeof window.cancelAnimationFrame === "function";
+}
+
 function prefersReducedMotion() {
   return canUseDom() && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 function registerGsapPlugins() {
-  if (pluginsRegistered || !canUseDom()) {
+  if (pluginsRegistered || !canRunAnimations()) {
     return;
   }
 
@@ -130,7 +136,7 @@ function attachHoverListeners(element: HTMLElement, options: HoverAnimationOptio
 export function useGsapReveal(scopeRef: Ref<HTMLElement | null>, selectors: string[], delay = 0) {
   onMounted(() => {
     const scope = scopeRef.value;
-    if (!scope || prefersReducedMotion()) {
+    if (!scope || !canRunAnimations() || prefersReducedMotion()) {
       return;
     }
 
@@ -168,7 +174,7 @@ export function useGsapHover(elementRef: Ref<HTMLElement | null>, options: Hover
 
   onMounted(() => {
     element = elementRef.value;
-    if (!element || prefersReducedMotion()) {
+    if (!element || !canRunAnimations() || prefersReducedMotion()) {
       return;
     }
     cleanup = attachHoverListeners(element, {
@@ -199,7 +205,7 @@ export function useGsapHoverTargets(
 
   onMounted(() => {
     const scope = scopeRef.value;
-    if (!scope || prefersReducedMotion()) {
+    if (!scope || !canRunAnimations() || prefersReducedMotion()) {
       return;
     }
 
@@ -219,7 +225,7 @@ export function useGsapScrollReveal(scopeRef: Ref<HTMLElement | null>, groups: S
 
   onMounted(() => {
     const scope = scopeRef.value;
-    if (!scope || prefersReducedMotion()) {
+    if (!scope || !canRunAnimations() || prefersReducedMotion()) {
       return;
     }
 
@@ -292,7 +298,7 @@ export function useGsapPointerTilt(elementRef: Ref<HTMLElement | null>, options:
 
   onMounted(() => {
     element = elementRef.value;
-    if (!element || prefersReducedMotion()) {
+    if (!element || !canRunAnimations() || prefersReducedMotion()) {
       return;
     }
 

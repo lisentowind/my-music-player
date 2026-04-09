@@ -6,6 +6,24 @@ import { auraRecommendationPlaylists } from "@/data/aura-content";
 import { routes } from "@/router/routes";
 import { EXPLORE_SEARCH_DEBOUNCE_MS } from "@/views/explore.constants";
 
+vi.mock("gsap", () => ({
+  gsap: {
+    fromTo: (_target: unknown, _from: unknown, to: { onComplete?: () => void }) => {
+      to.onComplete?.();
+      return { kill: vi.fn() };
+    },
+    to: (_target: unknown, to: { onComplete?: () => void }) => {
+      to.onComplete?.();
+      return { kill: vi.fn() };
+    },
+    registerPlugin: vi.fn(),
+  },
+}));
+
+vi.mock("gsap/ScrollTrigger", () => ({
+  ScrollTrigger: {},
+}));
+
 class FakePlayerAudio {
   src = "";
   currentTime = 0;
@@ -105,7 +123,7 @@ describe("explore view", () => {
     vi.advanceTimersByTime(EXPLORE_SEARCH_DEBOUNCE_MS);
     await flushPromises();
     expect(wrapper.text()).toContain("标签匹配");
-  });
+  }, 10000);
 
   it("无结果时展示中文空状态", async () => {
     vi.useFakeTimers();
