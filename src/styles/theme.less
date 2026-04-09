@@ -53,10 +53,11 @@
 @space-8: 32px;
 @space-10: 40px;
 
-@layout-gap: 20px;
-@layout-sidebar-width: 288px;
-@layout-topbar-height: 108px;
-@layout-dock-space: 160px;
+@layout-gap: 24px;
+@layout-sidebar-width: 320px;
+@layout-topbar-height: 98px;
+@layout-dock-space: 168px;
+@layout-min-width: 1280px;
 
 @blur-sm: 10px;
 @blur-md: 18px;
@@ -123,6 +124,9 @@
   --layout-sidebar-width: @layout-sidebar-width;
   --layout-topbar-height: @layout-topbar-height;
   --layout-dock-space: @layout-dock-space;
+  --layout-min-width: @layout-min-width;
+  --z-shell-topbar: 28;
+  --z-shell-sidebar: 34;
 
   --blur-sm: @blur-sm;
   --blur-md: @blur-md;
@@ -149,6 +153,7 @@
   --color-popover-shadow: rgba(72, 92, 116, 0.18);
 }
 
+:root:not([data-theme-resolved]),
 :root[data-theme-resolved="dark"] {
   --color-bg: #07111c;
   --color-bg-elevated: #0d1a29;

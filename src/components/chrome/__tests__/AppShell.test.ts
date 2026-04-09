@@ -68,6 +68,7 @@ describe("app shell route skeleton", () => {
     await router.isReady();
 
     const wrapper = mount(AppShell, {
+      attachTo: document.body,
       global: {
         plugins: [router, pinia],
       },
@@ -86,6 +87,8 @@ describe("app shell route skeleton", () => {
       const wrapper = mountedWrappers.pop();
       wrapper?.unmount();
     }
+
+    document.body.innerHTML = "";
   });
 
   afterAll(() => {
@@ -160,14 +163,82 @@ describe("app shell route skeleton", () => {
     expect(wrapper.find("#player-page").exists()).toBe(true);
   });
 
-  it("切到 Player 页后侧栏、顶栏和 Dock 仍然存在，且顶栏占位对读屏隐藏", async () => {
+  it("固定侧栏、固定顶栏与内容滚动区节点都存在", async () => {
+    const { wrapper } = await mountShell("/");
+
+    expect(wrapper.find('[data-testid="app-shell-sidebar"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="app-shell-topbar"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="app-shell-scroll"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(true);
+  });
+
+  it("Explore 外的页面顶部展示进入探索按钮，点击后跳转到 Explore", async () => {
+    const { wrapper, router } = await mountShell("/library");
+
+    const button = wrapper.get('[data-testid="topbar-enter-explore"]');
+    expect(button.text()).toContain("进入探索");
+
+    await button.trigger("click");
+    await flushPromises();
+
+    expect(router.currentRoute.value.path).toBe("/explore");
+    const searchInput = wrapper.get('[data-testid="topbar-search-input"]');
+    expect(document.activeElement).toBe(searchInput.element);
+  });
+
+  it("Explore 页显示搜索输入框，其他页面不直接显示搜索框", async () => {
+    const { wrapper, router } = await mountShell("/explore");
+
+    expect(wrapper.find('[data-testid="topbar-search-input"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="topbar-enter-explore"]').exists()).toBe(false);
+
+    await router.push("/playlist");
+    await flushPromises();
+
+    expect(wrapper.find('[data-testid="topbar-search-input"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="topbar-enter-explore"]').exists()).toBe(true);
+  });
+
+  it("Player 页仍保留壳层，但会挂上独立视觉区域标记", async () => {
     const { wrapper } = await mountShell("/player");
 
     expect(wrapper.find("#player-page").exists()).toBe(true);
     expect(wrapper.find('[data-testid="app-shell-sidebar"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="app-shell-topbar"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(true);
-    const topbar = wrapper.find('[data-testid="app-shell-topbar"]');
-    expect(topbar.exists()).toBe(true);
-    expect(topbar.attributes("aria-hidden")).toBe("true");
+    expect(wrapper.get('[data-testid="app-shell-layout"]').attributes("data-shell-mode")).toBe("player");
+  });
+
+  it("顶部状态按钮与头像区域都有中文辅助文案或 aria 标签", async () => {
+    const { wrapper } = await mountShell("/");
+
+    expect(wrapper.get('[data-testid="topbar-status-button"]').attributes("aria-label")).toContain("应用状态");
+    expect(wrapper.get('[data-testid="topbar-profile-button"]').attributes("aria-label")).toContain("个人资料");
+  });
+
+  it("主题切换与主题色面板入口已从壳层移除", async () => {
+    const { wrapper } = await mountShell("/");
+
+    expect(wrapper.find('[data-testid="sidebar-theme-controls"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="topbar-theme-controls"]').exists()).toBe(false);
+    expect(wrapper.text()).not.toContain("外观控制台");
+  });
+
+  it("根布局内容容器固定最小宽度为 1280px，并保留横向滚动保护", async () => {
+    const { wrapper } = await mountShell("/");
+
+    const layout = wrapper.get('[data-testid="app-shell-layout"]');
+    const scroll = wrapper.get('[data-testid="app-shell-scroll"]');
+
+    expect(layout.attributes("data-min-width")).toBe("1280");
+    expect(scroll.attributes("data-overflow-x")).toBe("auto");
+  });
+
+  it("窄宽度保护下 Dock 仍保持完整结构", async () => {
+    const { wrapper } = await mountShell("/");
+
+    const dock = wrapper.get('[data-testid="player-dock-shell"]');
+    expect(dock.find('[data-testid="player-dock-transport"]').exists()).toBe(true);
+    expect(dock.find('[data-testid="player-dock-progress"]').exists()).toBe(true);
   });
 });
