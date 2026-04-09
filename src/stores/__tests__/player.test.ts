@@ -311,6 +311,22 @@ describe("usePlayerStore", () => {
     expect(visitedTrackIds).toEqual(new Set(tracks.map(track => track.id)));
   });
 
+  it("相同 trackIds 在 global 与 context 队列来源下会生成不同的 shuffle key", async () => {
+    const store = usePlayerStore();
+    const currentTrackId = tracks[2]!.id;
+
+    store.cycleMode();
+    await store.playTrackById(currentTrackId);
+    await store.playNext();
+    const globalNextTrackId = store.currentTrack?.id;
+
+    await store.playContext([...tracks], currentTrackId);
+    await store.playNext();
+
+    expect(store.queueSource.kind).toBe("context");
+    expect(store.currentTrack?.id).not.toBe(globalNextTrackId);
+  });
+
   it("音频事件会同步 duration 与 currentTime", async () => {
     const store = usePlayerStore();
     await store.playTrackById("track-dawn-echo");
@@ -339,6 +355,35 @@ describe("usePlayerStore", () => {
     expect(store.muted).toBe(true);
     expect(fakeAudio.volume).toBe(0.48);
     expect(fakeAudio.muted).toBe(true);
+  });
+
+  it("真实时长未返回前优先展示曲目静态时长，返回后允许运行时回填", async () => {
+    const store = usePlayerStore();
+
+    await store.playTrackById("track-dawn-echo");
+
+    expect(store.duration).toBe(0);
+    expect(store.durationLabel).toBe(tracks[0]!.durationLabel);
+
+    fakeAudio.duration = 96;
+    fakeAudio.emit("loadedmetadata");
+
+    expect(store.duration).toBe(96);
+    expect(store.durationLabel).toBe("1:36");
+  });
+
+  it("队列来源变更时会重建 queueSource 与 upcomingTracks 视图", async () => {
+    const store = usePlayerStore();
+    const albumTracks = getTracksByIds(featuredAlbums[0]!.trackIds);
+
+    expect(store.queueSource.kind).toBe("global");
+    expect(store.upcomingTracks.length).toBeGreaterThan(0);
+
+    await store.playContext(albumTracks, albumTracks[0]!.id);
+
+    expect(store.queueSource.kind).toBe("context");
+    expect(store.queueSource.trackIds).toEqual(albumTracks.map(track => track.id));
+    expect(store.upcomingTracks.map(track => track.id)).toEqual(albumTracks.slice(1).map(track => track.id));
   });
 
   it("setVolume 与 toggleMute 会同步到底层 audio 适配实例", () => {
@@ -508,6 +553,18 @@ describe("usePlayerStore", () => {
 
     expect(store.favoriteMoodTags).toContain("克制");
     expect(store.favoriteMoodTags).toContain("清透");
+  });
+
+  it("收藏状态只在当前会话内同步，不会泄露到新 store", () => {
+    const firstStore = usePlayerStore();
+    firstStore.toggleLike("track-dawn-echo");
+
+    expect(firstStore.likedTrackIdList).not.toContain("track-dawn-echo");
+
+    const secondPinia = createPinia();
+    const secondStore = usePlayerStore(secondPinia);
+
+    expect(secondStore.likedTrackIdList).toContain("track-dawn-echo");
   });
 });
 

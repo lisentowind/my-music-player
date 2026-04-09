@@ -26,14 +26,15 @@
     "@tauri-apps/api": "^2",
     "gsap": "^3.13.0",
     "howler": "^2.2.4",
+    "liricle": "^4.2.0",
     "pinia": "^3.0.4",
     "vue": "^3.5.13",
     "vue-router": "^5.0.4"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^7.7.3",
-    "@types/node": "^24.6.1",
     "@tauri-apps/cli": "^2",
+    "@types/node": "^24.6.1",
     "@unocss/preset-attributify": "^66.6.7",
     "@unocss/preset-uno": "^66.6.7",
     "@vitejs/plugin-vue": "^5.2.1",

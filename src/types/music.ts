@@ -72,3 +72,11 @@ export interface AuraResourceValidationItem {
   fallbackUrl: string | null;
   description: string;
 }
+
+export type QueueSourceKind = "global" | "context";
+
+export interface QueueSource {
+  kind: QueueSourceKind;
+  trackIds: string[];
+  contextId: string;
+}

@@ -362,6 +362,10 @@ export function createPlayerAudio() {
   return currentFactory();
 }
 
+export function createAudioAdapter() {
+  return createPlayerAudio();
+}
+
 export function configurePlayerAudioFactory(factory: AudioFactory) {
   currentFactory = factory;
 }

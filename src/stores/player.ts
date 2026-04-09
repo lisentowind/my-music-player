@@ -10,7 +10,7 @@ import {
   resolveQueueSelection,
 } from "@/lib/player/rules";
 import type { AudioLike } from "@/lib/player/audio";
-import type { PlaybackMode, Track } from "@/types/music";
+import type { PlaybackMode, QueueSource, QueueSourceKind, Track } from "@/types/music";
 
 interface LifecycleSubscriber {
   onLoadedMetadata: () => void;
@@ -162,6 +162,14 @@ function createPlaybackContextId(trackIds: readonly string[]) {
   return `ctx:${trackIds.join("|")}`;
 }
 
+function createQueueSource(kind: QueueSourceKind, trackIds: readonly string[]): QueueSource {
+  return {
+    kind,
+    trackIds: [...trackIds],
+    contextId: `${kind}:${createPlaybackContextId(trackIds)}`,
+  };
+}
+
 function findTrackIndexByAudioSource(queue: readonly Track[], audioSrc: string) {
   if (!audioSrc) {
     return -1;
@@ -189,7 +197,7 @@ export const usePlayerStore = defineStore("player", () => {
   const volume = ref(clampVolume(audio.volume));
   const muted = ref(Boolean(audio.muted));
   const mode = ref<PlaybackMode>("sequential");
-  const playbackContextId = ref(createPlaybackContextId(toTrackIds(queue.value)));
+  const queueSource = ref<QueueSource>(createQueueSource("global", toTrackIds(queue.value)));
   const shuffleAnchorTrackId = ref<string | null>(queue.value[currentIndex.value]?.id ?? null);
   const likedIds = ref(new Set(likedTrackIds));
   const likedTrackIdList = computed(() => [...likedIds.value]);
@@ -223,6 +231,14 @@ export const usePlayerStore = defineStore("player", () => {
   const errorMessage = ref("");
   const errorTrackId = ref<string | null>(null);
   const currentTrack = computed(() => queue.value[currentIndex.value] ?? null);
+  const upcomingTracks = computed(() => {
+    if (queue.value.length <= 0) {
+      return [];
+    }
+
+    const safeIndex = clampIndex(currentIndex.value);
+    return queue.value.slice(safeIndex + 1);
+  });
   const progressRatio = computed(() => {
     const safeDuration = toSafeDuration(duration.value);
     if (safeDuration <= 0) {
@@ -232,7 +248,13 @@ export const usePlayerStore = defineStore("player", () => {
     return Math.min(1, toSafeTime(currentTime.value) / safeDuration);
   });
   const currentTimeLabel = computed(() => formatPlaybackTime(currentTime.value));
-  const durationLabel = computed(() => formatPlaybackTime(duration.value));
+  const durationLabel = computed(() => {
+    if (duration.value > 0) {
+      return formatPlaybackTime(duration.value);
+    }
+
+    return currentTrack.value?.durationLabel ?? "0:00";
+  });
 
   audio.volume = volume.value;
   audio.muted = muted.value;
@@ -258,7 +280,7 @@ export const usePlayerStore = defineStore("player", () => {
   }
 
   function getPlaybackContextId() {
-    return playbackContextId.value;
+    return queueSource.value.contextId;
   }
 
   function getShuffleAnchorTrackId() {
@@ -269,9 +291,10 @@ export const usePlayerStore = defineStore("player", () => {
     shuffleAnchorTrackId.value = trackId;
   }
 
-  function replaceQueue(nextQueue: Track[]) {
+  function replaceQueue(nextQueue: Track[], sourceKind: QueueSourceKind) {
     queue.value = [...nextQueue];
-    playbackContextId.value = createPlaybackContextId(toTrackIds(queue.value));
+    const nextTrackIds = toTrackIds(queue.value);
+    queueSource.value = createQueueSource(sourceKind, nextTrackIds);
   }
 
   function syncCurrentTimeFromAudio() {
@@ -471,7 +494,7 @@ export const usePlayerStore = defineStore("player", () => {
     }
 
     const token = beginAction();
-    replaceQueue(nextQueue);
+    replaceQueue(nextQueue, "context");
     setShuffleAnchorTrackId(trackId);
     await playAtIndexWithToken(selection.nextIndex, token);
   }
@@ -500,7 +523,7 @@ export const usePlayerStore = defineStore("player", () => {
     }
 
     const token = beginAction();
-    replaceQueue(tracks);
+    replaceQueue(tracks, "global");
     setShuffleAnchorTrackId(trackId);
     await playAtIndexWithToken(fallbackSelection.nextIndex, token);
   }
@@ -605,6 +628,8 @@ export const usePlayerStore = defineStore("player", () => {
     queue,
     currentIndex,
     currentTrack,
+    queueSource,
+    upcomingTracks,
     isPlaying,
     currentTime,
     duration,

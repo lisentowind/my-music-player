@@ -23,6 +23,9 @@ importers:
       howler:
         specifier: ^2.2.4
         version: 2.2.4
+      liricle:
+        specifier: ^4.2.0
+        version: 4.2.0
       pinia:
         specifier: ^3.0.4
         version: 3.0.4(typescript@5.6.3)(vue@3.5.30(typescript@5.6.3))
@@ -1846,6 +1849,9 @@ packages:
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
+
+  liricle@4.2.0:
+    resolution: {integrity: sha512-NbXs+giTEXmcynnkrm4fhlDxAwLlXuFCyp4k4SjWIZl1CPafAPWWUmtZ8QZfUeI0hIwWBpAP5aP0YTvqhKVOXQ==}
 
   local-pkg@1.1.2:
     resolution: {integrity: sha512-arhlxbFRmoQHl33a0Zkle/YWlmNwoyt6QNZEIJcqNbdrsix5Lvc4HyyI3EnwxTYlZYc32EbYrQ8SzEZ7dqgg9A==}
@@ -4398,6 +4404,8 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  liricle@4.2.0: {}
 
   local-pkg@1.1.2:
     dependencies:
