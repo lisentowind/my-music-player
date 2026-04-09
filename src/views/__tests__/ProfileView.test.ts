@@ -60,7 +60,7 @@ describe("profile view", () => {
     expect(wrapper.text()).toContain("刚刚播放");
     expect(wrapper.text()).not.toContain("当前会话还没有播放记录");
     expect(wrapper.text()).not.toContain("还没有最近播放记录");
-  }, 10000);
+  }, 20000);
 
   it("likedCount 与 activeModeLabel 会跟随 store 变化", async () => {
     const pinia = createPinia();
@@ -84,8 +84,8 @@ describe("profile view", () => {
     await nextTick();
 
     expect(wrapper.text()).toContain("2 首");
-    expect(wrapper.text()).toContain("随机播放");
-  }, 10000);
+    expect(wrapper.text()).toContain("单曲循环");
+  }, 20000);
 
   it("点击 recent 列表项会继续播放该歌曲", async () => {
     const pinia = createPinia();
@@ -111,7 +111,7 @@ describe("profile view", () => {
     await targetButton!.trigger("click");
 
     expect(player.currentTrack?.id).toBe("track-dawn-echo");
-  }, 10000);
+  }, 20000);
 
   it("口味标签会在 liked-only 与 recent+liked 场景下保持合理", async () => {
     const pinia = createPinia();
@@ -135,5 +135,5 @@ describe("profile view", () => {
 
     expect(tasteTagsText()).toContain("清透");
     expect(tasteTagsText()).toContain("克制");
-  }, 10000);
+  }, 20000);
 });

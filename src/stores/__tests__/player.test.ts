@@ -279,6 +279,7 @@ describe("usePlayerStore", () => {
     const currentTrackId = tracks[2]!.id;
 
     store.cycleMode();
+    store.cycleMode();
     await store.playContext([...tracks], currentTrackId);
     await store.playNext();
     const firstNextTrackId = store.currentTrack?.id;
@@ -294,6 +295,7 @@ describe("usePlayerStore", () => {
     const currentTrackId = tracks[2]!.id;
     const visitedTrackIds = new Set<string>();
 
+    store.cycleMode();
     store.cycleMode();
     await store.playContext([...tracks], currentTrackId);
     visitedTrackIds.add(store.currentTrack!.id);
@@ -315,6 +317,7 @@ describe("usePlayerStore", () => {
     const store = usePlayerStore();
     const currentTrackId = tracks[2]!.id;
 
+    store.cycleMode();
     store.cycleMode();
     await store.playTrackById(currentTrackId);
     await store.playNext();

@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import UiIconButton from "@/components/ui/UiIconButton.vue";
+import { Icon } from "@iconify/vue";
+import { computed } from "vue";
+import { iconRegistry } from "@/components/ui/icon-registry";
 
-defineProps<{
+const props = defineProps<{
   isPlaying: boolean;
   modeLabel: string;
 }>();
@@ -12,6 +14,10 @@ const emit = defineEmits<{
   next: [];
   cycleMode: [];
 }>();
+
+const toggleIcon = computed(() => props.isPlaying
+  ? iconRegistry["solar:pause-bold"]
+  : iconRegistry["solar:play-bold"]);
 </script>
 
 <template>
@@ -20,48 +26,47 @@ const emit = defineEmits<{
       class="playback-controls__mode"
       data-testid="player-dock-mode"
       type="button"
+      :aria-label="`切换播放模式，当前${modeLabel}`"
       @click="emit('cycleMode')"
     >
-      <UiIconButton
-        class="playback-controls__mode-icon"
-        icon="solar:repeat-outline"
-        label="切换播放模式"
-        variant="ghost"
-        size="sm"
-      />
+      <span class="playback-controls__mode-icon" aria-hidden="true">
+        <Icon :icon="iconRegistry['solar:repeat-outline']" />
+      </span>
       <span class="playback-controls__mode-copy">
         <span class="playback-controls__mode-caption">播放模式</span>
         <span class="playback-controls__mode-label" data-testid="player-dock-mode-label">{{ modeLabel }}</span>
       </span>
     </button>
+
     <div class="playback-controls__transport" data-testid="player-dock-transport">
-      <UiIconButton
+      <button
         class="playback-controls__button"
         data-testid="player-dock-prev"
-        icon="solar:skip-previous-bold"
-        label="上一首"
-        size="sm"
-        variant="soft"
+        type="button"
+        aria-label="播放上一首"
         @click="emit('previous')"
-      />
-      <UiIconButton
+      >
+        <Icon :icon="iconRegistry['solar:skip-previous-bold']" />
+      </button>
+      <button
         class="playback-controls__button playback-controls__button--primary"
         data-testid="player-dock-toggle"
-        :icon="isPlaying ? 'solar:pause-bold' : 'solar:play-bold'"
-        :label="isPlaying ? '暂停' : '播放'"
-        variant="solid"
-        size="lg"
+        type="button"
+        :aria-label="isPlaying ? '暂停播放' : '开始播放'"
+        :aria-pressed="isPlaying ? 'true' : 'false'"
         @click="emit('toggle')"
-      />
-      <UiIconButton
+      >
+        <Icon :icon="toggleIcon" />
+      </button>
+      <button
         class="playback-controls__button"
         data-testid="player-dock-next"
-        icon="solar:skip-next-bold"
-        label="下一首"
-        size="sm"
-        variant="soft"
+        type="button"
+        aria-label="播放下一首"
         @click="emit('next')"
-      />
+      >
+        <Icon :icon="iconRegistry['solar:skip-next-bold']" />
+      </button>
     </div>
   </div>
 </template>
@@ -74,62 +79,100 @@ const emit = defineEmits<{
   gap: var(--space-3);
 }
 
+.playback-controls__mode,
+.playback-controls__transport,
+.playback-controls__button {
+  border: 1px solid var(--color-state-border-subtle);
+  background: color-mix(in srgb, var(--color-control-surface) 92%, transparent);
+  color: var(--color-text);
+}
+
 .playback-controls__mode {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: 6px 12px 6px 6px;
-  border: 1px solid var(--color-state-border-subtle);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.4);
-  color: inherit;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 14px;
+  border-radius: 18px;
   cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.playback-controls__mode:hover,
+.playback-controls__button:hover {
+  border-color: var(--color-state-border-emphasis);
+  background: color-mix(in srgb, var(--color-control-surface-strong) 92%, transparent);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+  transform: translateY(-1px);
+}
+
+.playback-controls__mode-icon,
+.playback-controls__button {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
 }
 
 .playback-controls__mode-icon {
-  pointer-events: none;
+  background: var(--gradient-primary);
+  color: var(--color-text-contrast);
+}
+
+.playback-controls__mode-icon :deep(svg),
+.playback-controls__button :deep(svg) {
+  width: 18px;
+  height: 18px;
 }
 
 .playback-controls__mode-copy {
   display: grid;
+  gap: 4px;
   text-align: left;
 }
 
 .playback-controls__mode-caption {
   color: var(--color-text-tertiary);
-  font-size: 10px;
-  line-height: 1.2;
+  font-size: 11px;
 }
 
 .playback-controls__mode-label {
   color: var(--color-text);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 1.3;
 }
 
 .playback-controls__transport {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  padding: 6px;
-  border: 1px solid var(--color-state-border-subtle);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.28);
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 12px;
+  border-radius: 18px;
 }
 
 .playback-controls__button {
-  min-width: 34px;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
 .playback-controls__button--primary {
-  min-width: 52px;
-}
-
-@media (max-width: 720px) {
-  .playback-controls {
-    grid-template-columns: 1fr;
-  }
+  width: 54px;
+  height: 54px;
+  border-color: transparent;
+  background: var(--gradient-primary);
+  color: var(--color-text-contrast);
+  box-shadow: var(--shadow-primary-hover);
 }
 </style>

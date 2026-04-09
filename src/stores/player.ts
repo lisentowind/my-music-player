@@ -602,7 +602,7 @@ export const usePlayerStore = defineStore("player", () => {
   }
 
   function cycleMode() {
-    const orderedModes: PlaybackMode[] = ["sequential", "shuffle", "repeat-one"];
+    const orderedModes: PlaybackMode[] = ["sequential", "repeat-one", "shuffle"];
     const currentModeIndex = orderedModes.indexOf(mode.value);
     const nextMode = orderedModes[(currentModeIndex + 1) % orderedModes.length];
     if (nextMode === "shuffle") {

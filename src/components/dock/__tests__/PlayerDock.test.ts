@@ -1,7 +1,9 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createMemoryHistory, createRouter } from "vue-router";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import PlayerDock from "@/components/dock/PlayerDock.vue";
+import { routes } from "@/router/routes";
 
 class FakePlayerAudio {
   src = "";
@@ -69,6 +71,44 @@ class FakePlayerAudio {
 }
 
 describe("player dock", () => {
+  const mountedWrappers: Array<{ unmount: () => void }> = [];
+
+  async function mountDock(path = "/") {
+    const pinia = createPinia();
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes,
+    });
+    const { usePlayerStore } = await import("@/stores/player");
+    const player = usePlayerStore(pinia);
+
+    await router.push(path);
+    await router.isReady();
+    await player.playTrackById("track-dawn-echo");
+    await flushPromises();
+    if (player.isPlaying) {
+      await player.togglePlay();
+    }
+    player.mode = "sequential";
+    player.seekTo(0);
+    player.setVolume(1);
+    if (player.muted) {
+      player.toggleMute();
+    }
+    player.clearPlaybackError();
+
+    const wrapper = mount(PlayerDock, {
+      attachTo: document.body,
+      global: {
+        plugins: [pinia, router],
+      },
+    });
+
+    mountedWrappers.push(wrapper);
+
+    return { wrapper, pinia, router };
+  }
+
   beforeEach(async () => {
     vi.resetModules();
     setActivePinia(createPinia());
@@ -78,29 +118,30 @@ describe("player dock", () => {
     configurePlayerAudioFactory(() => fakeAudio);
   });
 
+  afterEach(() => {
+    while (mountedWrappers.length > 0) {
+      const wrapper = mountedWrappers.pop();
+      wrapper?.unmount();
+    }
+
+    document.body.innerHTML = "";
+  });
+
   it("显示当前曲目信息", async () => {
-    const pinia = createPinia();
-    const wrapper = mount(PlayerDock, {
-      global: {
-        plugins: [pinia],
-      },
-    });
+    const { wrapper } = await mountDock();
 
     expect(wrapper.get('[data-testid="player-dock-title"]').text()).toBe("晨雾回声");
     expect(wrapper.get('[data-testid="player-dock-artist"]').text()).toContain("北纬合成社");
     expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="player-dock-transport"]').exists()).toBe(true);
+    expect(wrapper.text()).toContain("当前播放");
+    expect(wrapper.text()).not.toContain("Mode");
   });
 
   it("点击播放/暂停按钮会切换 player.isPlaying", async () => {
-    const pinia = createPinia();
     const { usePlayerStore } = await import("@/stores/player");
+    const { wrapper, pinia } = await mountDock();
     const player = usePlayerStore(pinia);
-    const wrapper = mount(PlayerDock, {
-      global: {
-        plugins: [pinia],
-      },
-    });
 
     expect(player.isPlaying).toBe(false);
 
@@ -114,14 +155,9 @@ describe("player dock", () => {
   });
 
   it("点击上一首/下一首会切换当前曲目", async () => {
-    const pinia = createPinia();
     const { usePlayerStore } = await import("@/stores/player");
+    const { wrapper, pinia } = await mountDock();
     const player = usePlayerStore(pinia);
-    const wrapper = mount(PlayerDock, {
-      global: {
-        plugins: [pinia],
-      },
-    });
 
     const initialTrackId = player.currentTrack?.id;
     const initialIndex = player.currentIndex;
@@ -138,26 +174,21 @@ describe("player dock", () => {
   });
 
   it("点击模式按钮会循环切换播放模式", async () => {
-    const pinia = createPinia();
     const { usePlayerStore } = await import("@/stores/player");
+    const { wrapper, pinia } = await mountDock();
     const player = usePlayerStore(pinia);
-    const wrapper = mount(PlayerDock, {
-      global: {
-        plugins: [pinia],
-      },
-    });
 
     expect(player.activeModeLabel).toBe("顺序播放");
     expect(wrapper.get('[data-testid="player-dock-mode-label"]').text()).toBe("顺序播放");
 
     await wrapper.get('[data-testid="player-dock-mode"]').trigger("click");
     await flushPromises();
-    expect(player.activeModeLabel).toBe("随机播放");
-    expect(wrapper.get('[data-testid="player-dock-mode-label"]').text()).toBe("随机播放");
+    expect(player.activeModeLabel).toBe("单曲循环");
+    expect(wrapper.get('[data-testid="player-dock-mode-label"]').text()).toBe("单曲循环");
 
     await wrapper.get('[data-testid="player-dock-mode"]').trigger("click");
     await flushPromises();
-    expect(player.activeModeLabel).toBe("单曲循环");
+    expect(player.activeModeLabel).toBe("随机播放");
 
     await wrapper.get('[data-testid="player-dock-mode"]').trigger("click");
     await flushPromises();
@@ -165,17 +196,12 @@ describe("player dock", () => {
   });
 
   it("拖动进度条会触发 seek 并更新 currentTime", async () => {
-    const pinia = createPinia();
     const { usePlayerStore } = await import("@/stores/player");
+    const { wrapper, pinia } = await mountDock();
     const player = usePlayerStore(pinia);
     await player.playTrackById("track-dawn-echo");
     player.duration = 180;
-
-    const wrapper = mount(PlayerDock, {
-      global: {
-        plugins: [pinia],
-      },
-    });
+    await flushPromises();
 
     const progress = wrapper.get('[data-testid="player-dock-progress"]');
     expect(progress.attributes("disabled")).toBeUndefined();
@@ -186,14 +212,9 @@ describe("player dock", () => {
   });
 
   it("拖动音量滑块会调用 setVolume 并更新音量", async () => {
-    const pinia = createPinia();
     const { usePlayerStore } = await import("@/stores/player");
+    const { wrapper, pinia } = await mountDock();
     const player = usePlayerStore(pinia);
-    const wrapper = mount(PlayerDock, {
-      global: {
-        plugins: [pinia],
-      },
-    });
 
     expect(wrapper.find('[data-testid="player-dock-volume-rail"]').exists()).toBe(true);
     await wrapper.get('[data-testid="player-dock-volume"]').setValue("0.35");
@@ -202,14 +223,9 @@ describe("player dock", () => {
   });
 
   it("点击静音按钮会切换 muted 状态", async () => {
-    const pinia = createPinia();
     const { usePlayerStore } = await import("@/stores/player");
+    const { wrapper, pinia } = await mountDock();
     const player = usePlayerStore(pinia);
-    const wrapper = mount(PlayerDock, {
-      global: {
-        plugins: [pinia],
-      },
-    });
 
     expect(player.muted).toBe(false);
 
@@ -221,16 +237,10 @@ describe("player dock", () => {
   });
 
   it("出现播放错误时会展示错误提示文案", async () => {
-    const pinia = createPinia();
     const { usePlayerStore } = await import("@/stores/player");
+    const { wrapper, pinia } = await mountDock();
     const player = usePlayerStore(pinia);
     await player.playTrackById("track-dawn-echo");
-
-    const wrapper = mount(PlayerDock, {
-      global: {
-        plugins: [pinia],
-      },
-    });
 
     expect(wrapper.find(".player-dock__error").exists()).toBe(false);
 
@@ -240,5 +250,40 @@ describe("player dock", () => {
 
     const error = wrapper.get(".player-dock__error");
     expect(error.text()).toContain("播放失败：decode failed");
+  });
+
+  it("队列入口会打开只读 upcoming 面板，并可点击切歌", async () => {
+    const { usePlayerStore } = await import("@/stores/player");
+    const { wrapper, pinia } = await mountDock();
+    const player = usePlayerStore(pinia);
+    const nextTrack = player.upcomingTracks[0];
+
+    expect(nextTrack).toBeTruthy();
+    expect(wrapper.find('[data-testid="player-dock-queue-popover"]').exists()).toBe(false);
+
+    await wrapper.get('[data-testid="player-dock-queue-button"]').trigger("click");
+    await flushPromises();
+
+    expect(wrapper.get('[data-testid="player-dock-queue-popover"]').text()).toContain("当前播放曲目");
+    expect(wrapper.get('[data-testid="player-dock-queue-button"]').attributes("aria-expanded")).toBe("true");
+    expect(wrapper.get('[data-testid="queue-current-track"]').text()).toContain(player.currentTrack?.title ?? "");
+    expect(wrapper.get('[data-testid="queue-total-count"]').text()).toContain(String(player.queue.length));
+
+    await wrapper.get(`[data-testid="queue-track-item-${nextTrack!.id}"]`).trigger("click");
+    await flushPromises();
+
+    expect(player.currentTrack?.id).toBe(nextTrack!.id);
+  });
+
+  it("右侧存在进入播放器页面按钮，并能跳转到 /player", async () => {
+    const { wrapper, router } = await mountDock("/library");
+
+    const button = wrapper.get('[data-testid="player-dock-open-player"]');
+    expect(button.attributes("aria-label")).toContain("打开播放器");
+
+    await button.trigger("click");
+    await flushPromises();
+
+    expect(router.currentRoute.value.path).toBe("/player");
   });
 });
