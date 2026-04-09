@@ -168,8 +168,8 @@ function findTrackIndexByAudioSource(queue: readonly Track[], audioSrc: string) 
 
 const playbackModeLabelMap: Record<PlaybackMode, string> = {
   sequential: "顺序播放",
-  "repeat-all": "列表循环",
   "repeat-one": "单曲循环",
+  shuffle: "随机播放",
 };
 
 const trackById = new Map(tracks.map(track => [track.id, track] as const));
@@ -185,6 +185,8 @@ export const usePlayerStore = defineStore("player", () => {
   const volume = ref(clampVolume(audio.volume));
   const muted = ref(Boolean(audio.muted));
   const mode = ref<PlaybackMode>("sequential");
+  const playbackContextVersion = ref(0);
+  const shuffleAnchorTrackId = ref<string | null>(queue.value[currentIndex.value]?.id ?? null);
   const likedIds = ref(new Set(likedTrackIds));
   const likedTrackIdList = computed(() => [...likedIds.value]);
   const likedCount = computed(() => likedIds.value.size);
@@ -249,6 +251,23 @@ export const usePlayerStore = defineStore("player", () => {
     }
 
     return Math.min(Math.max(nextIndex, 0), queue.value.length - 1);
+  }
+
+  function getPlaybackContextId() {
+    return `ctx-${playbackContextVersion.value}`;
+  }
+
+  function getShuffleAnchorTrackId() {
+    return shuffleAnchorTrackId.value ?? currentTrack.value?.id ?? null;
+  }
+
+  function setShuffleAnchorTrackId(trackId: string | null) {
+    shuffleAnchorTrackId.value = trackId;
+  }
+
+  function replaceQueue(nextQueue: Track[]) {
+    queue.value = [...nextQueue];
+    playbackContextVersion.value += 1;
   }
 
   function syncCurrentTimeFromAudio() {
@@ -358,6 +377,9 @@ export const usePlayerStore = defineStore("player", () => {
       currentIndex: currentIndex.value,
       trackCount: queue.value.length,
       mode: mode.value,
+      trackIds: toTrackIds(queue.value),
+      contextId: getPlaybackContextId(),
+      shuffleAnchorTrackId: getShuffleAnchorTrackId(),
     });
 
     currentIndex.value = clampIndex(next.nextIndex);
@@ -390,6 +412,9 @@ export const usePlayerStore = defineStore("player", () => {
       currentIndex: currentIndex.value,
       trackCount: queue.value.length,
       mode: mode.value,
+      trackIds: toTrackIds(queue.value),
+      contextId: getPlaybackContextId(),
+      shuffleAnchorTrackId: getShuffleAnchorTrackId(),
     });
 
     currentIndex.value = clampIndex(recovery.nextIndex);
@@ -442,7 +467,8 @@ export const usePlayerStore = defineStore("player", () => {
     }
 
     const token = beginAction();
-    queue.value = [...nextQueue];
+    replaceQueue(nextQueue);
+    setShuffleAnchorTrackId(trackId);
     await playAtIndexWithToken(selection.nextIndex, token);
   }
 
@@ -454,6 +480,9 @@ export const usePlayerStore = defineStore("player", () => {
 
     if (selection.found) {
       const token = beginAction();
+      if (mode.value === "shuffle") {
+        setShuffleAnchorTrackId(trackId);
+      }
       await playAtIndexWithToken(selection.nextIndex, token);
       return;
     }
@@ -467,7 +496,8 @@ export const usePlayerStore = defineStore("player", () => {
     }
 
     const token = beginAction();
-    queue.value = [...tracks];
+    replaceQueue(tracks);
+    setShuffleAnchorTrackId(trackId);
     await playAtIndexWithToken(fallbackSelection.nextIndex, token);
   }
 
@@ -488,6 +518,9 @@ export const usePlayerStore = defineStore("player", () => {
       currentIndex: currentIndex.value,
       trackCount: queue.value.length,
       mode: mode.value,
+      trackIds: toTrackIds(queue.value),
+      contextId: getPlaybackContextId(),
+      shuffleAnchorTrackId: getShuffleAnchorTrackId(),
     });
 
     currentIndex.value = clampIndex(next.nextIndex);
@@ -506,6 +539,10 @@ export const usePlayerStore = defineStore("player", () => {
       currentIndex: currentIndex.value,
       currentTime: currentTime.value,
       trackCount: queue.value.length,
+      mode: mode.value,
+      trackIds: toTrackIds(queue.value),
+      contextId: getPlaybackContextId(),
+      shuffleAnchorTrackId: getShuffleAnchorTrackId(),
     });
 
     const token = beginAction();
@@ -538,9 +575,15 @@ export const usePlayerStore = defineStore("player", () => {
   }
 
   function cycleMode() {
-    const orderedModes: PlaybackMode[] = ["sequential", "repeat-all", "repeat-one"];
+    const orderedModes: PlaybackMode[] = ["sequential", "shuffle", "repeat-one"];
     const currentModeIndex = orderedModes.indexOf(mode.value);
-    mode.value = orderedModes[(currentModeIndex + 1) % orderedModes.length];
+    const nextMode = orderedModes[(currentModeIndex + 1) % orderedModes.length];
+    if (nextMode === "shuffle") {
+      setShuffleAnchorTrackId(currentTrack.value?.id ?? queue.value[currentIndex.value]?.id ?? null);
+    } else if (mode.value === "shuffle") {
+      setShuffleAnchorTrackId(null);
+    }
+    mode.value = nextMode;
   }
 
   function toggleLike(trackId: string) {

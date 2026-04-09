@@ -84,7 +84,7 @@ describe("profile view", () => {
     await nextTick();
 
     expect(wrapper.text()).toContain("2 首");
-    expect(wrapper.text()).toContain("列表循环");
+    expect(wrapper.text()).toContain("随机播放");
   }, 10000);
 
   it("点击 recent 列表项会继续播放该歌曲", async () => {

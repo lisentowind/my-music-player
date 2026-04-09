@@ -87,7 +87,7 @@ describe("player dock", () => {
     });
 
     expect(wrapper.get('[data-testid="player-dock-title"]').text()).toBe("晨雾回声");
-    expect(wrapper.get('[data-testid="player-dock-artist"]').text()).toContain("NOVA 北纬");
+    expect(wrapper.get('[data-testid="player-dock-artist"]').text()).toContain("北纬合成社");
     expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="player-dock-transport"]').exists()).toBe(true);
   });
@@ -152,8 +152,8 @@ describe("player dock", () => {
 
     await wrapper.get('[data-testid="player-dock-mode"]').trigger("click");
     await flushPromises();
-    expect(player.activeModeLabel).toBe("列表循环");
-    expect(wrapper.get('[data-testid="player-dock-mode-label"]').text()).toBe("列表循环");
+    expect(player.activeModeLabel).toBe("随机播放");
+    expect(wrapper.get('[data-testid="player-dock-mode-label"]').text()).toBe("随机播放");
 
     await wrapper.get('[data-testid="player-dock-mode"]').trigger("click");
     await flushPromises();

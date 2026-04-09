@@ -1,4 +1,4 @@
-export type PlaybackMode = "sequential" | "repeat-one" | "repeat-all";
+export type PlaybackMode = "sequential" | "repeat-one" | "shuffle";
 
 export interface Track {
   id: string;
