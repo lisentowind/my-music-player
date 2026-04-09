@@ -1,9 +1,11 @@
 import type {
   AuraOnlineResource,
   AuraPlaylist,
+  AuraResourceValidationItem,
   FeaturedAlbum,
   Track,
 } from "@/types/music";
+import auraResourceValidationManifestSource from "@/data/aura-resource-manifest.json";
 
 export interface AuraDiscoverAtmosphere {
   id: string;
@@ -92,7 +94,7 @@ const auraTrackSeeds: AuraTrackSeed[] = [
     album: "玻璃雨",
     durationSeconds: 28,
     durationLabel: "0:28",
-    coverSrc: "https://images.unsplash.com/photo-1464375117522-1311dd6a2a0f?auto=format&fit=crop&w=640&q=80",
+    coverSrc: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=640&q=80",
     audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
     lyrics: "[00:00.00]午夜镜面\n[00:08.50]霓虹落进水里\n[00:19.30]低频像潮汐推近",
     moods: ["深蓝", "低频", "克制"],
@@ -244,3 +246,6 @@ export const auraOnlineResourceManifest: AuraOnlineResource[] = auraTracks.flatM
     url: track.audioSrc,
   },
 ]);
+
+export const auraResourceValidationManifest =
+  auraResourceValidationManifestSource as AuraResourceValidationItem[];

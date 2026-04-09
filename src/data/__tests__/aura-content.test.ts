@@ -6,6 +6,7 @@ import {
   auraDefaultPlaylistTracks,
   auraLibraryPlaylists,
   auraOnlineResourceManifest,
+  auraResourceValidationManifest,
   auraRecommendationPlaylists,
   auraTracks,
   getAuraTracksByIds,
@@ -16,6 +17,7 @@ import {
   likedTrackIds,
   tracks,
 } from "@/data/music-library";
+import rawAuraResourceValidationManifest from "@/data/aura-resource-manifest.json";
 
 function formatDuration(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -107,6 +109,32 @@ describe("aura-content 数据契约", () => {
       expect(resource.url.startsWith("https://")).toBe(true);
       expect(resource.trackId.length).toBeGreaterThan(0);
       expect(resource.kind === "cover" || resource.kind === "audio").toBe(true);
+    }
+  });
+
+  it("验收脚本可消费资源清单元数据（resourceKey/主备资源）", () => {
+    expect(auraResourceValidationManifest.length).toBe(auraOnlineResourceManifest.length);
+    expect(auraResourceValidationManifest).toEqual(rawAuraResourceValidationManifest);
+
+    const keys = auraResourceValidationManifest.map(resource => resource.resourceKey);
+    expect(new Set(keys).size).toBe(keys.length);
+
+    for (const resource of auraResourceValidationManifest) {
+      expect(resource.resourceKey.length).toBeGreaterThan(0);
+      expect(resource.primaryUrl.startsWith("https://")).toBe(true);
+      expect(resource.trackId.length).toBeGreaterThan(0);
+      expect(resource.kind === "cover" || resource.kind === "audio").toBe(true);
+      expect(resource.fallbackUrl === null || resource.fallbackUrl.startsWith("https://")).toBe(true);
+      expect(resource.description.length).toBeGreaterThan(0);
+    }
+
+    const primaryUrlByResourceKey = new Map(
+      auraResourceValidationManifest.map(resource => [resource.resourceKey, resource.primaryUrl] as const),
+    );
+    expect(primaryUrlByResourceKey.size).toBe(auraOnlineResourceManifest.length);
+
+    for (const resource of auraOnlineResourceManifest) {
+      expect(primaryUrlByResourceKey.get(resource.id)).toBe(resource.url);
     }
   });
 

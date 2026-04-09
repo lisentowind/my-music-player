@@ -1,0 +1,98 @@
+[
+  {
+    "resourceKey": "track-dawn-echo-cover",
+    "trackId": "track-dawn-echo",
+    "kind": "cover",
+    "primaryUrl": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=640&q=80",
+    "fallbackUrl": null,
+    "description": "主封面资源"
+  },
+  {
+    "resourceKey": "track-dawn-echo-audio",
+    "trackId": "track-dawn-echo",
+    "kind": "audio",
+    "primaryUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "fallbackUrl": null,
+    "description": "主音频资源"
+  },
+  {
+    "resourceKey": "track-glacier-pulse-cover",
+    "trackId": "track-glacier-pulse",
+    "kind": "cover",
+    "primaryUrl": "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=640&q=80",
+    "fallbackUrl": null,
+    "description": "主封面资源"
+  },
+  {
+    "resourceKey": "track-glacier-pulse-audio",
+    "trackId": "track-glacier-pulse",
+    "kind": "audio",
+    "primaryUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    "fallbackUrl": null,
+    "description": "主音频资源"
+  },
+  {
+    "resourceKey": "track-orbit-glow-cover",
+    "trackId": "track-orbit-glow",
+    "kind": "cover",
+    "primaryUrl": "https://images.unsplash.com/photo-1504893524553-b855bce32c67?auto=format&fit=crop&w=640&q=80",
+    "fallbackUrl": null,
+    "description": "主封面资源"
+  },
+  {
+    "resourceKey": "track-orbit-glow-audio",
+    "trackId": "track-orbit-glow",
+    "kind": "audio",
+    "primaryUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    "fallbackUrl": null,
+    "description": "主音频资源"
+  },
+  {
+    "resourceKey": "track-cold-window-cover",
+    "trackId": "track-cold-window",
+    "kind": "cover",
+    "primaryUrl": "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=640&q=80",
+    "fallbackUrl": null,
+    "description": "主封面资源"
+  },
+  {
+    "resourceKey": "track-cold-window-audio",
+    "trackId": "track-cold-window",
+    "kind": "audio",
+    "primaryUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+    "fallbackUrl": null,
+    "description": "主音频资源"
+  },
+  {
+    "resourceKey": "track-silver-steps-cover",
+    "trackId": "track-silver-steps",
+    "kind": "cover",
+    "primaryUrl": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=640&q=80",
+    "fallbackUrl": null,
+    "description": "主封面资源"
+  },
+  {
+    "resourceKey": "track-silver-steps-audio",
+    "trackId": "track-silver-steps",
+    "kind": "audio",
+    "primaryUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+    "fallbackUrl": null,
+    "description": "主音频资源"
+  },
+  {
+    "resourceKey": "track-midnight-mirror-cover",
+    "trackId": "track-midnight-mirror",
+    "kind": "cover",
+    "primaryUrl": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=640&q=80",
+    "fallbackUrl": null,
+    "description": "主封面资源"
+  },
+  {
+    "resourceKey": "track-midnight-mirror-audio",
+    "trackId": "track-midnight-mirror",
+    "kind": "audio",
+    "primaryUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
+    "fallbackUrl": null,
+    "description": "主音频资源"
+  }
+]

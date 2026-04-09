@@ -63,3 +63,12 @@ export interface AuraOnlineResource {
   kind: "cover" | "audio";
   url: string;
 }
+
+export interface AuraResourceValidationItem {
+  resourceKey: string;
+  trackId: string;
+  kind: AuraOnlineResource["kind"];
+  primaryUrl: string;
+  fallbackUrl: string | null;
+  description: string;
+}
