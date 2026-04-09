@@ -88,6 +88,8 @@ describe("player dock", () => {
 
     expect(wrapper.get('[data-testid="player-dock-title"]').text()).toBe("晨雾回声");
     expect(wrapper.get('[data-testid="player-dock-artist"]').text()).toContain("NOVA 北纬");
+    expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="player-dock-transport"]').exists()).toBe(true);
   });
 
   it("点击播放/暂停按钮会切换 player.isPlaying", async () => {
@@ -146,11 +148,12 @@ describe("player dock", () => {
     });
 
     expect(player.activeModeLabel).toBe("顺序播放");
-    expect(wrapper.get('[data-testid="player-dock-mode"]').text()).toBe("顺序播放");
+    expect(wrapper.get('[data-testid="player-dock-mode-label"]').text()).toBe("顺序播放");
 
     await wrapper.get('[data-testid="player-dock-mode"]').trigger("click");
     await flushPromises();
     expect(player.activeModeLabel).toBe("列表循环");
+    expect(wrapper.get('[data-testid="player-dock-mode-label"]').text()).toBe("列表循环");
 
     await wrapper.get('[data-testid="player-dock-mode"]').trigger("click");
     await flushPromises();
@@ -176,6 +179,7 @@ describe("player dock", () => {
 
     const progress = wrapper.get('[data-testid="player-dock-progress"]');
     expect(progress.attributes("disabled")).toBeUndefined();
+    expect(wrapper.find('[data-testid="player-dock-progress-rail"]').exists()).toBe(true);
 
     await progress.setValue("42.5");
     expect(player.currentTime).toBe(42.5);
@@ -191,6 +195,7 @@ describe("player dock", () => {
       },
     });
 
+    expect(wrapper.find('[data-testid="player-dock-volume-rail"]').exists()).toBe(true);
     await wrapper.get('[data-testid="player-dock-volume"]').setValue("0.35");
 
     expect(player.volume).toBeCloseTo(0.35);

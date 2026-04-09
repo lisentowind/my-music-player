@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { ref } from "vue";
+import { useGsapHover, useGsapReveal } from "@/composables/use-gsap";
+
 interface RecentPlayItem {
   id: string;
   title: string;
@@ -21,14 +24,24 @@ const emit = defineEmits<{
   play: [trackId: string];
 }>();
 
+const listRef = ref<HTMLElement | null>(null);
+const surfaceRef = ref<HTMLElement | null>(null);
+
 function playTrack(trackId: string) {
   emit("play", trackId);
 }
+
+useGsapHover(surfaceRef, {
+  hoverY: -2,
+  hoverScale: 1.004,
+  pressScale: 0.997,
+});
+useGsapReveal(listRef, [".recent-play-list__item"], 0.08);
 </script>
 
 <template>
-  <section class="recent-play-list glass-surface" aria-label="最近播放">
-    <ul v-if="tracks.length > 0" class="recent-play-list__list">
+  <section ref="surfaceRef" class="recent-play-list glass-surface" aria-label="最近播放">
+    <ul v-if="tracks.length > 0" ref="listRef" class="recent-play-list__list">
       <li v-for="track in tracks" :key="track.id">
         <button
           type="button"

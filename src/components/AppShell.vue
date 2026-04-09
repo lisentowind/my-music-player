@@ -1,17 +1,24 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router";
 import AppSidebar from "@/components/chrome/AppSidebar.vue";
-import AppTopbar from "@/components/chrome/AppTopbar.vue";
 import PlayerDock from "@/components/dock/PlayerDock.vue";
+import { animateRouteEnter, animateRouteLeave } from "@/composables/use-gsap";
 </script>
 
 <template>
-  <div class="app-shell">
-    <AppSidebar class="app-shell__sidebar" />
+  <div class="app-shell" data-testid="app-shell-layout">
+    <aside class="app-shell__sidebar" data-testid="app-shell-sidebar">
+      <AppSidebar />
+    </aside>
     <div class="app-shell__content">
-      <AppTopbar />
       <main class="app-shell__main">
-        <RouterView />
+        <div class="app-shell__scroll" data-testid="app-shell-scroll">
+          <RouterView v-slot="{ Component, route }">
+            <Transition mode="out-in" :css="false" @enter="animateRouteEnter" @leave="animateRouteLeave">
+              <component :is="Component" :key="route.fullPath" class="app-shell__page" />
+            </Transition>
+          </RouterView>
+        </div>
       </main>
     </div>
     <PlayerDock />
@@ -20,45 +27,77 @@ import PlayerDock from "@/components/dock/PlayerDock.vue";
 
 <style scoped lang="less">
 .app-shell {
+  --shell-top-offset: var(--layout-gap);
+  --shell-left-offset: var(--layout-gap);
+  --shell-right-offset: var(--layout-gap);
   min-height: 100vh;
-  display: flex;
-  gap: var(--space-4);
-  padding: var(--space-4);
-  padding-bottom: calc(var(--space-10) + 104px);
-  background:
-    radial-gradient(980px 560px at 115% -15%, rgba(56, 189, 248, 0.18), transparent 50%),
-    radial-gradient(880px 500px at -25% 105%, rgba(129, 140, 248, 0.14), transparent 52%),
-    linear-gradient(155deg, #eff4ff 0%, #eefaf7 100%),
-    var(--color-bg);
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  background: var(--color-bg-canvas);
 }
 
 .app-shell__sidebar {
-  width: 250px;
-  flex-shrink: 0;
+  position: fixed;
+  top: var(--shell-top-offset);
+  left: var(--shell-left-offset);
+  width: var(--layout-sidebar-width);
+  height: calc(100vh - (var(--layout-gap) * 2) - var(--layout-dock-space));
+  z-index: 32;
 }
 
 .app-shell__content {
-  flex: 1;
+  margin-left: calc(var(--layout-sidebar-width) + (var(--layout-gap) * 2));
+  padding: var(--layout-gap) var(--shell-right-offset) calc(var(--layout-gap) + var(--layout-dock-space)) 0;
+  height: 100vh;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
 }
 
 .app-shell__main {
-  flex: 1;
+  height: calc(100vh - (var(--layout-gap) * 2) - var(--layout-dock-space));
   min-height: 0;
+}
+
+.app-shell__scroll {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 var(--space-2) var(--space-6) 0;
+}
+
+.app-shell__page {
+  min-height: 100%;
 }
 
 @media (max-width: 960px) {
   .app-shell {
-    flex-direction: column;
-    padding: var(--space-4);
-    padding-bottom: calc(var(--space-8) + 168px);
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
   }
 
   .app-shell__sidebar {
-    width: 100%;
+    position: static;
+    width: auto;
+    height: auto;
+    margin: var(--layout-gap) var(--layout-gap) 0;
+  }
+
+  .app-shell__content {
+    margin-left: 0;
+    padding: var(--layout-gap);
+    padding-bottom: calc(var(--layout-gap) + 168px);
+    height: auto;
+  }
+
+  .app-shell__main {
+    height: auto;
+  }
+
+  .app-shell__scroll {
+    height: auto;
+    overflow: visible;
+    padding-right: 0;
   }
 }
 </style>

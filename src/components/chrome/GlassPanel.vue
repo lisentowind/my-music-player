@@ -17,12 +17,12 @@ withDefaults(
 
 <style scoped lang="less">
 .glass-panel {
-  border: 1px solid rgba(148, 163, 184, 0.26);
+  border: 1px solid var(--color-panel-border);
   border-radius: var(--radius-md);
   background:
-    linear-gradient(140deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.55)),
-    rgba(255, 255, 255, 0.34);
+    linear-gradient(140deg, var(--color-panel-glow-start), var(--color-panel-glow-end)),
+    var(--color-panel-fill);
   backdrop-filter: blur(14px);
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-md);
 }
 </style>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import UiIconButton from "@/components/ui/UiIconButton.vue";
 
 const props = defineProps<{
   volume: number;
@@ -25,27 +26,30 @@ function onVolumeChange(event: Event) {
 
 <template>
   <section class="volume-control" aria-label="音量控制">
-    <button
+    <UiIconButton
       class="volume-control__mute"
       data-testid="player-dock-mute"
-      type="button"
-      :aria-label="muted ? '取消静音' : '静音'"
+      :icon="muted ? 'solar:volume-cross-outline' : 'solar:volume-loud-outline'"
+      :label="muted ? '取消静音' : '静音'"
+      size="sm"
+      variant="ghost"
+      :pressed="muted"
       @click="emit('toggleMute')"
-    >
-      {{ muted ? "取消静音" : "静音" }}
-    </button>
-    <input
-      class="volume-control__slider"
-      data-testid="player-dock-volume"
-      type="range"
-      min="0"
-      max="1"
-      step="0.01"
-      :value="volume"
-      :style="{ '--volume-progress': volumePercent }"
-      aria-label="音量"
-      @input="onVolumeChange"
-    >
+    />
+    <div class="volume-control__rail" data-testid="player-dock-volume-rail">
+      <input
+        class="volume-control__slider"
+        data-testid="player-dock-volume"
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        :value="volume"
+        :style="{ '--volume-progress': volumePercent }"
+        aria-label="音量"
+        @input="onVolumeChange"
+      >
+    </div>
     <span class="volume-control__label">{{ muted ? "已静音" : volumePercent }}</span>
   </section>
 </template>
@@ -53,47 +57,42 @@ function onVolumeChange(event: Event) {
 <style scoped lang="less">
 .volume-control {
   display: grid;
-  grid-template-columns: 58px minmax(90px, 1fr) 48px;
+  grid-template-columns: 34px minmax(90px, 1fr) 48px;
   align-items: center;
   gap: var(--space-2);
 }
 
 .volume-control__mute {
-  height: 30px;
-  border: 1px solid rgba(126, 147, 172, 0.35);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.56);
-  color: var(--color-text-secondary);
-  font-size: 11px;
-  cursor: pointer;
 }
 
-.volume-control__mute:hover {
-  border-color: rgba(99, 129, 164, 0.48);
-  background: rgba(255, 255, 255, 0.7);
+.volume-control__rail {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
 }
 
 .volume-control__slider {
   height: 6px;
-  border: 1px solid rgba(125, 142, 164, 0.26);
+  border: 1px solid var(--color-state-border-subtle);
   border-radius: 999px;
   background:
-    linear-gradient(90deg, rgba(109, 170, 248, 0.66) 0%, rgba(90, 146, 239, 0.74) var(--volume-progress), rgba(255, 255, 255, 0.42) var(--volume-progress), rgba(255, 255, 255, 0.28) 100%),
-    rgba(255, 255, 255, 0.45);
+    linear-gradient(90deg, var(--color-accent-soft) 0%, var(--color-accent) var(--volume-progress), var(--color-state-hover) var(--volume-progress), transparent 100%),
+    var(--color-surface);
 }
 
 .volume-control__slider::-webkit-slider-thumb {
   width: 12px;
   height: 12px;
-  border: 1px solid rgba(118, 142, 172, 0.48);
-  background: #f8fbff;
+  border: 1px solid var(--color-range-thumb-border);
+  background: var(--color-range-thumb-bg);
 }
 
 .volume-control__slider::-moz-range-thumb {
   width: 12px;
   height: 12px;
-  border: 1px solid rgba(118, 142, 172, 0.48);
-  background: #f8fbff;
+  border: 1px solid var(--color-range-thumb-border);
+  background: var(--color-range-thumb-bg);
 }
 
 .volume-control__label {

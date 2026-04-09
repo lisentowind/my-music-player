@@ -158,6 +158,14 @@ function toTrackIds(queue: readonly Track[]) {
   return queue.map(track => track.id);
 }
 
+function findTrackIndexByAudioSource(queue: readonly Track[], audioSrc: string) {
+  if (!audioSrc) {
+    return -1;
+  }
+
+  return queue.findIndex(track => track.audioSrc === audioSrc);
+}
+
 const playbackModeLabelMap: Record<PlaybackMode, string> = {
   sequential: "顺序播放",
   "repeat-all": "列表循环",
@@ -167,13 +175,15 @@ const playbackModeLabelMap: Record<PlaybackMode, string> = {
 const trackById = new Map(tracks.map(track => [track.id, track] as const));
 
 export const usePlayerStore = defineStore("player", () => {
+  const audio = getSharedAudio();
   const queue = ref<Track[]>([...tracks]);
-  const currentIndex = ref(0);
-  const isPlaying = ref(false);
-  const currentTime = ref(0);
-  const duration = ref(0);
-  const volume = ref(0.72);
-  const muted = ref(false);
+  const initialTrackIndex = findTrackIndexByAudioSource(queue.value, audio.src);
+  const currentIndex = ref(initialTrackIndex >= 0 ? initialTrackIndex : 0);
+  const isPlaying = ref(!audio.paused && initialTrackIndex >= 0);
+  const currentTime = ref(toSafeTime(audio.currentTime));
+  const duration = ref(toSafeDuration(audio.duration));
+  const volume = ref(clampVolume(audio.volume));
+  const muted = ref(Boolean(audio.muted));
   const mode = ref<PlaybackMode>("sequential");
   const likedIds = ref(new Set(likedTrackIds));
   const likedTrackIdList = computed(() => [...likedIds.value]);
@@ -218,7 +228,6 @@ export const usePlayerStore = defineStore("player", () => {
   const currentTimeLabel = computed(() => formatPlaybackTime(currentTime.value));
   const durationLabel = computed(() => formatPlaybackTime(duration.value));
 
-  const audio = getSharedAudio();
   audio.volume = volume.value;
   audio.muted = muted.value;
 

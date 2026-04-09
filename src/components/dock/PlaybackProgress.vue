@@ -60,19 +60,21 @@ function seek(event: Event) {
 <template>
   <section class="playback-progress" aria-label="播放进度">
     <span class="playback-progress__time" data-testid="player-dock-current-time">{{ resolvedCurrentLabel }}</span>
-    <input
-      data-testid="player-dock-progress"
-      class="playback-progress__slider"
-      type="range"
-      min="0"
-      :max="maxValue"
-      step="0.1"
-      :value="safeCurrentTime"
-      :disabled="safeDuration <= 0"
-      :style="{ '--playback-progress': progressPercent }"
-      aria-label="播放进度"
-      @input="seek"
-    >
+    <div class="playback-progress__rail" data-testid="player-dock-progress-rail">
+      <input
+        data-testid="player-dock-progress"
+        class="playback-progress__slider"
+        type="range"
+        min="0"
+        :max="maxValue"
+        step="0.1"
+        :value="safeCurrentTime"
+        :disabled="safeDuration <= 0"
+        :style="{ '--playback-progress': progressPercent }"
+        aria-label="播放进度"
+        @input="seek"
+      >
+    </div>
     <span class="playback-progress__time">{{ resolvedDurationLabel }}</span>
   </section>
 </template>
@@ -80,7 +82,7 @@ function seek(event: Event) {
 <style scoped lang="less">
 .playback-progress {
   display: grid;
-  grid-template-columns: 38px minmax(140px, 1fr) 38px;
+  grid-template-columns: 42px minmax(180px, 1fr) 42px;
   align-items: center;
   gap: var(--space-2);
 }
@@ -91,14 +93,20 @@ function seek(event: Event) {
   text-align: center;
 }
 
+.playback-progress__rail {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+}
+
 .playback-progress__slider {
   height: 6px;
-  border: 1px solid rgba(125, 142, 164, 0.26);
+  border: 1px solid var(--color-state-border-subtle);
   border-radius: 999px;
   background:
-    linear-gradient(90deg, rgba(125, 168, 255, 0.72) 0%, rgba(82, 130, 240, 0.78) var(--playback-progress), rgba(255, 255, 255, 0.4) var(--playback-progress), rgba(255, 255, 255, 0.24) 100%),
-    rgba(255, 255, 255, 0.5);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
+    linear-gradient(90deg, var(--color-accent-soft) 0%, var(--color-accent) var(--playback-progress), var(--color-state-hover) var(--playback-progress), transparent 100%),
+    var(--color-surface);
+  box-shadow: inset 0 1px 0 var(--color-glass-highlight-start);
 }
 
 .playback-progress__slider:disabled {
@@ -109,14 +117,14 @@ function seek(event: Event) {
 .playback-progress__slider::-webkit-slider-thumb {
   width: 12px;
   height: 12px;
-  border: 1px solid rgba(118, 142, 172, 0.48);
-  background: #f8fbff;
+  border: 1px solid var(--color-range-thumb-border);
+  background: var(--color-range-thumb-bg);
 }
 
 .playback-progress__slider::-moz-range-thumb {
   width: 12px;
   height: 12px;
-  border: 1px solid rgba(118, 142, 172, 0.48);
-  background: #f8fbff;
+  border: 1px solid var(--color-range-thumb-border);
+  background: var(--color-range-thumb-bg);
 }
 </style>

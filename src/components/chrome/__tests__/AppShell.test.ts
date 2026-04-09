@@ -5,6 +5,23 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import AppShell from "@/components/AppShell.vue";
 import { routes } from "@/router/routes";
 
+vi.mock("howler", () => ({
+  Howl: class {},
+}));
+
+vi.mock("gsap", () => ({
+  gsap: {
+    fromTo: (_target: unknown, _from: unknown, to: { onComplete?: () => void, clearProps?: string }) => {
+      to.onComplete?.();
+      return { kill: vi.fn() };
+    },
+    to: (_target: unknown, to: { onComplete?: () => void, clearProps?: string }) => {
+      to.onComplete?.();
+      return { kill: vi.fn() };
+    },
+  },
+}));
+
 class FakePlayerAudio {
   src = "";
   currentTime = 0;
@@ -58,16 +75,17 @@ describe("app shell chrome", () => {
       },
     });
 
-    const navLinks = wrapper.findAll("nav[aria-label='主导航'] .nav-link");
+    const navLinks = wrapper.findAll(".nav-list .nav-link");
     expect(navLinks).toHaveLength(3);
 
-    const hrefByText = new Map(
-      navLinks.map(link => [link.text(), link.attributes("href")]),
-    );
+    const findHrefByLabel = (label: string) => {
+      const target = navLinks.find(link => link.text().includes(label));
+      return target?.attributes("href");
+    };
 
-    expectLinkTarget(hrefByText.get("推荐"), "/");
-    expectLinkTarget(hrefByText.get("我喜欢"), "/liked");
-    expectLinkTarget(hrefByText.get("个人中心"), "/profile");
+    expectLinkTarget(findHrefByLabel("推荐"), "/");
+    expectLinkTarget(findHrefByLabel("我喜欢"), "/liked");
+    expectLinkTarget(findHrefByLabel("个人中心"), "/profile");
   });
 
   it("使用 route meta.title 作为标题信息源", () => {
@@ -84,7 +102,7 @@ describe("app shell chrome", () => {
     expect(routeByName.get("profile")?.meta?.title).toBe("个人中心");
   });
 
-  it("切换路由后 topbar 标题与页面骨架同步更新，且壳层只有一个 main", async () => {
+  it("切换路由后页面骨架同步更新，且壳层只有一个 main", async () => {
     const router = createRouter({
       history: createMemoryHistory(),
       routes,
@@ -98,19 +116,196 @@ describe("app shell chrome", () => {
       },
     });
 
-    expect(wrapper.find(".meta__title").text()).toBe("推荐");
     expect(wrapper.find("#discover-page").exists()).toBe(true);
     expect(wrapper.findAll("main")).toHaveLength(1);
+    expect(wrapper.find('[data-testid="app-shell-sidebar"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="app-shell-topbar"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="app-shell-scroll"]').exists()).toBe(true);
 
     await router.push("/liked");
     await flushPromises();
-    expect(wrapper.find(".meta__title").text()).toBe("我喜欢");
     expect(wrapper.find("#liked-page").exists()).toBe(true);
 
     await router.push("/profile");
     await flushPromises();
-    expect(wrapper.find(".meta__title").text()).toBe("个人中心");
     expect(wrapper.find("#profile-page").exists()).toBe(true);
+  });
+
+  it("sidebar 右下角提供主题模式、预设色和自定义颜色控件", async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes,
+    });
+    await router.push("/");
+    await router.isReady();
+
+    const wrapper = mount(AppShell, {
+      global: {
+        plugins: [router, createPinia()],
+      },
+    });
+
+    expect(wrapper.find("[data-testid='sidebar-theme-controls']").exists()).toBe(false);
+
+    await wrapper.get("[data-testid='sidebar-menu-trigger']").trigger("click");
+    await flushPromises();
+
+    expect(wrapper.find("[data-testid='sidebar-theme-controls']").exists()).toBe(true);
+    expect(wrapper.find("[data-testid='sidebar-theme-toggle']").exists()).toBe(true);
+    expect(wrapper.find("[data-testid='theme-mode-light']").exists()).toBe(true);
+    expect(wrapper.find("[data-testid='theme-mode-dark']").exists()).toBe(true);
+    expect(wrapper.find("[data-testid='theme-mode-system']").exists()).toBe(true);
+    expect(wrapper.find("[data-testid='theme-custom-color']").exists()).toBe(true);
+
+    await wrapper.get("[data-testid='theme-mode-dark']").trigger("click");
+    await flushPromises();
+    expect(document.documentElement.getAttribute("data-theme-resolved")).toBe("dark");
+  });
+
+  it("左侧外观弹层会限制在 sidebar 可用高度内并内部滚动", async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes,
+    });
+    await router.push("/");
+    await router.isReady();
+
+    const wrapper = mount(AppShell, {
+      global: {
+        plugins: [router, createPinia()],
+      },
+    });
+
+    const sidebar = wrapper.get("[data-testid='app-shell-sidebar']").element as HTMLElement;
+    const sidebarRect = {
+      x: 0,
+      y: 16,
+      top: 16,
+      left: 0,
+      right: 288,
+      bottom: 916,
+      width: 288,
+      height: 900,
+      toJSON: () => ({}),
+    };
+    sidebar.getBoundingClientRect = vi.fn(() => sidebarRect);
+
+    const trigger = wrapper.get(".app-sidebar__menu-trigger").element as HTMLElement;
+    trigger.getBoundingClientRect = vi.fn(() => ({
+      x: 232,
+      y: 760,
+      top: 760,
+      left: 232,
+      right: 272,
+      bottom: 800,
+      width: 40,
+      height: 40,
+      toJSON: () => ({}),
+    }));
+
+    await wrapper.get("[data-testid='sidebar-menu-trigger']").trigger("click");
+    await flushPromises();
+
+    const popover = wrapper.get("[data-testid='sidebar-theme-controls']");
+    expect(popover.attributes("data-placement")).toBe("right");
+    expect(popover.attributes("style")).toContain("max-height:");
+    expect(popover.attributes("style")).toContain("overflow-y:");
+    expect(popover.attributes("style")).toContain("width:");
+  });
+
+  it("左侧外观弹层在窗口高度变化后会重新计算可用高度", async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes,
+    });
+    await router.push("/");
+    await router.isReady();
+
+    const wrapper = mount(AppShell, {
+      global: {
+        plugins: [router, createPinia()],
+      },
+    });
+
+    const sidebar = wrapper.get("[data-testid='app-shell-sidebar']").element as HTMLElement;
+    const sidebarRect = {
+      x: 0,
+      y: 16,
+      top: 16,
+      left: 0,
+      right: 288,
+      bottom: 916,
+      width: 288,
+      height: 900,
+      toJSON: () => ({}),
+    };
+    sidebar.getBoundingClientRect = vi.fn(() => sidebarRect);
+
+    const trigger = wrapper.get(".app-sidebar__menu-trigger").element as HTMLElement;
+    const triggerRect = {
+      x: 232,
+      y: 760,
+      top: 760,
+      left: 232,
+      right: 272,
+      bottom: 800,
+      width: 40,
+      height: 40,
+      toJSON: () => ({}),
+    };
+    trigger.getBoundingClientRect = vi.fn(() => triggerRect);
+
+    await wrapper.get("[data-testid='sidebar-menu-trigger']").trigger("click");
+    await flushPromises();
+
+    const popover = wrapper.get("[data-testid='sidebar-theme-controls']");
+    expect(popover.attributes("data-placement")).toBe("right");
+
+    sidebarRect.bottom = 736;
+    sidebarRect.height = 720;
+    window.dispatchEvent(new Event("resize"));
+    await flushPromises();
+
+    expect(popover.attributes("data-placement")).toBe("right");
+    expect(popover.attributes("style")).toContain("max-height:");
+  });
+
+  it("响应式布局下菜单按钮弹层会改为向下展开", async () => {
+    const previousWidth = window.innerWidth;
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      writable: true,
+      value: 800,
+    });
+
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes,
+    });
+    await router.push("/");
+    await router.isReady();
+
+    const wrapper = mount(AppShell, {
+      global: {
+        plugins: [router, createPinia()],
+      },
+    });
+
+    window.dispatchEvent(new Event("resize"));
+    await flushPromises();
+
+    await wrapper.get("[data-testid='sidebar-menu-trigger']").trigger("click");
+    await flushPromises();
+
+    const popover = wrapper.get("[data-testid='sidebar-theme-controls']");
+    expect(popover.attributes("data-placement")).toBe("bottom");
+    expect(popover.attributes("style") ?? "").not.toContain("width:");
+
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      writable: true,
+      value: previousWidth,
+    });
   });
 
   it("discover 喜欢与播放能联动到 liked，并把最近播放回写到 discover", async () => {

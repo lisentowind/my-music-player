@@ -89,6 +89,96 @@ class FakePlayerAudio {
 type PlayerStoreModule = typeof import("@/stores/player");
 type PlayerAudioModule = typeof import("@/lib/player/audio");
 
+type HowlEventName = "load" | "play" | "pause" | "stop" | "end" | "seek" | "loaderror" | "playerror";
+type HowlEventListener = (...args: unknown[]) => void;
+
+class FakeHowl {
+  private events: Record<HowlEventName, HowlEventListener[]> = {
+    load: [],
+    play: [],
+    pause: [],
+    stop: [],
+    end: [],
+    seek: [],
+    loaderror: [],
+    playerror: [],
+  };
+  private _seek = 0;
+  private _duration = 0;
+  private _volume = 1;
+  private _mute = false;
+
+  state = vi.fn(() => "loaded");
+  playing = vi.fn(() => false);
+  load = vi.fn(() => this.emit("load"));
+  unload = vi.fn(() => {});
+  duration = vi.fn(() => this._duration);
+  seek = vi.fn((value?: number) => {
+    if (typeof value === "number") {
+      this._seek = value;
+      this.emit("seek");
+    }
+
+    return this._seek;
+  });
+  volume = vi.fn((value?: number) => {
+    if (typeof value === "number") {
+      this._volume = value;
+    }
+
+    return this._volume;
+  });
+  mute = vi.fn((value?: boolean) => {
+    if (typeof value === "boolean") {
+      this._mute = value;
+    }
+
+    return this._mute;
+  });
+  play = vi.fn(() => {
+    this.emit("play");
+    return 1;
+  });
+  pause = vi.fn(() => {
+    this.emit("pause");
+  });
+  once = vi.fn((event: HowlEventName, listener: HowlEventListener) => {
+    const onceListener = (...args: unknown[]) => {
+      this.off(event, onceListener);
+      listener(...args);
+    };
+    this.on(event, onceListener);
+    return this;
+  });
+  on = vi.fn((event: HowlEventName, listener: HowlEventListener) => {
+    this.events[event].push(listener);
+    return this;
+  });
+  off = vi.fn((event: HowlEventName, listener?: HowlEventListener) => {
+    if (!listener) {
+      this.events[event] = [];
+      return this;
+    }
+
+    this.events[event] = this.events[event].filter(candidate => candidate !== listener);
+    return this;
+  });
+
+  setDuration(value: number) {
+    this._duration = value;
+  }
+
+  setSeek(value: number) {
+    this._seek = value;
+  }
+
+  emit(event: HowlEventName, ...args: unknown[]) {
+    for (const listener of [...this.events[event]]) {
+      listener(...args);
+    }
+  }
+}
+
 describe("usePlayerStore", () => {
   let usePlayerStore: PlayerStoreModule["usePlayerStore"];
   let configurePlayerAudioFactory: PlayerAudioModule["configurePlayerAudioFactory"];
@@ -197,6 +287,46 @@ describe("usePlayerStore", () => {
     expect(store.currentTime).toBe(33);
   });
 
+  it("创建 store 时会同步共享 audio 的当前时间、时长、音量和静音状态", () => {
+    fakeAudio.src = tracks[0]!.audioSrc;
+    fakeAudio.currentTime = 18;
+    fakeAudio.duration = 120;
+    fakeAudio.volume = 0.48;
+    fakeAudio.muted = true;
+
+    const store = usePlayerStore();
+
+    expect(store.currentTime).toBe(18);
+    expect(store.duration).toBe(120);
+    expect(store.volume).toBe(0.48);
+    expect(store.muted).toBe(true);
+    expect(fakeAudio.volume).toBe(0.48);
+    expect(fakeAudio.muted).toBe(true);
+  });
+
+  it("setVolume 与 toggleMute 会同步到底层 audio 适配实例", () => {
+    const store = usePlayerStore();
+
+    store.setVolume(0.35);
+    expect(store.volume).toBe(0.35);
+    expect(fakeAudio.volume).toBe(0.35);
+
+    store.toggleMute();
+    expect(store.muted).toBe(true);
+    expect(fakeAudio.muted).toBe(true);
+  });
+
+  it("底层 play promise reject 时会记录错误并保持暂停", async () => {
+    const store = usePlayerStore();
+    fakeAudio.play.mockRejectedValueOnce(new Error("autoplay blocked"));
+
+    await store.playTrackById(tracks[0].id);
+
+    expect(store.isPlaying).toBe(false);
+    expect(store.errorTrackId).toBe(tracks[0].id);
+    expect(store.errorMessage).toContain("autoplay blocked");
+  });
+
   it("error 事件会记录错误并按规则自动恢复到下一首", async () => {
     const store = usePlayerStore();
     await store.playTrackById(tracks[0].id);
@@ -246,6 +376,20 @@ describe("usePlayerStore", () => {
 
     secondStore.$dispose();
     expect(fakeAudio.removeEventListener).toHaveBeenCalledTimes(4);
+  });
+
+  it("后创建的 store 不会重置共享 audio 的音量和静音状态", () => {
+    const firstStore = usePlayerStore();
+    firstStore.setVolume(0.25);
+    firstStore.toggleMute();
+
+    const secondPinia = createPinia();
+    const secondStore = usePlayerStore(secondPinia);
+
+    expect(fakeAudio.volume).toBe(0.25);
+    expect(fakeAudio.muted).toBe(true);
+    expect(secondStore.volume).toBe(0.25);
+    expect(secondStore.muted).toBe(true);
   });
 
   it("ended 异步流程过期后不会覆盖用户后续操作", async () => {
@@ -327,5 +471,87 @@ describe("usePlayerStore", () => {
 
     expect(store.favoriteMoodTags).toContain("克制");
     expect(store.favoriteMoodTags).toContain("清透");
+  });
+});
+
+describe("howler player adapter", () => {
+  beforeEach(async () => {
+    vi.resetModules();
+  });
+
+  it("会把 howler 事件桥接为 loadedmetadata/timeupdate/ended/error", async () => {
+    let howlInstance: FakeHowl | null = null;
+    const { configurePlayerHowlerLoader, createHowlerPlayerAudio } = await import("@/lib/player/audio");
+    configurePlayerHowlerLoader(async () => ({
+      Howl: class {
+        constructor() {
+          howlInstance = new FakeHowl();
+          return howlInstance;
+        }
+      } as never,
+    }));
+
+    const audio = createHowlerPlayerAudio();
+    const loadedmetadata = vi.fn();
+    const timeupdate = vi.fn();
+    const ended = vi.fn();
+    const onError = vi.fn();
+    audio.addEventListener("loadedmetadata", loadedmetadata);
+    audio.addEventListener("timeupdate", timeupdate);
+    audio.addEventListener("ended", ended);
+    audio.addEventListener("error", onError);
+
+    const nextDuration = 126;
+    audio.src = "/media/sample-track-01.mp3";
+    audio.load();
+    await Promise.resolve();
+    expect(howlInstance).not.toBeNull();
+
+    howlInstance!.setDuration(nextDuration);
+    howlInstance!.emit("load");
+    expect(audio.duration).toBe(nextDuration);
+    expect(loadedmetadata).toHaveBeenCalledTimes(2);
+
+    howlInstance!.setSeek(33);
+    howlInstance!.emit("seek");
+    expect(audio.currentTime).toBe(33);
+    expect(timeupdate).toHaveBeenCalledTimes(1);
+
+    howlInstance!.setSeek(126);
+    howlInstance!.emit("end");
+    expect(audio.currentTime).toBe(126);
+    expect(ended).toHaveBeenCalledTimes(1);
+
+    howlInstance!.emit("playerror", 1, "decode failed");
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(audio.error).toEqual({ message: "decode failed" });
+  });
+
+  it("volume/muted/currentTime set 操作会透传给 howl 实例", async () => {
+    let howlInstance: FakeHowl | null = null;
+    const { configurePlayerHowlerLoader, createHowlerPlayerAudio } = await import("@/lib/player/audio");
+    configurePlayerHowlerLoader(async () => ({
+      Howl: class {
+        constructor() {
+          howlInstance = new FakeHowl();
+          return howlInstance;
+        }
+      } as never,
+    }));
+
+    const audio = createHowlerPlayerAudio();
+    audio.src = "/media/sample-track-01.mp3";
+    audio.load();
+    await Promise.resolve();
+
+    audio.volume = 0.42;
+    expect(howlInstance!.volume).toHaveBeenCalledWith(0.42);
+
+    audio.muted = true;
+    expect(howlInstance!.mute).toHaveBeenCalledWith(true);
+
+    audio.currentTime = 17;
+    expect(howlInstance!.seek).toHaveBeenCalledWith(17);
+    expect(audio.currentTime).toBe(17);
   });
 });

@@ -2,19 +2,24 @@
 @color-bg-elevated: #f2f6fb;
 @color-surface: rgba(255, 255, 255, 0.72);
 @color-surface-strong: rgba(255, 255, 255, 0.88);
+@color-surface-contrast: rgba(11, 27, 43, 0.86);
 @color-text: #111827;
+@color-text-strong: #0f172a;
 @color-text-secondary: #44556b;
 @color-text-tertiary: #6e7d90;
+@color-text-inverse: #f4f8fc;
 @color-border: rgba(143, 162, 185, 0.32);
 @color-border-strong: rgba(120, 143, 168, 0.42);
 @color-accent: #5f7f9b;
 @color-accent-pressed: #4e6f8d;
+@gradient-accent: linear-gradient(135deg, #a7bdd2 0%, #6b8ca8 100%);
 @color-glass-highlight-start: rgba(255, 255, 255, 0.84);
 @color-glass-highlight-end: rgba(255, 255, 255, 0.6);
 @color-glass-fallback: rgba(247, 250, 253, 0.96);
 @color-state-hover: rgba(255, 255, 255, 0.48);
 @color-state-active: rgba(255, 255, 255, 0.62);
 @color-state-selected: rgba(195, 216, 236, 0.32);
+@color-state-surface-muted: rgba(255, 255, 255, 0.44);
 @color-state-border-subtle: rgba(143, 162, 185, 0.2);
 @color-state-border-emphasis: rgba(95, 127, 155, 0.35);
 @color-state-accent-soft: rgba(95, 127, 155, 0.12);
@@ -48,6 +53,11 @@
 @space-8: 32px;
 @space-10: 40px;
 
+@layout-gap: 20px;
+@layout-sidebar-width: 288px;
+@layout-topbar-height: 108px;
+@layout-dock-space: 160px;
+
 @blur-sm: 10px;
 @blur-md: 18px;
 @blur-lg: 28px;
@@ -58,19 +68,24 @@
   --color-bg-elevated: @color-bg-elevated;
   --color-surface: @color-surface;
   --color-surface-strong: @color-surface-strong;
+  --color-surface-contrast: @color-surface-contrast;
   --color-text: @color-text;
+  --color-text-strong: @color-text-strong;
   --color-text-secondary: @color-text-secondary;
   --color-text-tertiary: @color-text-tertiary;
+  --color-text-inverse: @color-text-inverse;
   --color-border: @color-border;
   --color-border-strong: @color-border-strong;
   --color-accent: @color-accent;
   --color-accent-pressed: @color-accent-pressed;
+  --gradient-accent: @gradient-accent;
   --color-glass-highlight-start: @color-glass-highlight-start;
   --color-glass-highlight-end: @color-glass-highlight-end;
   --color-glass-fallback: @color-glass-fallback;
   --color-state-hover: @color-state-hover;
   --color-state-active: @color-state-active;
   --color-state-selected: @color-state-selected;
+  --color-state-surface-muted: @color-state-surface-muted;
   --color-state-border-subtle: @color-state-border-subtle;
   --color-state-border-emphasis: @color-state-border-emphasis;
   --color-state-accent-soft: @color-state-accent-soft;
@@ -104,8 +119,88 @@
   --space-8: @space-8;
   --space-10: @space-10;
 
+  --layout-gap: @layout-gap;
+  --layout-sidebar-width: @layout-sidebar-width;
+  --layout-topbar-height: @layout-topbar-height;
+  --layout-dock-space: @layout-dock-space;
+
   --blur-sm: @blur-sm;
   --blur-md: @blur-md;
   --blur-lg: @blur-lg;
   --focus-ring: @focus-ring;
+  --color-bg-canvas: linear-gradient(180deg, rgba(245, 249, 253, 0.9), rgba(228, 236, 245, 0.94));
+  --color-surface-elevated: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(238, 245, 252, 0.8));
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 72%, white);
+  --color-danger: #b94d62;
+  --color-panel-border: rgba(148, 163, 184, 0.26);
+  --color-panel-fill: rgba(255, 255, 255, 0.34);
+  --color-panel-glow-start: rgba(255, 255, 255, 0.78);
+  --color-panel-glow-end: rgba(255, 255, 255, 0.55);
+  --color-control-surface: rgba(255, 255, 255, 0.34);
+  --color-control-surface-strong: rgba(255, 255, 255, 0.5);
+  --color-control-stroke: rgba(255, 255, 255, 0.2);
+  --color-card-surface-soft: linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(236, 242, 248, 0.56));
+  --color-text-contrast: #f4f8fc;
+  --color-text-contrast-muted: rgba(241, 247, 255, 0.72);
+  --color-overlay-scrim: rgba(235, 241, 247, 0.22);
+  --color-popover-fill: rgba(248, 251, 255, 0.82);
+  --color-popover-glow-start: rgba(255, 255, 255, 0.92);
+  --color-popover-glow-end: rgba(241, 247, 253, 0.76);
+  --color-popover-shadow: rgba(72, 92, 116, 0.18);
+}
+
+:root[data-theme-resolved="dark"] {
+  --color-bg: #07111c;
+  --color-bg-elevated: #0d1a29;
+  --color-surface: rgba(13, 25, 40, 0.68);
+  --color-surface-strong: rgba(17, 31, 48, 0.86);
+  --color-surface-elevated: linear-gradient(145deg, rgba(19, 32, 50, 0.9), rgba(10, 20, 34, 0.82));
+  --color-surface-contrast: rgba(6, 14, 24, 0.92);
+  --color-text: #ecf4fb;
+  --color-text-strong: #ffffff;
+  --color-text-secondary: #b8c6d6;
+  --color-text-tertiary: #8ea0b4;
+  --color-text-inverse: #08121c;
+  --color-border: rgba(135, 163, 193, 0.18);
+  --color-border-strong: rgba(148, 178, 212, 0.28);
+  --gradient-accent: linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 55%, white), var(--color-accent));
+  --color-glass-highlight-start: rgba(255, 255, 255, 0.1);
+  --color-glass-highlight-end: rgba(255, 255, 255, 0.04);
+  --color-glass-fallback: #112031;
+  --color-state-hover: rgba(255, 255, 255, 0.06);
+  --color-state-active: rgba(255, 255, 255, 0.1);
+  --color-state-selected: rgba(143, 180, 220, 0.18);
+  --color-state-surface-muted: rgba(255, 255, 255, 0.08);
+  --color-state-border-subtle: rgba(148, 178, 212, 0.18);
+  --color-state-border-emphasis: rgba(179, 208, 241, 0.28);
+  --color-range-thumb-border: rgba(190, 213, 235, 0.38);
+  --color-range-thumb-bg: #f0f6fb;
+  --color-scrollbar-thumb: rgba(167, 188, 211, 0.42);
+  --color-scrollbar-track: rgba(255, 255, 255, 0.04);
+  --color-scrollbar-thumb-border: rgba(8, 17, 28, 0.8);
+  --shadow-sm: 0 10px 24px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 20px 44px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 28px 60px rgba(0, 0, 0, 0.36);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-accent) 32%, transparent);
+  --color-bg-canvas:
+    radial-gradient(circle at 18% 20%, rgba(49, 74, 102, 0.28), transparent 32%),
+    radial-gradient(circle at 86% 0%, rgba(30, 159, 139, 0.18), transparent 30%),
+    linear-gradient(180deg, #07111c 0%, #0a1624 52%, #0d1828 100%);
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 80%, white);
+  --color-danger: #ff8c9d;
+  --color-panel-border: rgba(134, 164, 197, 0.18);
+  --color-panel-fill: rgba(10, 20, 34, 0.7);
+  --color-panel-glow-start: rgba(255, 255, 255, 0.08);
+  --color-panel-glow-end: rgba(255, 255, 255, 0.02);
+  --color-control-surface: rgba(255, 255, 255, 0.06);
+  --color-control-surface-strong: rgba(255, 255, 255, 0.1);
+  --color-control-stroke: rgba(255, 255, 255, 0.06);
+  --color-card-surface-soft: linear-gradient(180deg, rgba(24, 38, 55, 0.88), rgba(15, 27, 42, 0.74));
+  --color-text-contrast: #f7fbff;
+  --color-text-contrast-muted: rgba(184, 198, 214, 0.82);
+  --color-overlay-scrim: rgba(5, 10, 16, 0.34);
+  --color-popover-fill: rgba(11, 21, 35, 0.84);
+  --color-popover-glow-start: rgba(255, 255, 255, 0.12);
+  --color-popover-glow-end: rgba(255, 255, 255, 0.04);
+  --color-popover-shadow: rgba(0, 0, 0, 0.34);
 }

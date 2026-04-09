@@ -1,0 +1,455 @@
+import { onBeforeUnmount, onMounted, type Ref } from "vue";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+interface HoverAnimationOptions {
+  hoverY?: number;
+  hoverScale?: number;
+  pressScale?: number;
+  duration?: number;
+}
+
+interface ScrollRevealOptions {
+  selector: string;
+  triggerSelector?: string;
+  x?: number;
+  y?: number;
+  scale?: number;
+  duration?: number;
+  delay?: number;
+  stagger?: number;
+  start?: string;
+  once?: boolean;
+}
+
+interface PointerTiltOptions {
+  maxRotateX?: number;
+  maxRotateY?: number;
+  liftY?: number;
+  scale?: number;
+  duration?: number;
+  depthSelector?: string | string[];
+  depthOffset?: number;
+}
+
+let pluginsRegistered = false;
+
+function canUseDom() {
+  return typeof window !== "undefined";
+}
+
+function prefersReducedMotion() {
+  return canUseDom() && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function registerGsapPlugins() {
+  if (pluginsRegistered || !canUseDom()) {
+    return;
+  }
+
+  const pluginHost = gsap as typeof gsap & {
+    registerPlugin?: (...plugins: unknown[]) => void;
+  };
+
+  pluginHost.registerPlugin?.(ScrollTrigger);
+  pluginsRegistered = true;
+}
+
+function resolveElements(root: HTMLElement, selectors: string[]) {
+  return [...new Set(selectors.flatMap(selector => [...root.querySelectorAll<HTMLElement>(selector)]))];
+}
+
+function resolveNestedElements(root: HTMLElement, selector?: string | string[]) {
+  if (!selector) {
+    return [];
+  }
+
+  const selectors = Array.isArray(selector) ? selector : [selector];
+  return resolveElements(root, selectors);
+}
+
+function attachHoverListeners(element: HTMLElement, options: HoverAnimationOptions = {}) {
+  const {
+    hoverY = -3,
+    hoverScale = 1.01,
+    pressScale = 0.98,
+    duration = 0.2,
+  } = options;
+
+  const onEnter = () => {
+    gsap.to(element, {
+      y: hoverY,
+      scale: hoverScale,
+      duration,
+      ease: "power2.out",
+      overwrite: "auto",
+    });
+  };
+
+  const onLeave = () => {
+    gsap.to(element, {
+      y: 0,
+      scale: 1,
+      duration,
+      ease: "power2.out",
+      overwrite: "auto",
+    });
+  };
+
+  const onDown = () => {
+    gsap.to(element, {
+      scale: pressScale,
+      duration: 0.12,
+      ease: "power2.out",
+      overwrite: "auto",
+    });
+  };
+
+  const onUp = () => {
+    gsap.to(element, {
+      scale: hoverScale,
+      duration: 0.14,
+      ease: "power2.out",
+      overwrite: "auto",
+    });
+  };
+
+  element.addEventListener("pointerenter", onEnter);
+  element.addEventListener("pointerleave", onLeave);
+  element.addEventListener("pointerdown", onDown);
+  element.addEventListener("pointerup", onUp);
+
+  return () => {
+    element.removeEventListener("pointerenter", onEnter);
+    element.removeEventListener("pointerleave", onLeave);
+    element.removeEventListener("pointerdown", onDown);
+    element.removeEventListener("pointerup", onUp);
+  };
+}
+
+export function useGsapReveal(scopeRef: Ref<HTMLElement | null>, selectors: string[], delay = 0) {
+  onMounted(() => {
+    const scope = scopeRef.value;
+    if (!scope || prefersReducedMotion()) {
+      return;
+    }
+
+    const targets = resolveElements(scope, selectors);
+    if (targets.length === 0) {
+      return;
+    }
+
+    gsap.fromTo(
+      targets,
+      { autoAlpha: 0, y: 18 },
+      {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.7,
+        delay,
+        stagger: 0.06,
+        ease: "power3.out",
+        clearProps: "opacity,visibility,transform",
+      },
+    );
+  });
+}
+
+export function useGsapHover(elementRef: Ref<HTMLElement | null>, options: HoverAnimationOptions = {}) {
+  const {
+    hoverY = -3,
+    hoverScale = 1.01,
+    pressScale = 0.98,
+    duration = 0.2,
+  } = options;
+
+  let element: HTMLElement | null = null;
+  let cleanup: (() => void) | null = null;
+
+  onMounted(() => {
+    element = elementRef.value;
+    if (!element || prefersReducedMotion()) {
+      return;
+    }
+    cleanup = attachHoverListeners(element, {
+      hoverY,
+      hoverScale,
+      pressScale,
+      duration,
+    });
+  });
+
+  onBeforeUnmount(() => {
+    if (!element) {
+      return;
+    }
+
+    if (cleanup) {
+      cleanup();
+    }
+  });
+}
+
+export function useGsapHoverTargets(
+  scopeRef: Ref<HTMLElement | null>,
+  selectors: string[],
+  options: HoverAnimationOptions = {},
+) {
+  const cleanups: Array<() => void> = [];
+
+  onMounted(() => {
+    const scope = scopeRef.value;
+    if (!scope || prefersReducedMotion()) {
+      return;
+    }
+
+    const targets = resolveElements(scope, selectors);
+    targets.forEach((target) => {
+      cleanups.push(attachHoverListeners(target, options));
+    });
+  });
+
+  onBeforeUnmount(() => {
+    cleanups.splice(0).forEach(cleanup => cleanup());
+  });
+}
+
+export function useGsapScrollReveal(scopeRef: Ref<HTMLElement | null>, groups: ScrollRevealOptions[]) {
+  const animations: Array<{ kill?: () => void }> = [];
+
+  onMounted(() => {
+    const scope = scopeRef.value;
+    if (!scope || prefersReducedMotion()) {
+      return;
+    }
+
+    registerGsapPlugins();
+
+    groups.forEach((group) => {
+      const targets = resolveElements(scope, [group.selector]);
+      if (targets.length === 0) {
+        return;
+      }
+
+      const trigger =
+        (group.triggerSelector && scope.querySelector<HTMLElement>(group.triggerSelector))
+        ?? targets[0];
+
+      const tween = gsap.fromTo(
+        targets,
+        {
+          autoAlpha: 0,
+          x: group.x ?? 0,
+          y: group.y ?? 28,
+          scale: group.scale ?? 0.985,
+          filter: "blur(10px)",
+        },
+        {
+          autoAlpha: 1,
+          x: 0,
+          y: 0,
+          scale: 1,
+          filter: "blur(0px)",
+          duration: group.duration ?? 0.78,
+          delay: group.delay ?? 0,
+          stagger: group.stagger ?? 0.08,
+          ease: "power3.out",
+          clearProps: "opacity,visibility,transform,filter",
+          scrollTrigger: {
+            trigger,
+            start: group.start ?? "top bottom-=12%",
+            once: group.once ?? true,
+          },
+        },
+      );
+
+      animations.push(tween);
+    });
+  });
+
+  onBeforeUnmount(() => {
+    animations.splice(0).forEach(animation => animation.kill?.());
+  });
+}
+
+export function useGsapPointerTilt(elementRef: Ref<HTMLElement | null>, options: PointerTiltOptions = {}) {
+  const {
+    maxRotateX = 8,
+    maxRotateY = 10,
+    liftY = -8,
+    scale = 1.015,
+    duration = 0.34,
+    depthSelector,
+    depthOffset = 12,
+  } = options;
+
+  let element: HTMLElement | null = null;
+  let onEnter: ((event: PointerEvent) => void) | null = null;
+  let onMove: ((event: PointerEvent) => void) | null = null;
+  let onLeave: (() => void) | null = null;
+  let onDown: (() => void) | null = null;
+  let onUp: (() => void) | null = null;
+
+  onMounted(() => {
+    element = elementRef.value;
+    if (!element || prefersReducedMotion()) {
+      return;
+    }
+
+    const depthTargets = resolveNestedElements(element, depthSelector);
+
+    const animateCard = (vars: Record<string, number>) => {
+      gsap.to(element, {
+        ...vars,
+        duration,
+        ease: "power3.out",
+        overwrite: "auto",
+        transformPerspective: 1200,
+        transformOrigin: "center center",
+      });
+    };
+
+    const animateDepth = (vars: Record<string, number>) => {
+      if (depthTargets.length === 0) {
+        return;
+      }
+
+      gsap.to(depthTargets, {
+        ...vars,
+        duration: duration + 0.04,
+        ease: "power3.out",
+        overwrite: "auto",
+      });
+    };
+
+    onEnter = (event) => {
+      onMove?.(event);
+    };
+
+    onMove = (event) => {
+      const rect = element!.getBoundingClientRect();
+      const pointerX = (event.clientX - rect.left) / rect.width - 0.5;
+      const pointerY = (event.clientY - rect.top) / rect.height - 0.5;
+
+      animateCard({
+        rotateX: pointerY * -maxRotateX,
+        rotateY: pointerX * maxRotateY,
+        y: liftY,
+        scale,
+      });
+
+      animateDepth({
+        x: pointerX * depthOffset,
+        y: pointerY * depthOffset,
+      });
+    };
+
+    onLeave = () => {
+      animateCard({
+        rotateX: 0,
+        rotateY: 0,
+        y: 0,
+        scale: 1,
+      });
+
+      animateDepth({
+        x: 0,
+        y: 0,
+      });
+    };
+
+    onDown = () => {
+      animateCard({
+        scale: scale - 0.02,
+      });
+    };
+
+    onUp = () => {
+      animateCard({
+        scale,
+      });
+    };
+
+    element.addEventListener("pointerenter", onEnter);
+    element.addEventListener("pointermove", onMove);
+    element.addEventListener("pointerleave", onLeave);
+    element.addEventListener("pointerdown", onDown);
+    element.addEventListener("pointerup", onUp);
+  });
+
+  onBeforeUnmount(() => {
+    if (!element) {
+      return;
+    }
+
+    if (onEnter) {
+      element.removeEventListener("pointerenter", onEnter);
+    }
+    if (onMove) {
+      element.removeEventListener("pointermove", onMove);
+    }
+    if (onLeave) {
+      element.removeEventListener("pointerleave", onLeave);
+    }
+    if (onDown) {
+      element.removeEventListener("pointerdown", onDown);
+    }
+    if (onUp) {
+      element.removeEventListener("pointerup", onUp);
+    }
+  });
+}
+
+export function animateRouteEnter(element: Element, done: () => void) {
+  gsap.fromTo(
+    element,
+    { autoAlpha: 0, y: 18, filter: "blur(10px)" },
+    {
+      autoAlpha: 1,
+      y: 0,
+      filter: "blur(0px)",
+      duration: 0.55,
+      ease: "power3.out",
+      clearProps: "opacity,visibility,transform,filter",
+      onComplete: done,
+    },
+  );
+}
+
+export function animateRouteLeave(element: Element, done: () => void) {
+  gsap.to(element, {
+    autoAlpha: 0,
+    y: -12,
+    filter: "blur(8px)",
+    duration: 0.24,
+    ease: "power2.in",
+    onComplete: done,
+  });
+}
+
+export function animatePopoverEnter(element: Element, done: () => void) {
+  gsap.fromTo(
+    element,
+    { autoAlpha: 0, y: -10, scale: 0.96, transformOrigin: "top right" },
+    {
+      autoAlpha: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.22,
+      ease: "power2.out",
+      clearProps: "opacity,visibility,transform",
+      onComplete: done,
+    },
+  );
+}
+
+export function animatePopoverLeave(element: Element, done: () => void) {
+  gsap.to(element, {
+    autoAlpha: 0,
+    y: -8,
+    scale: 0.98,
+    duration: 0.18,
+    ease: "power2.in",
+    onComplete: done,
+  });
+}

@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import { gsap } from "gsap";
 import PlaybackControls from "@/components/dock/PlaybackControls.vue";
 import PlaybackProgress from "@/components/dock/PlaybackProgress.vue";
 import VolumeControl from "@/components/dock/VolumeControl.vue";
+import { useGsapReveal } from "@/composables/use-gsap";
 import { usePlayerStore } from "@/stores/player";
 
+const dockRef = ref<HTMLElement | null>(null);
+const coverRef = ref<HTMLElement | null>(null);
 const player = usePlayerStore();
 
 const trackTitle = computed(() => player.currentTrack?.title ?? "未开始播放");
@@ -53,14 +57,54 @@ function setVolume(volume: number) {
 function toggleMute() {
   player.toggleMute();
 }
+
+useGsapReveal(dockRef, [".player-dock__meta", ".player-dock__center", ".player-dock__aside"], 0.12);
+
+onMounted(() => {
+  if (!dockRef.value) {
+    return;
+  }
+
+  gsap.fromTo(
+    dockRef.value,
+    { autoAlpha: 0, y: 24 },
+    {
+      autoAlpha: 1,
+      y: 0,
+      duration: 0.7,
+      delay: 0.2,
+      ease: "power3.out",
+      clearProps: "opacity,visibility,transform",
+    },
+  );
+});
+
+watch(() => player.currentTrack?.id, () => {
+  if (!coverRef.value) {
+    return;
+  }
+
+  gsap.fromTo(
+    coverRef.value,
+    { scale: 0.92, rotate: -4, autoAlpha: 0.6 },
+    {
+      scale: 1,
+      rotate: 0,
+      autoAlpha: 1,
+      duration: 0.42,
+      ease: "power2.out",
+      clearProps: "transform,opacity,visibility",
+    },
+  );
+});
 </script>
 
 <template>
-  <footer class="player-dock" aria-label="全局播放器 Dock">
+  <footer ref="dockRef" class="player-dock" aria-label="全局播放器 Dock">
     <div class="player-dock__ambient" aria-hidden="true" />
-    <section class="player-dock__surface glass-surface">
+    <section class="player-dock__surface glass-surface" data-testid="player-dock-shell">
       <div class="player-dock__meta">
-        <div class="player-dock__cover" aria-hidden="true">
+        <div ref="coverRef" class="player-dock__cover" aria-hidden="true">
           <img
             v-if="player.currentTrack"
             class="player-dock__cover-image"
@@ -101,7 +145,7 @@ function toggleMute() {
           @toggle-mute="toggleMute"
         />
         <p class="player-dock__mode">
-          模式：{{ player.activeModeLabel }}
+          Mode · {{ player.activeModeLabel }}
         </p>
       </div>
     </section>
@@ -113,9 +157,9 @@ function toggleMute() {
 .player-dock {
   position: fixed;
   left: 50%;
-  bottom: var(--space-4);
+  bottom: var(--layout-gap);
   transform: translateX(-50%);
-  width: min(1080px, calc(100vw - var(--space-8)));
+  width: min(1120px, calc(100vw - (var(--layout-gap) * 2)));
   z-index: 30;
   pointer-events: none;
 }
@@ -138,14 +182,10 @@ function toggleMute() {
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-3) var(--space-4);
-  border-radius: 22px;
-  border-color: rgba(136, 156, 182, 0.36);
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.9) 0%, rgba(245, 250, 255, 0.76) 55%, rgba(236, 244, 252, 0.72) 100%),
-    rgba(255, 255, 255, 0.56);
-  box-shadow:
-    0 20px 40px rgba(31, 41, 55, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  border-radius: var(--radius-lg);
+  border-color: var(--color-state-border-emphasis);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--shadow-lg);
   pointer-events: auto;
 }
 
@@ -159,13 +199,20 @@ function toggleMute() {
 .player-dock__cover {
   width: 54px;
   height: 54px;
-  border: 1px solid rgba(133, 154, 180, 0.34);
+  border: 1px solid var(--color-state-border-subtle);
   border-radius: var(--radius-sm);
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.84), rgba(241, 248, 255, 0.64)),
-    rgba(255, 255, 255, 0.55);
-  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
+  background: var(--color-surface-strong);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
+  position: relative;
+}
+
+.player-dock__cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32);
 }
 
 .player-dock__cover-image {
@@ -206,7 +253,7 @@ function toggleMute() {
 
 .player-dock__center {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .player-dock__aside {
@@ -219,15 +266,17 @@ function toggleMute() {
   color: var(--color-text-tertiary);
   font-size: 11px;
   text-align: right;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .player-dock__error {
   margin: var(--space-2) 0 0;
   padding: 6px 10px;
-  border: 1px solid rgba(193, 118, 118, 0.28);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 38%, transparent);
   border-radius: 999px;
-  background: rgba(255, 244, 244, 0.72);
-  color: #9f4444;
+  background: color-mix(in srgb, var(--color-danger) 10%, var(--color-surface-strong));
+  color: var(--color-danger);
   font-size: 12px;
   text-align: center;
   pointer-events: auto;

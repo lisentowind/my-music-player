@@ -3,7 +3,8 @@ import { computed, ref } from "vue";
 import MetricCard from "@/components/music/MetricCard.vue";
 import SectionHeader from "@/components/music/SectionHeader.vue";
 import TrackTable from "@/components/music/TrackTable.vue";
-import GlassPanel from "@/components/chrome/GlassPanel.vue";
+import UiButton from "@/components/ui/UiButton.vue";
+import UiSectionCard from "@/components/ui/UiSectionCard.vue";
 import { tracks } from "@/data/music-library";
 import { usePlayerStore } from "@/stores/player";
 
@@ -66,43 +67,52 @@ function toggleLike(trackId: string) {
 <template>
   <section id="liked-page" class="page liked-view">
     <section id="liked-summary">
-      <GlassPanel class="block">
+      <UiSectionCard class="block" tone="accent">
         <SectionHeader title="我喜欢" description="来自真实播放器状态的喜欢列表与播放联动。" />
         <div class="liked-view__metrics">
           <MetricCard label="喜欢歌曲" :value="`${likedCount} 首`" hint="随时可在任意页面切换喜欢状态" />
           <MetricCard label="活跃歌手" :value="`${likedArtistCount} 位`" hint="根据当前喜欢列表自动聚合" />
         </div>
-      </GlassPanel>
+      </UiSectionCard>
     </section>
 
     <section id="liked-track-list">
-      <GlassPanel class="block">
+      <UiSectionCard class="block">
         <SectionHeader title="喜欢列表" description="可按最近播放、歌曲名、歌手排序。" />
         <div class="liked-view__sort">
-          <button
+          <UiButton
             type="button"
             class="liked-view__sort-button"
+            variant="ghost"
+            size="sm"
+            :active="sortMode === 'recent'"
             :data-active="sortMode === 'recent' ? 'true' : 'false'"
             @click="sortMode = 'recent'"
           >
             最近播放
-          </button>
-          <button
+          </UiButton>
+          <UiButton
             type="button"
             class="liked-view__sort-button"
+            variant="ghost"
+            size="sm"
+            :active="sortMode === 'title'"
             :data-active="sortMode === 'title' ? 'true' : 'false'"
             @click="sortMode = 'title'"
           >
             歌曲名
-          </button>
-          <button
+          </UiButton>
+          <UiButton
             type="button"
             class="liked-view__sort-button"
+            variant="ghost"
+            size="sm"
+            :active="sortMode === 'artist'"
             :data-active="sortMode === 'artist' ? 'true' : 'false'"
             @click="sortMode = 'artist'"
           >
             歌手
-          </button>
+          </UiButton>
         </div>
         <TrackTable
           v-if="trackRows.length > 0"
@@ -115,16 +125,16 @@ function toggleLike(trackId: string) {
         <p v-else class="liked-view__empty">
           你还没有喜欢歌曲，去推荐页点一点试试看。
         </p>
-      </GlassPanel>
+      </UiSectionCard>
     </section>
 
     <section id="liked-insights">
-      <GlassPanel class="block">
+      <UiSectionCard class="block" tone="contrast">
         <SectionHeader title="偏好洞察" description="保持清透、冷感、低干扰，是你当前的听感主线。" />
         <p class="liked-view__insight">
           当前正在播放：{{ player.currentTrack?.title ?? "暂无" }}。在本页点击行内播放与喜欢按钮，会即时同步到底部播放器和推荐页。
         </p>
-      </GlassPanel>
+      </UiSectionCard>
     </section>
   </section>
 </template>
@@ -133,10 +143,6 @@ function toggleLike(trackId: string) {
 .page {
   display: grid;
   gap: var(--space-4);
-}
-
-.block {
-  padding: var(--space-6);
 }
 
 h2,
@@ -151,14 +157,12 @@ p {
 }
 
 .liked-view__metrics {
-  margin-top: var(--space-4);
   display: grid;
   gap: var(--space-3);
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
 .liked-view__sort {
-  margin-top: var(--space-4);
   margin-bottom: var(--space-3);
   display: flex;
   flex-wrap: wrap;
@@ -166,13 +170,7 @@ p {
 }
 
 .liked-view__sort-button {
-  border: 1px solid var(--color-state-border-subtle);
-  border-radius: var(--radius-xs);
-  background: transparent;
-  padding: 8px 10px;
-  color: var(--color-text-secondary);
   font-size: 12px;
-  cursor: pointer;
 }
 
 .liked-view__sort-button[data-active="true"] {
@@ -186,7 +184,8 @@ p {
 }
 
 .liked-view__insight {
-  margin-top: var(--space-3);
+  margin-top: var(--space-2);
   line-height: 1.6;
+  color: var(--color-text-contrast-muted);
 }
 </style>

@@ -1,9 +1,16 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import AlbumCard from "@/components/music/AlbumCard.vue";
 import RecentPlayList from "@/components/music/RecentPlayList.vue";
 import SectionHeader from "@/components/music/SectionHeader.vue";
-import GlassPanel from "@/components/chrome/GlassPanel.vue";
+import UiButton from "@/components/ui/UiButton.vue";
+import UiIconButton from "@/components/ui/UiIconButton.vue";
+import UiSectionCard from "@/components/ui/UiSectionCard.vue";
+import {
+  useGsapHoverTargets,
+  useGsapReveal,
+  useGsapScrollReveal,
+} from "@/composables/use-gsap";
 import {
   discoverAtmospheres,
   featuredAlbums,
@@ -13,6 +20,7 @@ import {
 import { profileSeed } from "@/data/profile";
 import { usePlayerStore } from "@/stores/player";
 
+const discoverRef = ref<HTMLElement | null>(null);
 const player = usePlayerStore();
 
 const currentTrackId = computed(() => player.currentTrack?.id ?? null);
@@ -78,25 +86,89 @@ function playTrack(trackId: string) {
 function toggleLike(trackId: string) {
   player.toggleLike(trackId);
 }
+
+useGsapReveal(
+  discoverRef,
+  [
+    ".discover-view__hero-grid > *",
+  ],
+  0.06,
+);
+
+useGsapScrollReveal(discoverRef, [
+  {
+    selector: "#discover-featured-albums .discover-view__album-entry",
+    triggerSelector: "#discover-featured-albums",
+    y: 34,
+    scale: 0.97,
+    stagger: 0.08,
+  },
+  {
+    selector: "#discover-quick-picks .discover-view__quick-card",
+    triggerSelector: "#discover-quick-picks",
+    y: 26,
+    scale: 0.98,
+    stagger: 0.06,
+  },
+  {
+    selector: "#discover-atmosphere .discover-view__atmosphere-card",
+    triggerSelector: "#discover-atmosphere",
+    y: 24,
+    scale: 0.98,
+    stagger: 0.06,
+  },
+  {
+    selector: "#discover-recent-plays .recent-play-list__item",
+    triggerSelector: "#discover-recent-plays",
+    y: 22,
+    scale: 0.99,
+    stagger: 0.04,
+  },
+]);
+
+useGsapHoverTargets(discoverRef, [
+  ".discover-view__quick-card",
+  ".discover-view__atmosphere-card",
+], {
+  hoverY: -4,
+  hoverScale: 1.012,
+  pressScale: 0.985,
+  duration: 0.22,
+});
 </script>
 
 <template>
-  <section id="discover-page" class="page discover-view">
-    <section id="discover-hero">
-      <GlassPanel class="block">
-        <p class="discover-view__eyebrow">
-          今日推荐
-        </p>
+  <section id="discover-page" ref="discoverRef" class="page discover-view">
+    <section id="discover-hero" class="discover-view__hero-grid">
+      <UiSectionCard class="block" tone="contrast">
+        <p class="discover-view__eyebrow">今日推荐</p>
         <h2>欢迎回来，林雾</h2>
-        <p>继续沉浸在你偏好的清透声场里，从精选专辑、情境入口到最近播放一键接续。</p>
-        <p class="discover-view__hero-meta">
-          当前曲库 {{ queueCount }} 首 · 已喜欢 {{ likedCount }} 首
-        </p>
-      </GlassPanel>
+        <p>继续沉浸在偏好的清透声场里，从精选专辑、情境入口到最近播放一键接续。</p>
+        <div class="discover-view__hero-stats">
+          <div>
+            <strong>{{ queueCount }}</strong>
+            <span>曲库总量</span>
+          </div>
+          <div>
+            <strong>{{ likedCount }}</strong>
+            <span>已喜欢</span>
+          </div>
+        </div>
+      </UiSectionCard>
+      <UiSectionCard class="block discover-view__hero-side" title="继续播放" description="快速回到最近的听感轨道。">
+        <div class="discover-view__hero-actions">
+          <UiButton variant="solid" @click="playTrack(featuredItems[0]?.leadTrackId || quickPicks[0]?.track.id || '')">
+            立即进入
+          </UiButton>
+          <p class="discover-view__hero-meta">
+            当前聚焦 {{ currentTrackId ? "正在播放中的曲目" : "晨间推荐歌单" }}
+          </p>
+        </div>
+      </UiSectionCard>
     </section>
 
     <section id="discover-featured-albums">
-      <GlassPanel class="block">
+      <UiSectionCard class="block" title="精选专辑" description="点击卡片即可切换播放上下文，整张专辑加入队列。">
         <SectionHeader title="精选专辑" description="点击卡片即可切换播放上下文，整张专辑加入队列。" />
         <div class="discover-view__album-grid">
           <article
@@ -110,15 +182,14 @@ function toggleLike(trackId: string) {
             <AlbumCard :album="item.album" :active="item.active" />
           </article>
         </div>
-      </GlassPanel>
+      </UiSectionCard>
     </section>
 
     <section id="discover-quick-picks">
-      <GlassPanel class="block">
-        <SectionHeader title="快速入口" description="按场景进入你常用的播放节奏。" />
+      <UiSectionCard class="block" title="快速入口" description="按场景进入你常用的播放节奏。">
         <div class="discover-view__quick-grid">
-          <article v-for="pick in quickPicks" :key="pick.id" class="discover-view__quick-card glass-surface">
-            <button type="button" class="discover-view__quick-main" @click="playTrack(pick.track.id)">
+          <article v-for="pick in quickPicks" :key="pick.id" class="discover-view__quick-card">
+            <UiButton type="button" class="discover-view__quick-main" variant="ghost" block @click="playTrack(pick.track.id)">
               <p class="discover-view__quick-title">
                 {{ pick.title }}
               </p>
@@ -128,29 +199,32 @@ function toggleLike(trackId: string) {
               <p class="discover-view__quick-track">
                 {{ pick.track.title }} · {{ pick.track.artist }}
               </p>
-            </button>
-            <button
-              type="button"
+            </UiButton>
+            <UiIconButton
               class="discover-view__quick-like"
+              :icon="likedSet.has(pick.track.id) ? 'solar:heart-bold' : 'solar:heart-outline'"
+              :label="likedSet.has(pick.track.id) ? '取消喜欢' : '喜欢'"
+              :pressed="likedSet.has(pick.track.id)"
+              size="sm"
+              variant="ghost"
               :aria-pressed="likedSet.has(pick.track.id) ? 'true' : 'false'"
               @click="toggleLike(pick.track.id)"
-            >
-              {{ likedSet.has(pick.track.id) ? "已喜欢" : "喜欢" }}
-            </button>
+            />
           </article>
         </div>
-      </GlassPanel>
+      </UiSectionCard>
     </section>
 
     <section id="discover-atmosphere">
-      <GlassPanel class="block">
-        <SectionHeader title="氛围卡片" description="一键切换到你想要的听感状态。" />
+      <UiSectionCard class="block" title="氛围卡片" description="一键切换到你想要的听感状态。">
         <div class="discover-view__atmosphere-grid">
-          <button
+          <UiButton
             v-for="card in atmosphereCards"
             :key="card.id"
             type="button"
-            class="discover-view__atmosphere-card glass-surface"
+            class="discover-view__atmosphere-card"
+            variant="ghost"
+            block
             :data-active="card.track.id === currentTrackId ? 'true' : 'false'"
             @click="playTrack(card.track.id)"
           >
@@ -163,16 +237,15 @@ function toggleLike(trackId: string) {
             <p class="discover-view__atmosphere-track">
               {{ card.track.title }}
             </p>
-          </button>
+          </UiButton>
         </div>
-      </GlassPanel>
+      </UiSectionCard>
     </section>
 
     <section id="discover-recent-plays">
-      <GlassPanel class="block">
-        <SectionHeader title="最近播放" description="基于播放器真实 recentPlayIds 自动更新。" />
+      <UiSectionCard class="block" title="最近播放" description="基于播放器真实 recentPlayIds 自动更新。">
         <RecentPlayList :tracks="recentTracks" :active-track-id="currentTrackId" @play="playTrack" />
-      </GlassPanel>
+      </UiSectionCard>
     </section>
   </section>
 </template>
@@ -183,36 +256,82 @@ function toggleLike(trackId: string) {
   gap: var(--space-4);
 }
 
-.block {
-  padding: var(--space-6);
+.discover-view__hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.8fr);
+  gap: var(--space-4);
 }
 
 h2 {
   margin: 0;
-  color: var(--color-text);
+  color: inherit;
+  font-size: 30px;
 }
 
 p {
   margin: 0;
-  color: var(--color-text-secondary);
+  color: inherit;
+}
+
+.block {
+  min-height: 100%;
 }
 
 .discover-view__eyebrow {
   margin-bottom: var(--space-2);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-contrast-muted);
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
+.discover-view__hero-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.discover-view__hero-stats div {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-control-surface);
+  border: 1px solid var(--color-control-stroke);
+}
+
+.discover-view__hero-stats strong {
+  display: block;
+  font-size: 26px;
+  line-height: 1.1;
+}
+
+.discover-view__hero-stats span {
+  display: block;
+  margin-top: 6px;
+  color: var(--color-text-contrast-muted);
+  font-size: 12px;
+}
+
+.discover-view__hero-side {
+  display: flex;
+  align-items: stretch;
+}
+
+.discover-view__hero-actions {
+  display: grid;
+  align-content: space-between;
+  gap: var(--space-4);
+  min-height: 100%;
+}
+
 .discover-view__hero-meta {
-  margin-top: var(--space-4);
+  margin-top: auto;
   color: var(--color-text-tertiary);
   font-size: 13px;
+  line-height: 1.6;
 }
 
 .discover-view__album-grid {
-  margin-top: var(--space-4);
   display: grid;
   gap: var(--space-4);
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -220,6 +339,7 @@ p {
 
 .discover-view__album-entry {
   cursor: pointer;
+  transform-origin: center top;
 }
 
 .discover-view__album-entry[data-active="true"] {
@@ -230,7 +350,6 @@ p {
 
 .discover-view__quick-grid,
 .discover-view__atmosphere-grid {
-  margin-top: var(--space-4);
   display: grid;
   gap: var(--space-3);
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -238,34 +357,29 @@ p {
 
 .discover-view__quick-card,
 .discover-view__atmosphere-card {
-  padding: var(--space-4);
-  border: 1px solid transparent;
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-state-border-subtle);
   border-radius: var(--radius-sm);
+  background: var(--color-card-surface-soft);
+  transform-origin: center center;
+  will-change: transform;
 }
 
 .discover-view__quick-main {
   width: 100%;
-  border: 0;
-  padding: 0;
-  background: transparent;
+  border-radius: var(--radius-xs);
+  padding: var(--space-3);
   text-align: left;
-  cursor: pointer;
+  display: block;
 }
 
 .discover-view__quick-like {
-  margin-top: var(--space-3);
-  border: 1px solid var(--color-state-border-subtle);
-  border-radius: var(--radius-xs);
-  background: transparent;
-  padding: 8px 10px;
-  color: var(--color-text-secondary);
-  font-size: 12px;
-  cursor: pointer;
+  justify-self: flex-start;
 }
 
 .discover-view__quick-like[aria-pressed="true"] {
-  border-color: var(--color-state-border-emphasis);
-  background: var(--color-state-accent-soft);
   color: var(--color-accent-pressed);
 }
 
@@ -291,11 +405,17 @@ p {
 
 .discover-view__atmosphere-card {
   text-align: left;
-  cursor: pointer;
 }
 
 .discover-view__atmosphere-card[data-active="true"] {
   border-color: var(--color-state-border-emphasis);
   background: var(--color-state-selected);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+@media (max-width: 960px) {
+  .discover-view__hero-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

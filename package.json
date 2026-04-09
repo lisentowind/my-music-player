@@ -21,7 +21,11 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@iconify-icons/solar": "^1.2.2",
+    "@iconify/vue": "^5.0.0",
     "@tauri-apps/api": "^2",
+    "gsap": "^3.13.0",
+    "howler": "^2.2.4",
     "pinia": "^3.0.4",
     "vue": "^3.5.13",
     "vue-router": "^5.0.4"

@@ -15,8 +15,8 @@
         "title": "My Player Desktop",
         "width": 1120,
         "height": 760,
-        "minWidth": 960,
-        "minHeight": 640
+        "minWidth": 1090,
+        "minHeight": 610
       }
     ],
     "security": {
