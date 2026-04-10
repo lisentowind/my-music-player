@@ -27,7 +27,6 @@ const trackArtist = computed(() => {
 
   return `${track.artist} · ${track.album}`;
 });
-const playbackStatus = computed(() => player.isPlaying ? "正在播放" : "已暂停");
 const hasError = computed(() => Boolean(player.errorTrackId && player.errorMessage));
 const errorText = computed(() => {
   if (!hasError.value) {
@@ -80,6 +79,17 @@ function selectQueueTrack(trackId: string) {
 
 function openPlayerView() {
   closeQueue();
+  if (coverRef.value) {
+    const rect = coverRef.value.getBoundingClientRect();
+    const payload = {
+      x: rect.left,
+      y: rect.top,
+      width: rect.width,
+      height: rect.height,
+      coverSrc: player.currentTrack?.coverSrc ?? "",
+    };
+    sessionStorage.setItem("player-fullscreen-origin", JSON.stringify(payload));
+  }
   void router.push("/player");
 }
 
@@ -159,49 +169,57 @@ watch(() => player.currentTrack?.id, () => {
   <footer ref="dockRef" class="player-dock" aria-label="全局播放器底栏">
     <div class="player-dock__ambient" aria-hidden="true" />
 
-    <section class="player-dock__surface glass-surface" data-testid="player-dock-shell">
+    <section
+      class="player-dock__surface glass-surface"
+      data-testid="player-dock-shell"
+      data-dock-style="capsule"
+      data-dock-glass="heavy"
+      data-dock-layout="single-row"
+      data-dock-span="viewport"
+      data-dock-min-width="880"
+      data-dock-min-height="84"
+    >
       <div class="player-dock__meta">
-        <div ref="coverRef" class="player-dock__cover" aria-hidden="true">
+        <button
+          ref="coverRef"
+          type="button"
+          class="player-dock__cover"
+          data-testid="player-dock-cover-button"
+          :aria-label="`进入全屏播放器：${trackTitle}`"
+          @click="openPlayerView"
+        >
           <img
             v-if="player.currentTrack"
             class="player-dock__cover-image"
             :src="player.currentTrack.coverSrc"
             :alt="`${player.currentTrack.title} 封面`"
           >
-        </div>
+        </button>
 
         <div class="player-dock__text">
-          <p class="player-dock__eyebrow">当前播放</p>
           <p class="player-dock__title" data-testid="player-dock-title">{{ trackTitle }}</p>
           <p class="player-dock__artist" data-testid="player-dock-artist">{{ trackArtist }}</p>
-          <p class="player-dock__status">{{ playbackStatus }}</p>
         </div>
-
-        <span
-          class="player-dock__chip player-dock__chip--mode"
-          data-testid="player-dock-mode-chip"
-          :aria-label="`当前模式 ${player.activeModeLabel}`"
-        >
-          {{ player.activeModeLabel }}
-        </span>
       </div>
 
       <div class="player-dock__center">
-        <PlaybackControls
-          :is-playing="player.isPlaying"
-          :mode-label="player.activeModeLabel"
-          @previous="playPrevious"
-          @toggle="togglePlay"
-          @next="playNext"
-          @cycle-mode="cycleMode"
-        />
-        <PlaybackProgress
-          :current-time="player.currentTime"
-          :duration="player.duration"
-          :current-label="player.currentTimeLabel"
-          :duration-label="player.durationLabel"
-          @seek="seekTo"
-        />
+        <div class="player-dock__center-shell">
+          <PlaybackControls
+            :is-playing="player.isPlaying"
+            :mode-label="player.activeModeLabel"
+            @previous="playPrevious"
+            @toggle="togglePlay"
+            @next="playNext"
+            @cycle-mode="cycleMode"
+          />
+          <PlaybackProgress
+            :current-time="player.currentTime"
+            :duration="player.duration"
+            :current-label="player.currentTimeLabel"
+            :duration-label="player.durationLabel"
+            @seek="seekTo"
+          />
+        </div>
       </div>
 
       <div ref="queueLayerRef" class="player-dock__aside">
@@ -216,31 +234,16 @@ watch(() => player.currentTrack?.id, () => {
             @click="toggleQueue"
           >
             <Icon :icon="iconRegistry['solar:music-notes-outline']" />
-            <span>队列</span>
-          </button>
-
-          <button
-            type="button"
-            class="player-dock__action"
-            data-testid="player-dock-open-player"
-            aria-label="打开播放器页面"
-            @click="openPlayerView"
-          >
-            <Icon :icon="iconRegistry['solar:monitor-outline']" />
-            <span>播放器</span>
           </button>
         </div>
 
         <VolumeControl
           :volume="player.volume"
           :muted="player.muted"
+          :show-label="false"
           @set-volume="setVolume"
           @toggle-mute="toggleMute"
         />
-
-        <p class="player-dock__mode-text">
-          总队列 {{ player.queue.length }} 首
-        </p>
 
         <transition :css="false" @enter="animatePopoverEnter" @leave="animatePopoverLeave">
           <QueuePopover
@@ -263,57 +266,76 @@ watch(() => player.currentTrack?.id, () => {
 <style scoped lang="less">
 .player-dock {
   position: fixed;
-  left: 50%;
+  left: var(--layout-gap);
+  right: var(--layout-gap);
   bottom: var(--layout-gap);
-  transform: translateX(-50%);
-  width: min(1040px, calc(100vw - (var(--layout-gap) * 2)));
+  width: auto;
   z-index: 30;
   pointer-events: none;
 }
 
 .player-dock__ambient {
   position: absolute;
-  inset: auto 12% -18px;
-  height: 56px;
+  inset: auto 20% -6px;
+  height: 52px;
   border-radius: 999px;
-  background: radial-gradient(ellipse at center, rgba(176, 121, 255, 0.32) 0%, rgba(176, 121, 255, 0.08) 40%, transparent 80%);
+  background: radial-gradient(ellipse at center, rgba(204, 151, 255, 0.34) 0%, rgba(204, 151, 255, 0.08) 44%, transparent 80%);
   filter: blur(20px);
-  opacity: 0.72;
+  opacity: 0.64;
   animation: dock-breathing 4.5s ease-in-out infinite;
 }
 
 .player-dock__surface {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(240px, 280px) minmax(360px, 1fr) minmax(220px, 260px);
+  grid-template-columns: minmax(180px, 220px) minmax(340px, 1fr) minmax(180px, 220px);
   align-items: center;
-  gap: 18px;
-  padding: 14px 18px;
-  border-radius: 34px;
-  border-color: color-mix(in srgb, var(--color-accent) 26%, var(--color-state-border-emphasis));
+  min-width: 880px;
+  min-height: 84px;
+  gap: 10px;
+  padding: 8px 14px;
+  border: 1px solid color-mix(in srgb, var(--color-panel-border) 92%, transparent);
+  border-radius: 999px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent),
-    rgba(20, 20, 24, 0.88);
+    radial-gradient(circle at 12% 50%, var(--color-panel-glow-start), transparent 24%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 82%, transparent), transparent 46%),
+    linear-gradient(180deg, var(--color-popover-glow-start), transparent 38%),
+    var(--color-popover-fill);
   box-shadow:
-    0 24px 60px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    var(--shadow-md),
+    0 22px 44px var(--color-popover-shadow),
+    inset 0 1px 0 var(--color-panel-glow-end);
+  backdrop-filter: blur(22px) saturate(1.08);
   pointer-events: auto;
 }
 
 .player-dock__meta {
   display: grid;
-  grid-template-columns: 60px minmax(0, 1fr) auto;
+  grid-template-columns: 52px minmax(0, 1fr);
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   min-width: 0;
 }
 
 .player-dock__cover {
-  width: 60px;
-  height: 60px;
-  border-radius: 18px;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--color-panel-border) 88%, transparent);
+  border-radius: 12px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.06);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 78%, transparent), transparent 100%),
+    var(--color-control-surface-strong);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.player-dock__cover:hover {
+  transform: translateY(-1px) scale(1.015);
+  box-shadow: var(--shadow-md);
+  filter: saturate(1.08);
 }
 
 .player-dock__cover-image {
@@ -324,20 +346,14 @@ watch(() => player.currentTrack?.id, () => {
 
 .player-dock__text {
   min-width: 0;
-}
-
-.player-dock__eyebrow {
-  margin: 0 0 6px;
-  color: var(--color-text-tertiary);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  display: grid;
+  gap: 1px;
 }
 
 .player-dock__title {
   margin: 0;
   color: var(--color-text-strong);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -345,58 +361,55 @@ watch(() => player.currentTrack?.id, () => {
 }
 
 .player-dock__artist {
-  margin: 4px 0 0;
+  margin: 0;
   color: var(--color-text-secondary);
-  font-size: 12px;
+  font-size: 10px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.player-dock__status {
-  margin: 6px 0 0;
-  color: var(--color-text-tertiary);
-  font-size: 11px;
-}
-
-.player-dock__chip {
-  min-width: 78px;
-  min-height: 36px;
-  padding: 0 12px;
-  border: 1px solid var(--color-state-border-subtle);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-control-surface) 90%, transparent);
-  color: var(--color-text-secondary);
-  font-size: 12px;
-}
-
 .player-dock__center {
   display: grid;
+  align-items: center;
+}
+
+.player-dock__center-shell {
+  display: grid;
+  grid-template-columns: auto minmax(220px, 1fr);
+  align-items: center;
   gap: 10px;
+  padding: 0;
+  border-radius: 999px;
 }
 
 .player-dock__aside {
   position: relative;
-  display: grid;
-  gap: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .player-dock__actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .player-dock__action {
-  min-height: 42px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  border: 1px solid var(--color-state-border-subtle);
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--color-control-surface) 92%, transparent);
-  color: var(--color-text);
+  gap: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 80%, transparent), transparent 100%),
+    var(--color-control-surface);
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition:
     border-color 160ms ease,
@@ -407,21 +420,81 @@ watch(() => player.currentTrack?.id, () => {
 
 .player-dock__action:hover {
   border-color: var(--color-state-border-emphasis);
-  background: color-mix(in srgb, var(--color-control-surface-strong) 92%, transparent);
-  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.18);
+  background: var(--color-control-surface-strong);
+  box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
 
 .player-dock__action :deep(svg) {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
-.player-dock__mode-text {
-  margin: 0;
-  color: var(--color-text-tertiary);
-  font-size: 11px;
-  text-align: right;
+.player-dock__aside :deep(.volume-control) {
+  grid-template-columns: 32px minmax(72px, 80px);
+  gap: 6px;
+}
+
+.player-dock__aside :deep(.volume-control__mute) {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-control-surface);
+}
+
+.player-dock__center-shell :deep(.playback-controls) {
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+}
+
+.player-dock__center-shell :deep(.playback-controls__mode) {
+  min-height: 32px;
+  min-width: 32px;
+  width: 32px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-control-surface);
+}
+
+.player-dock__center-shell :deep(.playback-controls__mode-copy) {
+  display: none;
+}
+
+.player-dock__center-shell :deep(.playback-controls__mode-icon),
+.player-dock__center-shell :deep(.playback-controls__button) {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+}
+
+.player-dock__center-shell :deep(.playback-controls__transport) {
+  min-height: 40px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+}
+
+.player-dock__center-shell :deep(.playback-controls__button--primary) {
+  width: 54px;
+  height: 54px;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-accent) 12%, transparent), var(--shadow-primary-active);
+}
+
+.player-dock__center-shell :deep(.playback-progress) {
+  grid-template-columns: 32px minmax(180px, 1fr) 32px;
+  gap: 4px;
+}
+
+.player-dock__center-shell :deep(.playback-progress__time) {
+  font-size: 9px;
+}
+
+.player-dock__center-shell :deep(.playback-progress__slider) {
+  height: 4px;
+  border: none;
 }
 
 .player-dock__popover {

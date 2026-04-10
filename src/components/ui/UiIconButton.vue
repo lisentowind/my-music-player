@@ -65,10 +65,10 @@ useGsapHover(buttonRef, {
 .ui-icon-button {
   --ui-icon-button-size: 40px;
   --ui-icon-size: 18px;
-  --ui-icon-button-bg: rgba(255, 255, 255, 0.78);
-  --ui-icon-button-border: var(--color-border-strong);
+  --ui-icon-button-bg: linear-gradient(180deg, var(--color-panel-glow-start), transparent 70%), var(--color-control-surface);
+  --ui-icon-button-border: var(--color-border);
   --ui-icon-button-color: var(--color-text);
-  --ui-icon-button-shadow: 0 10px 20px rgba(17, 24, 39, 0.08);
+  --ui-icon-button-shadow: 0 10px 20px var(--color-popover-shadow);
   width: var(--ui-icon-button-size);
   height: var(--ui-icon-button-size);
   display: inline-flex;
@@ -91,7 +91,7 @@ useGsapHover(buttonRef, {
 .ui-icon-button:hover {
   transform: translateY(-1px);
   border-color: var(--color-state-border-emphasis);
-  box-shadow: 0 14px 26px rgba(17, 24, 39, 0.12);
+  box-shadow: 0 14px 26px var(--color-popover-shadow);
 }
 
 .ui-icon-button:active {
@@ -114,7 +114,7 @@ useGsapHover(buttonRef, {
 }
 
 .ui-icon-button--ghost {
-  --ui-icon-button-bg: rgba(255, 255, 255, 0.001);
+  --ui-icon-button-bg: transparent;
   --ui-icon-button-border: transparent;
   --ui-icon-button-shadow: none;
   --ui-icon-button-color: var(--color-text-secondary);
@@ -128,13 +128,13 @@ useGsapHover(buttonRef, {
 .ui-icon-button--solid {
   --ui-icon-button-bg: var(--gradient-primary);
   --ui-icon-button-border: transparent;
-  --ui-icon-button-color: #f8fbff;
+  --ui-icon-button-color: var(--color-on-accent);
   --ui-icon-button-shadow: var(--shadow-primary-hover);
 }
 
 .ui-icon-button.is-pressed {
   --ui-icon-button-border: color-mix(in srgb, var(--color-accent) 34%, transparent);
-  --ui-icon-button-bg: color-mix(in srgb, var(--color-accent) 16%, rgba(255, 255, 255, 0.92));
+  --ui-icon-button-bg: color-mix(in srgb, var(--color-accent) 16%, var(--color-surface-strong));
   --ui-icon-button-color: var(--color-accent-pressed);
 }
 

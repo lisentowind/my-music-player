@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue";
+import { nextTick, ref, watch, type ComponentPublicInstance } from "vue";
 import type { LyricLine } from "@/lib/lyrics/liricle-adapter";
 
 const props = withDefaults(defineProps<{
@@ -17,15 +17,19 @@ const props = withDefaults(defineProps<{
 const lineRefs = ref<HTMLElement[]>([]);
 const scrollRef = ref<HTMLElement | null>(null);
 
-function setLineRef(index: number, element: Element | null) {
-  if (!element || !(element instanceof HTMLElement)) {
+function setLineRef(index: number, element: Element | ComponentPublicInstance | null) {
+  if (!(element instanceof HTMLElement)) {
     return;
   }
 
   lineRefs.value[index] = element;
 }
 
-watch(() => [props.trackId, props.activeLineIndex, props.lines.length], async ([, nextIndex]) => {
+watch([
+  () => props.trackId,
+  () => props.activeLineIndex,
+  () => props.lines.length,
+], async ([, nextIndex]) => {
   await nextTick();
   if (nextIndex < 0) {
     if (scrollRef.value) {

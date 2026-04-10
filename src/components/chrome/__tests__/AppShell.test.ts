@@ -1,5 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createPinia, setActivePinia } from "pinia";
 import { createMemoryHistory, createRouter } from "vue-router";
@@ -101,11 +101,11 @@ describe("app shell route skeleton", () => {
     configurePlayerAudioFactory(createHowlerPlayerAudio);
   });
 
-  it("主导航包含五条中文链接，且目标地址正确", async () => {
+  it("主导航只保留四条中文链接，播放器不再出现在左侧导航", async () => {
     const { wrapper } = await mountShell("/");
 
     const navLinks = wrapper.findAll(".nav-list .nav-link");
-    expect(navLinks).toHaveLength(5);
+    expect(navLinks).toHaveLength(4);
 
     const findHrefByLabel = (label: string) => {
       const target = navLinks.find(link => link.text().includes(label));
@@ -116,7 +116,7 @@ describe("app shell route skeleton", () => {
     expectLinkTarget(findHrefByLabel("探索"), "/explore");
     expectLinkTarget(findHrefByLabel("歌单"), "/playlist");
     expectLinkTarget(findHrefByLabel("资料库"), "/library");
-    expectLinkTarget(findHrefByLabel("播放器"), "/player");
+    expect(findHrefByLabel("播放器")).toBeUndefined();
 
     const navText = navLinks.map(link => link.text()).join(" ");
     expect(navText).not.toContain("Home");
@@ -143,7 +143,7 @@ describe("app shell route skeleton", () => {
     expect(routePaths.has("/playlist/:playlistId")).toBe(true);
   });
 
-  it("五个主页面与歌单详情深链都能命中对应页面占位节点", async () => {
+  it("四个主导航页、全屏播放器与歌单详情深链都能命中对应页面节点", async () => {
     const { wrapper, router } = await mountShell("/");
 
     expect(wrapper.find("#home-page").exists()).toBe(true);
@@ -205,21 +205,43 @@ describe("app shell route skeleton", () => {
     expect(wrapper.find('[data-testid="topbar-enter-explore"]').exists()).toBe(true);
   });
 
-  it("Player 页仍保留壳层，但会挂上独立视觉区域标记", async () => {
+  it("Player 页切成全屏沉浸模式，侧栏顶栏和全局 Dock 都会隐藏", async () => {
     const { wrapper } = await mountShell("/player");
 
     expect(wrapper.find("#player-page").exists()).toBe(true);
-    expect(wrapper.find('[data-testid="app-shell-sidebar"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="app-shell-topbar"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(true);
-    expect(wrapper.get('[data-testid="app-shell-layout"]').attributes("data-shell-mode")).toBe("player");
+    expect(wrapper.find('[data-testid="app-shell-sidebar"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="app-shell-topbar"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(false);
+    expect(wrapper.get('[data-testid="app-shell-layout"]').attributes("data-shell-mode")).toBe("player-fullscreen");
   });
 
-  it("顶部状态按钮与头像区域都有中文辅助文案或 aria 标签", async () => {
+  it("顶部改为单独设置按钮，并移除状态块、个人资料块和侧栏底部在线卡片", async () => {
     const { wrapper } = await mountShell("/");
 
-    expect(wrapper.get('[data-testid="topbar-status-button"]').attributes("aria-label")).toContain("应用状态");
-    expect(wrapper.get('[data-testid="topbar-profile-button"]').attributes("aria-label")).toContain("个人资料");
+    expect(wrapper.find('[data-testid="topbar-status-button"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="topbar-profile-button"]').exists()).toBe(false);
+    expect(wrapper.get('[data-testid="topbar-settings-button"]').attributes("aria-label")).toContain("设置");
+    expect(wrapper.text()).not.toContain("应用状态");
+    expect(wrapper.text()).not.toContain("在线就绪");
+    expect(wrapper.text()).not.toContain("个人资料");
+    expect(wrapper.text()).not.toContain("夜航档案");
+    expect(wrapper.text()).not.toContain("在线资源已连接");
+  });
+
+  it("点击顶部设置按钮会打开设置弹窗，可切换主题模式和主题色", async () => {
+    const { wrapper } = await mountShell("/");
+
+    expect(wrapper.find('[data-testid="settings-dialog"]').exists()).toBe(false);
+
+    await wrapper.get('[data-testid="topbar-settings-button"]').trigger("click");
+    await flushPromises();
+
+    expect(wrapper.get('[data-testid="settings-dialog"]').attributes("open")).toBeDefined();
+    expect(wrapper.text()).toContain("外观设置");
+    expect(wrapper.get("[data-testid='theme-mode-light']").attributes("aria-label")).toContain("浅色");
+    expect(wrapper.get("[data-testid='theme-mode-dark']").attributes("aria-label")).toContain("深色");
+    expect(wrapper.get("[data-testid='theme-mode-system']").attributes("aria-label")).toContain("跟随系统");
+    expect(wrapper.get("[data-testid='theme-preset-frost']").attributes("title")).toContain("霜蓝");
   });
 
   it("主题切换与主题色面板入口已从壳层移除", async () => {
@@ -230,14 +252,31 @@ describe("app shell route skeleton", () => {
     expect(wrapper.text()).not.toContain("外观控制台");
   });
 
-  it("根布局内容容器固定最小宽度为 1280px，并保留横向滚动保护", async () => {
+  it("根布局内容容器固定统一的最小宽高，并保留横向滚动保护", async () => {
     const { wrapper } = await mountShell("/");
 
     const layout = wrapper.get('[data-testid="app-shell-layout"]');
     const scroll = wrapper.get('[data-testid="app-shell-scroll"]');
 
-    expect(layout.attributes("data-min-width")).toBe("1280");
+    expect(layout.attributes("data-min-width")).toBe("1220");
+    expect(layout.attributes("data-min-height")).toBe("760");
     expect(scroll.attributes("data-overflow-x")).toBe("auto");
+  });
+
+  it("Tauri 窗口最小尺寸与前端壳层最小尺寸保持一致", () => {
+    const tauriConfigPath = resolveFromTest("../../../../src-tauri/tauri.conf.json");
+    const tauriConfig = JSON.parse(readFileSync(tauriConfigPath, "utf-8")) as {
+      app?: {
+        windows?: Array<{
+          minWidth?: number;
+          minHeight?: number;
+        }>;
+      };
+    };
+
+    const mainWindow = tauriConfig.app?.windows?.[0];
+    expect(mainWindow?.minWidth).toBe(1220);
+    expect(mainWindow?.minHeight).toBe(760);
   });
 
   it("窄宽度保护下 Dock 仍保持完整结构", async () => {
@@ -246,6 +285,21 @@ describe("app shell route skeleton", () => {
     const dock = wrapper.get('[data-testid="player-dock-shell"]');
     expect(dock.find('[data-testid="player-dock-transport"]').exists()).toBe(true);
     expect(dock.find('[data-testid="player-dock-progress"]').exists()).toBe(true);
+  });
+
+  it("壳层视觉切换到 Stitch 风格：深色侧栏、创建歌单 CTA 与胶囊播放器栏", async () => {
+    const { wrapper } = await mountShell("/");
+
+    expect(wrapper.get('[data-testid="app-shell-layout"]').attributes("data-shell-visual")).toBe("stitch");
+    expect(wrapper.get('[data-testid="app-shell-sidebar"]').attributes("data-sidebar-visual")).toBe("editorial");
+    expect(wrapper.get('[data-testid="app-shell-topbar"]').attributes("data-topbar-visual")).toBe("floating");
+
+    const sidebarText = wrapper.get('[data-testid="app-shell-sidebar"]').text();
+    expect(sidebarText).toContain("创建歌单");
+
+    const dock = wrapper.get('[data-testid="player-dock-shell"]');
+    expect(dock.attributes("data-dock-style")).toBe("capsule");
+    expect(dock.attributes("data-dock-glass")).toBe("heavy");
   });
 
   it("代码库中不再保留旧页面与旧测试文件", () => {

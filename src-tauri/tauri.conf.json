@@ -13,10 +13,10 @@
     "windows": [
       {
         "title": "My Player Desktop",
-        "width": 1120,
-        "height": 760,
-        "minWidth": 1090,
-        "minHeight": 610
+        "width": 1380,
+        "height": 860,
+        "minWidth": 1220,
+        "minHeight": 760
       }
     ],
     "security": {

@@ -48,10 +48,10 @@ useGsapHover(buttonRef, {
 .ui-button {
   --ui-button-height: 42px;
   --ui-button-padding-x: var(--space-4);
-  --ui-button-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.44));
-  --ui-button-border: var(--color-border-strong);
+  --ui-button-bg: linear-gradient(180deg, var(--color-panel-glow-start), transparent 70%), var(--color-control-surface);
+  --ui-button-border: var(--color-border);
   --ui-button-color: var(--color-text);
-  --ui-button-shadow: 0 10px 24px rgba(17, 24, 39, 0.08);
+  --ui-button-shadow: 0 10px 24px var(--color-popover-shadow);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -76,7 +76,7 @@ useGsapHover(buttonRef, {
 .ui-button:hover {
   transform: translateY(-1px);
   border-color: var(--color-state-border-emphasis);
-  box-shadow: 0 14px 28px rgba(17, 24, 39, 0.12);
+  box-shadow: 0 14px 28px var(--color-popover-shadow);
 }
 
 .ui-button:active {
@@ -100,7 +100,7 @@ useGsapHover(buttonRef, {
 }
 
 .ui-button--ghost {
-  --ui-button-bg: rgba(255, 255, 255, 0.001);
+  --ui-button-bg: transparent;
   --ui-button-border: transparent;
   --ui-button-shadow: none;
   color: var(--color-text-secondary);
@@ -112,13 +112,13 @@ useGsapHover(buttonRef, {
 }
 
 .ui-button--soft {
-  --ui-button-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(233, 240, 247, 0.68));
+  --ui-button-bg: linear-gradient(180deg, var(--color-panel-glow-start), transparent 70%), var(--color-surface-strong);
 }
 
 .ui-button--solid {
   --ui-button-bg: var(--gradient-primary);
   --ui-button-border: transparent;
-  --ui-button-color: #f8fbff;
+  --ui-button-color: var(--color-on-accent);
   --ui-button-shadow: var(--shadow-primary-hover);
 }
 
@@ -129,7 +129,7 @@ useGsapHover(buttonRef, {
 
 .ui-button.is-active {
   --ui-button-border: color-mix(in srgb, var(--color-accent) 30%, transparent);
-  --ui-button-bg: color-mix(in srgb, var(--color-accent) 16%, rgba(255, 255, 255, 0.9));
+  --ui-button-bg: color-mix(in srgb, var(--color-accent) 16%, var(--color-surface-strong));
   --ui-button-color: var(--color-text-strong);
 }
 

@@ -80,7 +80,9 @@ const emit = defineEmits<{
   padding: 10px 12px;
   border: 1px solid var(--color-state-border-subtle);
   border-radius: 18px;
-  background: color-mix(in srgb, var(--color-control-surface) 92%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 76%, transparent), transparent 100%),
+    color-mix(in srgb, var(--color-control-surface) 92%, transparent);
   color: inherit;
   cursor: pointer;
   transition:
@@ -93,7 +95,7 @@ const emit = defineEmits<{
 .track-queue-list__item:hover {
   border-color: var(--color-state-border-emphasis);
   background: color-mix(in srgb, var(--color-control-surface-strong) 92%, transparent);
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
 

@@ -110,6 +110,18 @@ describe("playlist view", () => {
     expect(wrapper.text()).toContain("歌单详情");
   }, 10000);
 
+  it("歌单详情页使用 Stitch 深色版式信号", async () => {
+    const { wrapper } = await mountPlaylist("/playlist");
+
+    expect(wrapper.find(".playlist-view--stitch").exists()).toBe(true);
+    expect(wrapper.find(".playlist-view__ambient").exists()).toBe(true);
+    expect(wrapper.find(".playlist-view__hero-shell").exists()).toBe(true);
+    expect(wrapper.find(".playlist-view__hero-cover").exists()).toBe(true);
+    expect(wrapper.findAll(".playlist-view__summary-item")).toHaveLength(2);
+    expect(wrapper.get('[data-testid="playlist-hero-play"]').classes()).toContain("playlist-view__hero-play");
+    expect(wrapper.find(".playlist-view__table-shell").exists()).toBe(true);
+  }, 10000);
+
   it("/playlist/:playlistId 会渲染对应歌单", async () => {
     const playlist = auraRecommendationPlaylists[0]!;
     const { wrapper } = await mountPlaylist(`/playlist/${playlist.id}`);

@@ -154,7 +154,7 @@ const activePresetName = computed(() => props.presets.find(preset => preset.id =
   height: 16px;
   flex-shrink: 0;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid color-mix(in srgb, var(--color-text) 34%, transparent);
   box-shadow:
     0 0 0 1px rgba(15, 23, 42, 0.08),
     inset 0 1px 1px rgba(255, 255, 255, 0.3);

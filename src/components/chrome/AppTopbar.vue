@@ -2,6 +2,7 @@
 import { Icon } from "@iconify/vue";
 import { computed, nextTick, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import AppSettingsDialog from "@/components/chrome/AppSettingsDialog.vue";
 import GlassPanel from "@/components/chrome/GlassPanel.vue";
 import { useGsapHoverTargets, useGsapReveal } from "@/composables/use-gsap";
 import { iconRegistry } from "@/components/ui/icon-registry";
@@ -10,24 +11,18 @@ const route = useRoute();
 const router = useRouter();
 const topbarRef = ref<HTMLElement | null>(null);
 const searchInputRef = ref<HTMLInputElement | null>(null);
+const settingsOpen = ref(false);
 
 const descriptions: Record<string, string> = {
-  home: "在统一的深色氛围里快速进入今日推荐与主打歌单。",
-  explore: "直接搜索歌曲、歌手、标签和氛围，作为全站内容入口。",
-  playlist: "围绕歌单视角浏览封面、简介与编排节奏。",
-  "playlist-detail": "查看歌单详情、曲目脉络与延伸内容。",
-  library: "把收藏、最近播放和下载内容集中到一个资料区。",
-  player: "保留同一套壳层，同时切入更沉浸的全屏播放器视觉。",
+  home: "从主打歌单、推荐混音和最近播放里继续接上当前氛围。",
+  explore: "按歌名、艺人、专辑和标签快速找到下一段声场。",
+  playlist: "围绕歌单封面、标签和曲目编排进入完整上下文。",
+  "playlist-detail": "在歌单详情里继续展开曲目脉络和延伸氛围。",
+  library: "把收藏、最近播放和个人资料库集中到一个统一画布里。",
+  player: "切进沉浸播放器，把封面、歌词和控制聚到同一视角。",
 };
 
-const title = computed(() => {
-  if (typeof route.meta?.title === "string") {
-    return route.meta.title;
-  }
-
-  return "音乐空间";
-});
-
+const title = computed(() => typeof route.meta?.title === "string" ? route.meta.title : "音乐空间");
 const description = computed(() => descriptions[String(route.name ?? "")] ?? "统一浏览当前页面内容。");
 const isExplorePage = computed(() => route.name === "explore");
 
@@ -37,13 +32,8 @@ async function focusSearchIfNeeded() {
   }
 
   await nextTick();
-  const target = searchInputRef.value;
-  if (!target) {
-    return;
-  }
-
-  target.focus();
-  target.select();
+  searchInputRef.value?.focus();
+  searchInputRef.value?.select();
 }
 
 async function enterExplore() {
@@ -51,6 +41,10 @@ async function enterExplore() {
     name: "explore",
     query: { focus: "search" },
   });
+}
+
+function openSettings() {
+  settingsOpen.value = true;
 }
 
 watch(() => [route.name, route.query.focus].join("::"), async () => {
@@ -119,33 +113,20 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
       <div class="app-topbar__actions">
         <button
           type="button"
-          class="app-topbar__status app-topbar__action"
-          data-testid="topbar-status-button"
-          aria-label="应用状态：在线内容和播放器服务已就绪"
+          class="app-topbar__settings app-topbar__action"
+          data-testid="topbar-settings-button"
+          aria-label="打开设置"
+          @click="openSettings"
         >
-          <span class="app-topbar__status-dot" aria-hidden="true" />
-          <span class="app-topbar__status-copy">
-            <span class="app-topbar__status-title">应用状态</span>
-            <span class="app-topbar__status-text">在线就绪</span>
+          <span class="app-topbar__settings-icon" aria-hidden="true">
+            <Icon :icon="iconRegistry['solar:settings-minimalistic-outline']" />
           </span>
-        </button>
-
-        <button
-          type="button"
-          class="app-topbar__profile app-topbar__action"
-          data-testid="topbar-profile-button"
-          aria-label="个人资料与资料库入口"
-        >
-          <span class="app-topbar__profile-avatar" aria-hidden="true">
-            <Icon :icon="iconRegistry['solar:user-outline']" />
-          </span>
-          <span class="app-topbar__profile-copy">
-            <span class="app-topbar__profile-label">个人资料</span>
-            <span class="app-topbar__profile-name">夜航档案</span>
-          </span>
+          <span class="app-topbar__settings-label">设置</span>
         </button>
       </div>
     </GlassPanel>
+
+    <AppSettingsDialog v-model:open="settingsOpen" />
   </header>
 </template>
 
@@ -160,53 +141,57 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
   align-items: center;
   gap: var(--space-4);
   min-height: var(--layout-topbar-height);
-  padding: 18px 22px;
+  padding: 6px 12px;
+  border: 1px solid var(--color-panel-border);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, var(--color-panel-glow-start), transparent 46%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-surface-strong) 52%, transparent), transparent 100%),
+    var(--color-panel-fill);
+  box-shadow:
+    var(--shadow-sm),
+    inset 0 1px 0 var(--color-panel-glow-end);
+  backdrop-filter: blur(18px);
 }
 
 .app-topbar__mark {
-  width: 52px;
-  height: 52px;
+  width: 34px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid color-mix(in srgb, var(--color-accent) 28%, transparent);
-  border-radius: 18px;
-  background:
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 46%),
-    color-mix(in srgb, var(--color-control-surface-strong) 86%, transparent);
-  color: var(--color-text-contrast);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  background: var(--color-control-surface-strong);
+  color: var(--color-accent);
 }
 
 .app-topbar__mark :deep(svg) {
-  width: 22px;
-  height: 22px;
-}
-
-.app-topbar__copy {
-  min-width: 0;
+  width: 16px;
+  height: 16px;
 }
 
 .app-topbar__eyebrow {
   display: inline-flex;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   color: var(--color-text-tertiary);
-  font-size: 12px;
-  letter-spacing: 0.12em;
+  font-size: 10px;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
 .app-topbar__title {
   margin: 0;
   color: var(--color-text-strong);
-  font-size: 28px;
-  line-height: 1.06;
+  font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 
 .app-topbar__subtitle {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
   color: var(--color-text-secondary);
-  font-size: 13px;
+  font-size: 10px;
   line-height: 1.5;
 }
 
@@ -217,12 +202,13 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
 
 .app-topbar__search-shell,
 .app-topbar__jump,
-.app-topbar__status,
-.app-topbar__profile {
-  border: 1px solid var(--color-state-border-subtle);
-  border-radius: 20px;
-  background: color-mix(in srgb, var(--color-control-surface) 92%, transparent);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+.app-topbar__settings {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 80%, transparent), transparent 100%),
+    var(--color-control-surface);
+  box-shadow: inset 0 1px 0 var(--color-panel-glow-end);
   transition:
     border-color 180ms ease,
     background 180ms ease,
@@ -233,17 +219,18 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
 
 .app-topbar__search-shell:hover,
 .app-topbar__jump:hover,
-.app-topbar__status:hover,
-.app-topbar__profile:hover {
+.app-topbar__settings:hover {
   border-color: var(--color-state-border-emphasis);
-  background: color-mix(in srgb, var(--color-control-surface-strong) 90%, transparent);
-  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.18);
+  background: var(--color-control-surface-strong);
+  box-shadow:
+    var(--shadow-sm),
+    inset 0 1px 0 var(--color-panel-glow-end);
 }
 
 .app-topbar__search-shell {
   width: min(560px, 100%);
-  min-height: 62px;
-  padding: 0 18px;
+  min-height: 42px;
+  padding: 0 14px;
 }
 
 .app-topbar__search-icon {
@@ -258,10 +245,9 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
 .app-topbar__search-input {
   width: 100%;
   border: 0;
-  outline: none;
   background: transparent;
   color: var(--color-text);
-  font-size: 15px;
+  font-size: 12px;
 }
 
 .app-topbar__search-input::placeholder {
@@ -269,107 +255,75 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
 }
 
 .app-topbar__jump {
-  min-width: 320px;
-  min-height: 62px;
+  min-height: 42px;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 0 18px;
-  cursor: pointer;
+  gap: 12px;
+  padding: 0 10px 0 16px;
   color: var(--color-text);
 }
 
 .app-topbar__jump-copy {
   display: grid;
-  gap: 4px;
-  text-align: left;
 }
 
 .app-topbar__jump-label {
-  font-size: 15px;
-  font-weight: 600;
+  font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .app-topbar__jump-hint {
-  color: var(--color-text-secondary);
-  font-size: 12px;
+  color: var(--color-text-tertiary);
+  font-size: 10px;
+}
+
+.app-topbar__jump-icon,
+.app-topbar__settings-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
 }
 
 .app-topbar__jump-icon {
-  width: 42px;
-  height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
+  width: 28px;
+  height: 28px;
   background: var(--gradient-primary);
-  color: var(--color-text-contrast);
+  color: var(--color-on-accent);
 }
 
 .app-topbar__actions {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
+  gap: 8px;
 }
 
-.app-topbar__action {
-  cursor: pointer;
-}
-
-.app-topbar__status,
-.app-topbar__profile {
-  min-height: 62px;
+.app-topbar__settings {
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 16px;
+  gap: 10px;
+  padding: 0 12px;
   color: var(--color-text);
 }
 
-.app-topbar__status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #63f0be, #2bc896);
-  box-shadow: 0 0 0 6px rgba(67, 201, 147, 0.12);
+.app-topbar__settings-icon {
+  width: 28px;
+  height: 28px;
+  background: color-mix(in srgb, var(--color-accent) 16%, transparent);
+  color: var(--color-accent);
 }
 
-.app-topbar__status-copy,
-.app-topbar__profile-copy {
-  display: grid;
-  gap: 4px;
-  text-align: left;
+.app-topbar__settings-icon :deep(svg) {
+  width: 16px;
+  height: 16px;
 }
 
-.app-topbar__status-title,
-.app-topbar__profile-label {
-  color: var(--color-text-tertiary);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.app-topbar__status-text,
-.app-topbar__profile-name {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.app-topbar__profile-avatar {
-  width: 40px;
-  height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  background: var(--gradient-primary);
-  color: var(--color-text-contrast);
-}
-
-.app-topbar__profile-avatar :deep(svg) {
-  width: 18px;
-  height: 18px;
+.app-topbar__settings-label {
+  color: var(--color-text-strong);
+  font-size: 12px;
+  font-weight: 700;
 }
 </style>

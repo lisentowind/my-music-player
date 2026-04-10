@@ -76,7 +76,8 @@ const emit = defineEmits<{
     var(--color-popover-fill);
   box-shadow:
     0 28px 60px var(--color-popover-shadow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    var(--shadow-lg),
+    inset 0 1px 0 var(--color-panel-glow-end);
   backdrop-filter: blur(18px);
 }
 
@@ -120,9 +121,25 @@ const emit = defineEmits<{
   padding: 0 12px;
   border: 1px solid var(--color-state-border-subtle);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--color-control-surface) 92%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 76%, transparent), transparent 100%),
+    color-mix(in srgb, var(--color-control-surface) 92%, transparent);
   color: var(--color-text-secondary);
   cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.queue-popover__close:hover {
+  transform: translateY(-1px);
+  border-color: var(--color-state-border-emphasis);
+  background: color-mix(in srgb, var(--color-control-surface-strong) 92%, transparent);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-strong);
 }
 
 .queue-popover__current {
@@ -150,6 +167,7 @@ const emit = defineEmits<{
     color-mix(in srgb, var(--color-control-surface) 92%, transparent);
   color: inherit;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 var(--color-panel-glow-end);
 }
 
 .queue-popover__current-cover {

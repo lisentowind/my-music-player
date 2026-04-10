@@ -83,17 +83,19 @@ const toggleIcon = computed(() => props.isPlaying
 .playback-controls__transport,
 .playback-controls__button {
   border: 1px solid var(--color-state-border-subtle);
-  background: color-mix(in srgb, var(--color-control-surface) 92%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 76%, transparent), transparent 100%),
+    color-mix(in srgb, var(--color-control-surface) 92%, transparent);
   color: var(--color-text);
 }
 
 .playback-controls__mode {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  min-height: 52px;
-  padding: 0 14px;
-  border-radius: 18px;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 12px;
+  border-radius: 16px;
   cursor: pointer;
   transition:
     border-color 160ms ease,
@@ -106,18 +108,18 @@ const toggleIcon = computed(() => props.isPlaying
 .playback-controls__button:hover {
   border-color: var(--color-state-border-emphasis);
   background: color-mix(in srgb, var(--color-control-surface-strong) 92%, transparent);
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
 
 .playback-controls__mode-icon,
 .playback-controls__button {
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
+  border-radius: 999px;
 }
 
 .playback-controls__mode-icon {
@@ -127,8 +129,8 @@ const toggleIcon = computed(() => props.isPlaying
 
 .playback-controls__mode-icon :deep(svg),
 .playback-controls__button :deep(svg) {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
 }
 
 .playback-controls__mode-copy {
@@ -139,12 +141,12 @@ const toggleIcon = computed(() => props.isPlaying
 
 .playback-controls__mode-caption {
   color: var(--color-text-tertiary);
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .playback-controls__mode-label {
   color: var(--color-text);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -152,10 +154,10 @@ const toggleIcon = computed(() => props.isPlaying
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  min-height: 52px;
-  padding: 0 12px;
-  border-radius: 18px;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 10px;
+  border-radius: 16px;
 }
 
 .playback-controls__button {
@@ -168,8 +170,8 @@ const toggleIcon = computed(() => props.isPlaying
 }
 
 .playback-controls__button--primary {
-  width: 54px;
-  height: 54px;
+  width: 50px;
+  height: 50px;
   border-color: transparent;
   background: var(--gradient-primary);
   color: var(--color-text-contrast);

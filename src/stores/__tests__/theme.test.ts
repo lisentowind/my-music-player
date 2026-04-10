@@ -71,12 +71,24 @@ describe("useThemeStore", () => {
     expect(store.resolvedMode).toBe("dark");
     expect(document.documentElement.getAttribute("data-theme-mode")).toBe("dark");
     expect(document.documentElement.getAttribute("data-theme-resolved")).toBe("dark");
+    expect(document.documentElement.style.getPropertyValue("--color-bg")).toBeTruthy();
+    expect(document.documentElement.style.getPropertyValue("--color-text")).toBeTruthy();
+    expect(document.documentElement.style.getPropertyValue("--color-panel-fill")).toBeTruthy();
+    expect(document.documentElement.style.getPropertyValue("--color-popover-fill")).toBeTruthy();
+    expect(document.documentElement.style.getPropertyValue("--shadow-sm")).toBeTruthy();
+    expect(document.documentElement.style.getPropertyValue("--shadow-md")).toBeTruthy();
+    expect(document.documentElement.style.getPropertyValue("--shadow-lg")).toBeTruthy();
 
     store.setMode("light");
     await nextTick();
     expect(store.resolvedMode).toBe("light");
     expect(document.documentElement.getAttribute("data-theme-mode")).toBe("light");
     expect(document.documentElement.getAttribute("data-theme-resolved")).toBe("light");
+    expect(document.documentElement.style.getPropertyValue("--color-bg")).toBeTruthy();
+    expect(document.documentElement.style.getPropertyValue("--color-text")).toBeTruthy();
+    expect(document.documentElement.style.getPropertyValue("--shadow-sm")).toBeTruthy();
+    expect(document.documentElement.style.getPropertyValue("--shadow-md")).toBeTruthy();
+    expect(document.documentElement.style.getPropertyValue("--shadow-lg")).toBeTruthy();
   });
 
   it("支持预设主题色和自由颜色输入", async () => {
@@ -98,6 +110,10 @@ describe("useThemeStore", () => {
     expect(store.activePresetId).toBe("");
     expect(store.themeColor).toBe("#12ab34");
     expect(document.documentElement.style.getPropertyValue("--theme-accent")).toBe("#12ab34");
+    expect(document.documentElement.style.getPropertyValue("--color-accent-pressed")).toBeTruthy();
+    expect(document.documentElement.style.getPropertyValue("--color-state-accent-soft")).toContain("rgba(");
+    expect(document.documentElement.style.getPropertyValue("--gradient-primary")).toContain("linear-gradient");
+    expect(document.documentElement.style.getPropertyValue("--shadow-primary-hover")).toBeTruthy();
 
     store.setPreset(secondPreset.id);
     await nextTick();
@@ -120,6 +136,54 @@ describe("useThemeStore", () => {
     await nextTick();
     expect(store.customColor).toBe("#12ab34");
     expect(store.themeColor).toBe("#12ab34");
+  });
+
+  it("会为亮色和深色主题派生不同的最佳主题色结果", async () => {
+    mockMatchMedia(false);
+    const store = useThemeStore();
+
+    store.setCustomColor("#5f7f9b");
+    store.setMode("dark");
+    await nextTick();
+    const darkAccent = document.documentElement.style.getPropertyValue("--color-accent");
+    const darkCanvas = document.documentElement.style.getPropertyValue("--color-bg-canvas");
+
+    store.setMode("light");
+    await nextTick();
+    const lightAccent = document.documentElement.style.getPropertyValue("--color-accent");
+    const lightCanvas = document.documentElement.style.getPropertyValue("--color-bg-canvas");
+
+    expect(darkAccent).not.toBe(lightAccent);
+    expect(darkCanvas).not.toBe(lightCanvas);
+  });
+
+  it("亮色模式会输出独立的壳层阴影和分层变量，避免界面发灰发白", async () => {
+    mockMatchMedia(false);
+    const store = useThemeStore();
+
+    store.setCustomColor("#5f7f9b");
+    store.setMode("dark");
+    await nextTick();
+    const darkShadowSm = document.documentElement.style.getPropertyValue("--shadow-sm");
+    const darkShadowMd = document.documentElement.style.getPropertyValue("--shadow-md");
+    const darkPanelBorder = document.documentElement.style.getPropertyValue("--color-panel-border");
+    const darkControlStroke = document.documentElement.style.getPropertyValue("--color-control-stroke");
+
+    store.setMode("light");
+    await nextTick();
+    const lightShadowSm = document.documentElement.style.getPropertyValue("--shadow-sm");
+    const lightShadowMd = document.documentElement.style.getPropertyValue("--shadow-md");
+    const lightPanelBorder = document.documentElement.style.getPropertyValue("--color-panel-border");
+    const lightControlStroke = document.documentElement.style.getPropertyValue("--color-control-stroke");
+
+    expect(lightShadowSm).toBeTruthy();
+    expect(lightShadowMd).toBeTruthy();
+    expect(lightPanelBorder).toBeTruthy();
+    expect(lightControlStroke).toBeTruthy();
+    expect(lightShadowSm).not.toBe(darkShadowSm);
+    expect(lightShadowMd).not.toBe(darkShadowMd);
+    expect(lightPanelBorder).not.toBe(darkPanelBorder);
+    expect(lightControlStroke).not.toBe(darkControlStroke);
   });
 });
 

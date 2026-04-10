@@ -133,8 +133,12 @@ describe("player dock", () => {
     expect(wrapper.get('[data-testid="player-dock-title"]').text()).toBe("晨雾回声");
     expect(wrapper.get('[data-testid="player-dock-artist"]').text()).toContain("北纬合成社");
     expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(true);
+    expect(wrapper.get('[data-testid="player-dock-shell"]').attributes("data-dock-layout")).toBe("single-row");
+    expect(wrapper.get('[data-testid="player-dock-shell"]').attributes("data-dock-min-width")).toBe("880");
+    expect(wrapper.get('[data-testid="player-dock-shell"]').attributes("data-dock-min-height")).toBe("84");
+    expect(wrapper.get('[data-testid="player-dock-shell"]').attributes("data-dock-span")).toBe("viewport");
     expect(wrapper.find('[data-testid="player-dock-transport"]').exists()).toBe(true);
-    expect(wrapper.text()).toContain("当前播放");
+    expect(wrapper.text()).not.toContain("当前播放");
     expect(wrapper.text()).not.toContain("Mode");
   });
 
@@ -275,15 +279,16 @@ describe("player dock", () => {
     expect(player.currentTrack?.id).toBe(nextTrack!.id);
   });
 
-  it("右侧存在进入播放器页面按钮，并能跳转到 /player", async () => {
+  it("点击 Dock 封面会进入全屏播放器页面", async () => {
     const { wrapper, router } = await mountDock("/library");
 
-    const button = wrapper.get('[data-testid="player-dock-open-player"]');
-    expect(button.attributes("aria-label")).toContain("打开播放器");
+    const coverButton = wrapper.get('[data-testid="player-dock-cover-button"]');
+    expect(coverButton.attributes("aria-label")).toContain("进入全屏播放器");
 
-    await button.trigger("click");
+    await coverButton.trigger("click");
     await flushPromises();
 
     expect(router.currentRoute.value.path).toBe("/player");
+    expect(sessionStorage.getItem("player-fullscreen-origin")).toBeTruthy();
   });
 });

@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import { Icon } from "@iconify/vue";
 import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { useRouter } from "vue-router";
-import MediaSectionTitle from "@/components/music/MediaSectionTitle.vue";
 import MediaShelfCard from "@/components/music/MediaShelfCard.vue";
-import UiButton from "@/components/ui/UiButton.vue";
-import UiSectionCard from "@/components/ui/UiSectionCard.vue";
+import { iconRegistry } from "@/components/ui/icon-registry";
 import { useGsapHoverTargets, useGsapReveal, useGsapScrollReveal } from "@/composables/use-gsap";
 import {
   auraDefaultPlaylist,
@@ -34,6 +33,60 @@ const allTags = computed(() => Array.from(new Set([
 ])));
 
 const hotTags = computed(() => allTags.value.slice(0, 8));
+const secondaryFeaturedPlaylist = computed(() => auraRecommendationPlaylists[0] ?? auraDefaultPlaylist);
+const browseCategories = computed(() => {
+  const seedTags = hotTags.value;
+  return [
+    {
+      id: "category-night",
+      title: "深夜脉冲",
+      caption: "低频与夜色",
+      tag: seedTags[0] ?? "低频",
+      icon: "solar:moon-outline" as const,
+      accent: "violet",
+    },
+    {
+      id: "category-commute",
+      title: "通勤段落",
+      caption: "冷调和推进感",
+      tag: seedTags[1] ?? "通勤",
+      icon: "solar:music-notes-outline" as const,
+      accent: "rose",
+    },
+    {
+      id: "category-focus",
+      title: "专注工作流",
+      caption: "稳定循环",
+      tag: seedTags[2] ?? "工作流",
+      icon: "solar:monitor-outline" as const,
+      accent: "mint",
+    },
+    {
+      id: "category-mood",
+      title: "情绪慢放",
+      caption: "玻璃质感",
+      tag: seedTags[3] ?? "清透",
+      icon: "solar:heart-outline" as const,
+      accent: "amber",
+    },
+    {
+      id: "category-light",
+      title: "晨光氛围",
+      caption: "轻一点的电子",
+      tag: seedTags[4] ?? "晨光",
+      icon: "solar:sun-outline" as const,
+      accent: "blue",
+    },
+    {
+      id: "category-library",
+      title: "收藏回看",
+      caption: "从资料库继续",
+      tag: seedTags[5] ?? "精选收藏",
+      icon: "solar:user-outline" as const,
+      accent: "slate",
+    },
+  ];
+});
 
 const normalizedQuery = computed(() => debouncedSearch.value.trim().toLowerCase());
 const hasQuery = computed(() => normalizedQuery.value.length > 0);
@@ -101,8 +154,15 @@ function applyTag(tag: string) {
   searchText.value = tag;
 }
 
-useGsapReveal(exploreRef, [".explore-view__hero", ".explore-view__tags", ".explore-view__playlists", ".explore-view__results"], 0.08);
+useGsapReveal(exploreRef, [".explore-view__hero", ".explore-view__featured", ".explore-view__categories", ".explore-view__tags", ".explore-view__playlists", ".explore-view__results"], 0.08);
 useGsapScrollReveal(exploreRef, [
+  {
+    selector: ".explore-view__category-grid > *",
+    triggerSelector: ".explore-view__categories",
+    y: 22,
+    scale: 0.98,
+    stagger: 0.04,
+  },
   {
     selector: ".explore-view__tag-list > *",
     triggerSelector: ".explore-view__tags",
@@ -125,60 +185,125 @@ useGsapScrollReveal(exploreRef, [
     stagger: 0.05,
   },
 ]);
-useGsapHoverTargets(exploreRef, [".explore-view__tag-list > *", ".explore-view__playlist-grid > *", ".explore-view__result-grid > *"], {
+useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view__category-grid > *", ".explore-view__tag-list > *", ".explore-view__playlist-grid > *", ".explore-view__result-grid > *"], {
   hoverY: -3,
   hoverScale: 1.01,
 });
 </script>
 
 <template>
-  <section id="explore-page" ref="exploreRef" class="page explore-view">
-    <UiSectionCard class="explore-view__hero" tone="contrast">
-      <MediaSectionTitle
-        eyebrow="探索声场"
-        title="探索声场"
-        :description="`按曲名、艺人、专辑、歌单和标签检索当前在线模拟曲库，${EXPLORE_SEARCH_DEBOUNCE_MS} 毫秒后给出结果。`"
-      />
+  <section id="explore-page" ref="exploreRef" class="page explore-view" data-testid="explore-stitch-shell">
+    <div class="explore-view__ambient explore-view__ambient--violet" aria-hidden="true" />
+    <div class="explore-view__ambient explore-view__ambient--mint" aria-hidden="true" />
 
+    <section class="explore-view__hero explore-view__panel" data-testid="explore-stitch-hero">
+      <p class="explore-view__eyebrow">探索声场</p>
+      <h1 class="explore-view__hero-title">探索实验室</h1>
+      <p class="explore-view__hero-copy">
+        {{ `按曲名、艺人、专辑、歌单和标签检索当前在线模拟曲库，${EXPLORE_SEARCH_DEBOUNCE_MS} 毫秒后给出结果。` }}
+      </p>
       <label class="explore-view__search">
         <span class="explore-view__search-label">搜索输入</span>
-        <input
-          v-model="searchText"
-          data-testid="explore-search-input"
-          class="explore-view__search-input"
-          type="search"
-          autocomplete="off"
-          placeholder="搜索歌曲、歌单、标签或艺人"
-        >
+        <span class="explore-view__search-shell">
+          <span class="explore-view__search-icon" aria-hidden="true">⌕</span>
+          <input
+            v-model="searchText"
+            data-testid="explore-search-input"
+            class="explore-view__search-input"
+            type="search"
+            autocomplete="off"
+            placeholder="搜索歌曲、歌单、标签或艺人"
+          >
+        </span>
       </label>
-    </UiSectionCard>
+      <div class="explore-view__hero-meta">
+        <p>热门标签 {{ hotTags.length }} 个</p>
+        <p>检索延迟 {{ EXPLORE_SEARCH_DEBOUNCE_MS }} 毫秒</p>
+      </div>
+    </section>
 
-    <UiSectionCard class="explore-view__tags">
-      <MediaSectionTitle
-        eyebrow="快捷入口"
-        title="热门标签"
-        description="先从常用标签切入，会比盲搜更快找到合适的氛围。"
-      />
+    <section
+      v-if="!hasQuery"
+      class="explore-view__featured"
+      data-testid="explore-stitch-featured"
+    >
+      <button type="button" class="explore-view__featured-card explore-view__featured-card--primary" @click="openPlaylist(auraDefaultPlaylist.id)">
+        <img class="explore-view__featured-image" :src="auraDefaultPlaylist.coverSrc" :alt="`${auraDefaultPlaylist.title} 封面`">
+        <span class="explore-view__featured-mask" />
+        <span class="explore-view__featured-copy">
+          <span class="explore-view__featured-badge">趋势主打</span>
+          <strong>{{ auraDefaultPlaylist.title }}</strong>
+          <small>{{ auraDefaultPlaylist.description }}</small>
+        </span>
+      </button>
+      <button type="button" class="explore-view__featured-card explore-view__featured-card--secondary" @click="openPlaylist(secondaryFeaturedPlaylist.id)">
+        <img class="explore-view__featured-image" :src="secondaryFeaturedPlaylist.coverSrc" :alt="`${secondaryFeaturedPlaylist.title} 封面`">
+        <span class="explore-view__featured-mask" />
+        <span class="explore-view__featured-copy">
+          <span class="explore-view__featured-badge explore-view__featured-badge--mint">情绪精选</span>
+          <strong>{{ secondaryFeaturedPlaylist.title }}</strong>
+          <small>{{ secondaryFeaturedPlaylist.subtitle }}</small>
+        </span>
+      </button>
+    </section>
+
+    <section
+      v-if="!hasQuery"
+      class="explore-view__categories explore-view__panel"
+      data-testid="explore-category-grid"
+    >
+      <header class="explore-view__panel-head">
+        <p class="explore-view__eyebrow">探索分区</p>
+        <h2 class="explore-view__section-title">浏览分类</h2>
+        <p class="explore-view__section-copy">把探索首页做成更像 Stitch 的彩色磁贴入口，先按氛围切，再进入歌单和结果。</p>
+      </header>
+      <div class="explore-view__category-grid">
+        <button
+          v-for="category in browseCategories"
+          :key="category.id"
+          type="button"
+          class="explore-view__category-card"
+          :class="`is-${category.accent}`"
+          @click="applyTag(category.tag)"
+        >
+          <span class="explore-view__category-icon" aria-hidden="true">
+            <Icon :icon="iconRegistry[category.icon]" />
+          </span>
+          <span class="explore-view__category-copy">
+            <strong>{{ category.title }}</strong>
+            <small>{{ category.caption }}</small>
+          </span>
+          <span class="explore-view__category-tag">{{ category.tag }}</span>
+          <span class="explore-view__category-glow" aria-hidden="true" />
+        </button>
+      </div>
+    </section>
+
+    <section class="explore-view__tags explore-view__panel">
+      <header class="explore-view__panel-head">
+        <p class="explore-view__eyebrow">快捷入口</p>
+        <h2 class="explore-view__section-title">热门标签</h2>
+        <p class="explore-view__section-copy">先从常用标签切入，会比盲搜更快找到合适的氛围。</p>
+      </header>
       <div class="explore-view__tag-list">
-        <UiButton
+        <button
           v-for="tag in hotTags"
           :key="tag"
           type="button"
-          variant="ghost"
-          size="sm"
+          class="explore-view__tag-chip"
           @click="applyTag(tag)"
         >
           {{ tag }}
-        </UiButton>
+        </button>
       </div>
-    </UiSectionCard>
+    </section>
 
-    <UiSectionCard v-if="!hasQuery" class="explore-view__playlists">
-      <MediaSectionTitle
-        eyebrow="默认探索态"
-        title="推荐歌单"
-        description="还没输入关键词时，先把主打歌单和推荐区放在这里，帮助你快速进入。"
-      />
+    <section v-if="!hasQuery" class="explore-view__playlists explore-view__panel">
+      <header class="explore-view__panel-head">
+        <p class="explore-view__eyebrow">默认探索态</p>
+        <h2 class="explore-view__section-title">推荐歌单</h2>
+        <p class="explore-view__section-copy">还没输入关键词时，先把主打歌单和推荐区放在这里，帮助你快速进入。</p>
+      </header>
       <div class="explore-view__playlist-grid">
         <MediaShelfCard
           :data-testid="`explore-playlist-open-${auraDefaultPlaylist.id}`"
@@ -201,14 +326,14 @@ useGsapHoverTargets(exploreRef, [".explore-view__tag-list > *", ".explore-view__
           @select="openPlaylist(playlist.id)"
         />
       </div>
-    </UiSectionCard>
+    </section>
 
-    <UiSectionCard v-else class="explore-view__results">
-      <MediaSectionTitle
-        eyebrow="搜索结果"
-        title="结果分组"
-        :description="`当前关键词：${debouncedSearch}`"
-      />
+    <section v-else class="explore-view__results explore-view__panel">
+      <header class="explore-view__panel-head">
+        <p class="explore-view__eyebrow">搜索结果</p>
+        <h2 class="explore-view__section-title">结果分组</h2>
+        <p class="explore-view__section-copy">{{ `当前关键词：${debouncedSearch}` }}</p>
+      </header>
 
       <template v-if="hasResults">
         <section v-if="matchedTracks.length > 0" class="explore-view__group">
@@ -248,16 +373,15 @@ useGsapHoverTargets(exploreRef, [".explore-view__tag-list > *", ".explore-view__
         <section v-if="matchedTags.length > 0" class="explore-view__group">
           <h3 class="explore-view__group-title">标签匹配</h3>
           <div class="explore-view__tag-list">
-            <UiButton
+            <button
               v-for="tag in matchedTags"
               :key="tag"
               type="button"
-              variant="ghost"
-              size="sm"
+              class="explore-view__tag-chip"
               @click="applyTag(tag)"
             >
               {{ tag }}
-            </UiButton>
+            </button>
           </div>
         </section>
       </template>
@@ -266,78 +390,465 @@ useGsapHoverTargets(exploreRef, [".explore-view__tag-list > *", ".explore-view__
         <p class="explore-view__empty-title">没有找到对应内容</p>
         <p class="explore-view__empty-copy">试试换一个歌手、标签或歌单名称，也可以点上面的热门标签快速切换。</p>
       </div>
-    </UiSectionCard>
+    </section>
   </section>
 </template>
 
 <style scoped lang="less">
 .page {
   display: grid;
-  gap: var(--space-4);
+  gap: 14px;
+}
+
+.explore-view {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(12px, 1.6vw, 18px);
+  border-radius: 22px;
+  background: radial-gradient(circle at 20% 12%, color-mix(in srgb, var(--color-accent) 24%, transparent), transparent 46%),
+    radial-gradient(circle at 88% 24%, color-mix(in srgb, #54f1bc 18%, transparent), transparent 44%),
+    linear-gradient(135deg, var(--color-bg-elevated) 0%, var(--color-bg) 45%, color-mix(in srgb, var(--color-bg) 82%, var(--color-accent) 18%) 100%);
+  border: 1px solid var(--color-border);
+}
+
+.explore-view__ambient {
+  position: absolute;
+  z-index: -1;
+  width: clamp(220px, 38vw, 420px);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  filter: blur(70px);
+  opacity: 0.7;
+}
+
+.explore-view__ambient--violet {
+  top: -180px;
+  right: -50px;
+  background: rgba(173, 129, 255, 0.6);
+}
+
+.explore-view__ambient--mint {
+  bottom: -230px;
+  left: -100px;
+  background: rgba(93, 238, 188, 0.35);
+}
+
+.explore-view__panel {
+  border-radius: 18px;
+  padding: clamp(14px, 1.8vw, 18px);
+  background: linear-gradient(155deg, var(--color-panel-glow-start), transparent 48%), var(--color-panel-fill);
+  border: 1px solid var(--color-border);
+  box-shadow: inset 0 1px 0 var(--color-panel-glow-end), 0 24px 40px var(--color-popover-shadow);
+}
+
+.explore-view__panel-head {
+  margin-bottom: 12px;
+}
+
+.explore-view__eyebrow {
+  margin: 0 0 8px;
+  color: var(--color-text-tertiary);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.explore-view__section-title {
+  margin: 0;
+  color: var(--color-text-strong);
+  font-size: clamp(20px, 3vw, 26px);
+  letter-spacing: -0.02em;
+}
+
+.explore-view__section-copy {
+  margin: 8px 0 0;
+  max-width: 680px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.explore-view__hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.explore-view__hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(204, 151, 255, 0), rgba(204, 151, 255, 0.54), rgba(204, 151, 255, 0));
+}
+
+.explore-view__hero-title {
+  margin: 0;
+  color: var(--color-text-strong);
+  font-size: clamp(28px, 3.8vw, 36px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+
+.explore-view__hero-copy {
+  margin: 10px 0 0;
+  max-width: 760px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 1.52;
 }
 
 .explore-view__search {
   display: grid;
-  gap: 12px;
-  margin-top: 20px;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .explore-view__search-label {
   color: var(--color-text-tertiary);
-  font-size: 12px;
-  letter-spacing: 0.12em;
+  font-size: 11px;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
+  font-weight: 600;
+}
+
+.explore-view__search-shell {
+  position: relative;
+  display: block;
+}
+
+.explore-view__search-icon {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  color: var(--color-accent);
+  font-size: 16px;
+  pointer-events: none;
 }
 
 .explore-view__search-input {
-  min-height: 62px;
-  padding: 0 20px;
-  border: 1px solid var(--color-state-border-subtle);
+  width: 100%;
+  min-height: 46px;
+  padding: 0 18px 0 44px;
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--color-control-surface) 92%, transparent);
+  background: var(--color-control-surface);
   color: var(--color-text);
-  font-size: 15px;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.explore-view__search-input:focus {
+  border-color: var(--color-state-border-emphasis);
+  box-shadow: 0 0 0 4px var(--color-state-accent-soft);
+  background: var(--color-control-surface-strong);
+}
+
+.explore-view__hero-meta {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.explore-view__hero-meta p {
+  margin: 0;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--color-control-surface);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+}
+
+.explore-view__featured {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1.85fr 1fr;
+}
+
+.explore-view__featured-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 280px;
+  border: 1px solid color-mix(in srgb, white 18%, transparent);
+  border-radius: 18px;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  background: rgba(0, 0, 0, 0.45);
+  color: color-mix(in srgb, white 94%, var(--color-accent) 6%);
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.explore-view__featured-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--color-accent) 72%, white 28%);
+  box-shadow: 0 16px 36px rgba(4, 2, 10, 0.45);
+}
+
+.explore-view__featured-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.explore-view__featured-mask {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(8, 8, 8, 0.06), rgba(8, 8, 8, 0.7) 56%, rgba(8, 8, 8, 0.92) 100%);
+}
+
+.explore-view__featured-card--secondary .explore-view__featured-mask {
+  background: linear-gradient(180deg, rgba(8, 8, 8, 0.18), rgba(8, 8, 8, 0.82) 72%);
+}
+
+.explore-view__featured-copy {
+  position: absolute;
+  inset: auto 0 0;
+  display: grid;
+  gap: 7px;
+  padding: clamp(16px, 2vw, 20px);
+}
+
+.explore-view__featured-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent) 88%, white 12%);
+  color: var(--color-on-accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.explore-view__featured-badge--mint {
+  background: color-mix(in srgb, #69f6b8 88%, white 12%);
+  color: #103829;
+}
+
+.explore-view__featured-copy strong {
+  font-size: clamp(22px, 2.8vw, 30px);
+  letter-spacing: -0.02em;
+}
+
+.explore-view__featured-copy small {
+  color: color-mix(in srgb, white 84%, var(--color-accent) 16%);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.explore-view__categories {
+  position: relative;
+  overflow: hidden;
+}
+
+.explore-view__category-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.explore-view__category-card {
+  position: relative;
+  min-height: 148px;
+  display: grid;
+  align-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  border: none;
+  border-radius: 18px;
+  color: color-mix(in srgb, white 92%, var(--color-accent) 8%);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.explore-view__category-card.is-violet {
+  background: linear-gradient(145deg, #6b3cff, #22143f);
+}
+
+.explore-view__category-card.is-rose {
+  background: linear-gradient(145deg, #d84f76, #402034);
+}
+
+.explore-view__category-card.is-mint {
+  background: linear-gradient(145deg, #149c77, #0f2f2a);
+}
+
+.explore-view__category-card.is-amber {
+  background: linear-gradient(145deg, #ae6b17, #3d2614);
+}
+
+.explore-view__category-card.is-blue {
+  background: linear-gradient(145deg, #2966cc, #162746);
+}
+
+.explore-view__category-card.is-slate {
+  background: linear-gradient(145deg, #485168, #20242d);
+}
+
+.explore-view__category-icon {
+  position: relative;
+  z-index: 1;
+  color: color-mix(in srgb, white 44%, transparent);
+}
+
+.explore-view__category-icon :deep(svg) {
+  width: 28px;
+  height: 28px;
+}
+
+.explore-view__category-copy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 6px;
+}
+
+.explore-view__category-copy strong {
+  font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+  font-size: 18px;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.explore-view__category-copy small {
+  color: color-mix(in srgb, white 76%, var(--color-accent) 24%);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.explore-view__category-tag {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, white 14%, transparent);
+  font-size: 10px;
+}
+
+.explore-view__category-glow {
+  position: absolute;
+  right: -20px;
+  bottom: -26px;
+  width: 92px;
+  height: 92px;
+  border-radius: 999px;
+  background: color-mix(in srgb, white 18%, transparent);
+  filter: blur(26px);
 }
 
 .explore-view__tag-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
+}
+
+.explore-view__tag-chip {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 7px 11px;
+  background: var(--color-control-surface);
+  color: var(--color-text);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.explore-view__tag-chip:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-state-border-emphasis);
+  background: var(--color-state-selected);
 }
 
 .explore-view__playlist-grid,
 .explore-view__result-grid {
   display: grid;
-  gap: 18px;
+  gap: 12px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .explore-view__group + .explore-view__group {
-  margin-top: 24px;
+  margin-top: 18px;
 }
 
 .explore-view__group-title {
-  margin: 0 0 14px;
-  color: var(--color-text);
-  font-size: 18px;
+  margin: 0 0 10px;
+  color: var(--color-text-strong);
+  font-size: 16px;
+  letter-spacing: -0.01em;
 }
 
 .explore-view__empty {
-  padding: 28px 0 8px;
+  padding: 22px 0 4px;
   text-align: center;
 }
 
 .explore-view__empty-title {
   margin: 0;
   color: var(--color-text-strong);
-  font-size: 22px;
+  font-size: 18px;
 }
 
 .explore-view__empty-copy {
-  margin: 10px auto 0;
+  margin: 8px auto 0;
   max-width: 520px;
   color: var(--color-text-secondary);
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.explore-view__playlist-grid :deep(.media-shelf-card),
+.explore-view__result-grid :deep(.media-shelf-card) {
+  background: linear-gradient(155deg, var(--color-panel-glow-start), transparent 48%), var(--color-panel-fill);
+  border-color: var(--color-border);
+}
+
+@media (max-width: 1000px) {
+  .explore-view__featured {
+    grid-template-columns: 1fr;
+  }
+
+  .explore-view__category-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .explore-view__featured-card {
+    min-height: 200px;
+  }
+
+  .explore-view__playlist-grid,
+  .explore-view__result-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .explore-view {
+    border-radius: 20px;
+    padding: 16px;
+  }
+
+  .explore-view__panel {
+    border-radius: 18px;
+    padding: 16px;
+  }
+
+  .explore-view__category-grid,
+  .explore-view__playlist-grid,
+  .explore-view__result-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 </style>

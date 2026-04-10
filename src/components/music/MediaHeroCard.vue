@@ -28,6 +28,11 @@ const emit = defineEmits<{
 
 <template>
   <article class="media-hero-card">
+    <div class="media-hero-card__image-wrap">
+      <img class="media-hero-card__image" :src="coverSrc" :alt="`${title} 封面`">
+      <div class="media-hero-card__shade" aria-hidden="true" />
+    </div>
+
     <div class="media-hero-card__copy">
       <p v-if="eyebrow" class="media-hero-card__eyebrow">{{ eyebrow }}</p>
       <h1 class="media-hero-card__title">{{ title }}</h1>
@@ -58,54 +63,84 @@ const emit = defineEmits<{
         </UiButton>
       </div>
     </div>
-
-    <div class="media-hero-card__visual">
-      <img class="media-hero-card__image" :src="coverSrc" :alt="`${title} 封面`">
-    </div>
   </article>
 </template>
 
 <style scoped lang="less">
 .media-hero-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 420px);
-  align-items: stretch;
-  gap: 24px;
-  min-height: 320px;
+  position: relative;
+  min-height: 420px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.media-hero-card__image-wrap,
+.media-hero-card__image,
+.media-hero-card__shade {
+  position: absolute;
+  inset: 0;
+}
+
+.media-hero-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.02);
+  filter: saturate(1.06) contrast(1.04);
+}
+
+.media-hero-card__shade {
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.56) 42%, rgba(0, 0, 0, 0.18) 100%),
+    linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.62) 100%);
 }
 
 .media-hero-card__copy {
+  position: relative;
+  z-index: 1;
   display: grid;
-  align-content: center;
+  align-content: end;
+  gap: 0;
+  min-height: 420px;
+  max-width: 760px;
+  padding: 36px 36px 34px;
 }
 
 .media-hero-card__eyebrow {
-  margin: 0 0 10px;
-  color: var(--color-text-tertiary);
+  width: fit-content;
+  margin: 0 0 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(204, 151, 255, 0.18);
+  color: var(--color-accent);
   font-size: 11px;
-  letter-spacing: 0.16em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  backdrop-filter: blur(12px);
 }
 
 .media-hero-card__title {
   margin: 0;
   color: var(--color-text-strong);
-  font-size: 54px;
-  line-height: 0.96;
-  letter-spacing: -0.04em;
+  font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+  font-size: clamp(50px, 5vw, 76px);
+  line-height: 0.92;
+  letter-spacing: -0.05em;
 }
 
 .media-hero-card__description {
   max-width: 560px;
-  margin: 18px 0 0;
-  color: var(--color-text-secondary);
+  margin: 16px 0 0;
+  color: var(--color-text-contrast-muted);
   font-size: 16px;
-  line-height: 1.7;
+  line-height: 1.65;
 }
 
 .media-hero-card__meta {
   margin: 16px 0 0;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   font-size: 13px;
 }
 
@@ -113,26 +148,8 @@ const emit = defineEmits<{
   margin-top: 24px;
 }
 
-
 .media-hero-card__actions :deep(svg) {
   width: 16px;
   height: 16px;
-}
-
-.media-hero-card__visual {
-  position: relative;
-  min-height: 100%;
-  border-radius: 32px;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at top right, color-mix(in srgb, var(--color-accent) 24%, transparent), transparent 38%),
-    rgba(255, 255, 255, 0.04);
-}
-
-.media-hero-card__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: saturate(1.1) contrast(1.06);
 }
 </style>

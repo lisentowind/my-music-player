@@ -39,6 +39,7 @@ describe("aura-content 数据契约", () => {
     for (const track of auraTracks) {
       expect(track.coverSrc.startsWith("https://")).toBe(true);
       expect(track.audioSrc.startsWith("https://")).toBe(true);
+      expect(track.audioSrc.includes("soundhelix.com")).toBe(false);
       expect(track.durationLabel).toBe(formatDuration(track.durationSeconds));
       expect(Array.isArray(track.moods)).toBe(true);
       expect(Array.isArray(track.tags)).toBe(true);

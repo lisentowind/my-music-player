@@ -82,12 +82,17 @@ describe("explore view", () => {
     vi.useRealTimers();
   });
 
-  it("无输入时展示默认探索态，并提供搜索输入框", async () => {
+  it("无输入时展示 Stitch 风格探索态，并提供搜索输入框", async () => {
     const { wrapper } = await mountExplore();
 
     expect(wrapper.find("#explore-page").exists()).toBe(true);
+    wrapper.get('[data-testid="explore-stitch-shell"]');
+    wrapper.get('[data-testid="explore-stitch-hero"]');
+    wrapper.get('[data-testid="explore-stitch-featured"]');
+    wrapper.get('[data-testid="explore-category-grid"]');
     wrapper.get('[data-testid="explore-search-input"]');
-    expect(wrapper.text()).toContain("探索声场");
+    expect(wrapper.text()).toContain("探索实验室");
+    expect(wrapper.text()).toContain("浏览分类");
     expect(wrapper.text()).toContain("热门标签");
     expect(wrapper.text()).toContain("推荐歌单");
   });

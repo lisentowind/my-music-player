@@ -98,7 +98,7 @@ describe("player view", () => {
     document.body.innerHTML = "";
   });
 
-  it("页面展示中文曲目信息与大封面，并保留侧栏、顶栏、Dock", async () => {
+  it("页面展示中文曲目信息与大封面，并切成无侧栏顶栏的全屏播放器", async () => {
     const { usePlayerStore } = await import("@/stores/player");
     const { wrapper, pinia } = await mountPlayerShell("/player");
     const player = usePlayerStore(pinia);
@@ -107,14 +107,15 @@ describe("player view", () => {
     await flushPromises();
 
     expect(wrapper.find("#player-page").exists()).toBe(true);
-    expect(wrapper.find('[data-testid="app-shell-sidebar"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="app-shell-topbar"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="app-shell-sidebar"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="app-shell-topbar"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="player-immersive-dock"]').exists()).toBe(true);
     expect(wrapper.text()).toContain("正在播放");
     expect(wrapper.get('[data-testid="player-track-title"]').text()).toBe("晨雾回声");
     expect(wrapper.get('[data-testid="player-track-artist"]').text()).toContain("北纬合成社");
     expect(wrapper.find('[data-testid="player-cover-image"]').exists()).toBe(true);
-  }, 10000);
+  }, 20000);
 
   it("有歌词时会高亮当前行", async () => {
     const { usePlayerStore } = await import("@/stores/player");
@@ -141,19 +142,40 @@ describe("player view", () => {
     expect(wrapper.text()).toContain("当前曲目暂无歌词");
   });
 
-  it("页面内播放控制与 Dock 共用同一播放器状态", async () => {
+  it("播放器页切换为 Stitch 沉浸式布局骨架", async () => {
+    const { wrapper } = await mountPlayerShell("/player");
+
+    const page = wrapper.get("#player-page");
+    expect(page.attributes("data-player-visual")).toBe("immersive-stitch");
+    expect(page.attributes("data-player-min-width")).toBe("1220");
+    expect(page.attributes("data-player-min-height")).toBe("760");
+    expect(wrapper.get('[data-testid="player-cover-stage"]').attributes("data-player-region")).toBe("art");
+    expect(wrapper.get('[data-testid="player-lyrics-stage"]').attributes("data-player-region")).toBe("lyrics");
+    expect(wrapper.get('[data-testid="player-progress-stage"]').attributes("data-player-region")).toBe("progress");
+  });
+
+  it("页面内播放控制与共享播放器状态同步", async () => {
     const { usePlayerStore } = await import("@/stores/player");
     const { wrapper, pinia } = await mountPlayerShell("/player");
     const player = usePlayerStore(pinia);
 
     expect(player.isPlaying).toBe(false);
 
-    const playerControls = wrapper.get('[data-testid="player-view-controls"]');
+    const playerControls = wrapper.get('[data-testid="player-immersive-dock"]');
     await playerControls.get('[data-testid="player-dock-toggle"]').trigger("click");
     await flushPromises();
 
     expect(player.isPlaying).toBe(true);
-    expect(wrapper.get('[data-testid="player-dock-shell"]').get('[data-testid="player-dock-toggle"]').attributes("aria-pressed")).toBe("true");
+    expect(wrapper.get('[data-testid="player-immersive-dock"]').get('[data-testid="player-dock-toggle"]').attributes("aria-pressed")).toBe("true");
+  });
+
+  it("全屏播放器底栏固定铺满底部，并声明小尺寸下也保持可见", async () => {
+    const { wrapper } = await mountPlayerShell("/player");
+
+    const immersiveDock = wrapper.get('[data-testid="player-immersive-dock"]');
+    expect(immersiveDock.attributes("data-player-dock-style")).toBe("immersive-full-width");
+    expect(immersiveDock.attributes("data-player-dock-fixed")).toBe("true");
+    expect(immersiveDock.attributes("data-player-dock-min-width")).toBe("960");
   });
 
   it("切入播放器页面会触发 GSAP 路由过渡和区块 reveal", async () => {

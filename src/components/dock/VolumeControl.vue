@@ -6,6 +6,7 @@ import { iconRegistry } from "@/components/ui/icon-registry";
 const props = defineProps<{
   volume: number;
   muted: boolean;
+  showLabel?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -29,7 +30,7 @@ function onVolumeChange(event: Event) {
 </script>
 
 <template>
-  <section class="volume-control" aria-label="音量控制">
+  <section class="volume-control" :class="{ 'volume-control--label-hidden': showLabel === false }" aria-label="音量控制">
     <button
       class="volume-control__mute"
       data-testid="player-dock-mute"
@@ -54,7 +55,7 @@ function onVolumeChange(event: Event) {
         @input="onVolumeChange"
       >
     </div>
-    <span class="volume-control__label">{{ muted ? "已静音" : volumePercent }}</span>
+    <span v-if="showLabel !== false" class="volume-control__label">{{ muted ? "已静音" : volumePercent }}</span>
   </section>
 </template>
 
@@ -66,6 +67,10 @@ function onVolumeChange(event: Event) {
   gap: var(--space-2);
 }
 
+.volume-control--label-hidden {
+  grid-template-columns: 42px minmax(120px, 1fr);
+}
+
 .volume-control__mute {
   width: 42px;
   height: 42px;
@@ -74,7 +79,9 @@ function onVolumeChange(event: Event) {
   justify-content: center;
   border: 1px solid var(--color-state-border-subtle);
   border-radius: 14px;
-  background: color-mix(in srgb, var(--color-control-surface) 92%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 76%, transparent), transparent 100%),
+    color-mix(in srgb, var(--color-control-surface) 92%, transparent);
   color: var(--color-text);
   cursor: pointer;
   transition:
@@ -87,7 +94,7 @@ function onVolumeChange(event: Event) {
 .volume-control__mute:hover {
   border-color: var(--color-state-border-emphasis);
   background: color-mix(in srgb, var(--color-control-surface-strong) 92%, transparent);
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
 

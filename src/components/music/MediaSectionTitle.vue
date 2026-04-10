@@ -30,27 +30,25 @@ withDefaults(defineProps<{
   gap: var(--space-4);
 }
 
-.media-section-title__copy {
-  min-width: 0;
-}
-
 .media-section-title__eyebrow {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   color: var(--color-text-tertiary);
   font-size: 11px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .media-section-title__title {
   margin: 0;
   color: var(--color-text-strong);
-  font-size: 28px;
-  line-height: 1.08;
+  font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+  font-size: 34px;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
 }
 
 .media-section-title__description {
-  margin: 10px 0 0;
+  margin: 8px 0 0;
   color: var(--color-text-secondary);
   font-size: 14px;
   line-height: 1.6;

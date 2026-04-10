@@ -61,7 +61,7 @@ export const Player: RouteRecordRaw = {
   component: PlayerView,
   meta: {
     title: "播放器",
-    showInSidebar: true,
+    showInSidebar: false,
   },
 };
 

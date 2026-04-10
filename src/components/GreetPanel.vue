@@ -87,7 +87,7 @@ async function submitGreeting() {
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   padding: 10px 12px;
-  background: #fff;
+  background: var(--color-surface-strong);
   color: var(--color-text);
   outline: none;
   transition:
@@ -96,13 +96,13 @@ async function submitGreeting() {
 }
 
 .greet-panel__field input:disabled {
-  background: #f1f5f9;
+  background: var(--color-state-surface-muted);
   cursor: not-allowed;
 }
 
 .greet-panel__field input:focus {
-  border-color: #0284c7;
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.16);
+  border-color: var(--color-state-border-emphasis);
+  box-shadow: var(--focus-ring);
 }
 
 button {
@@ -111,8 +111,8 @@ button {
   border-radius: var(--radius-sm);
   padding: 10px 14px;
   font-weight: 600;
-  color: #fff;
-  background: linear-gradient(135deg, #0369a1, #0ea5e9);
+  color: var(--color-on-accent);
+  background: var(--gradient-primary);
   cursor: pointer;
   transition: opacity 180ms ease;
 }
@@ -133,25 +133,25 @@ button:disabled {
 }
 
 .greet-panel__result {
-  color: #0f172a;
-  background: #e0f2fe;
-  border: 1px solid #bae6fd;
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface-strong));
+  border: 1px solid color-mix(in srgb, var(--color-accent) 24%, var(--color-border));
 }
 
 .greet-panel__hint {
   margin: 0;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid #bfdbfe;
-  background: #eff6ff;
-  color: #1d4ed8;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 18%, var(--color-border));
+  background: color-mix(in srgb, var(--color-accent) 10%, var(--color-surface-strong));
+  color: var(--color-text-secondary);
   font-size: 13px;
   line-height: 1.5;
 }
 
 .greet-panel__error {
-  color: #b91c1c;
-  background: #fee2e2;
-  border: 1px solid #fecaca;
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 12%, var(--color-surface-strong));
+  border: 1px solid color-mix(in srgb, var(--color-danger) 24%, var(--color-border));
 }
 </style>

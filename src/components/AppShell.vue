@@ -7,8 +7,10 @@ import PlayerDock from "@/components/dock/PlayerDock.vue";
 import { animateRouteEnter, animateRouteLeave } from "@/composables/use-gsap";
 
 const route = useRoute();
-const shellMinWidth = 1280;
-const shellMode = computed(() => route.name === "player" ? "player" : "default");
+const shellMinWidth = 1220;
+const shellMinHeight = 760;
+const isPlayerFullscreen = computed(() => route.name === "player");
+const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" : "default");
 </script>
 
 <template>
@@ -16,14 +18,26 @@ const shellMode = computed(() => route.name === "player" ? "player" : "default")
     class="app-shell desktop-shell-min"
     data-testid="app-shell-layout"
     :data-min-width="String(shellMinWidth)"
+    :data-min-height="String(shellMinHeight)"
     :data-shell-mode="shellMode"
+    data-shell-visual="stitch"
   >
-    <aside class="app-shell__sidebar" data-testid="app-shell-sidebar">
+    <aside
+      v-if="!isPlayerFullscreen"
+      class="app-shell__sidebar"
+      data-testid="app-shell-sidebar"
+      data-sidebar-visual="editorial"
+    >
       <AppSidebar />
     </aside>
 
-    <section class="app-shell__content">
-      <AppTopbar class="app-shell__topbar" data-testid="app-shell-topbar" />
+    <section class="app-shell__content" :class="{ 'app-shell__content--player': isPlayerFullscreen }">
+      <AppTopbar
+        v-if="!isPlayerFullscreen"
+        class="app-shell__topbar"
+        data-testid="app-shell-topbar"
+        data-topbar-visual="floating"
+      />
 
       <main class="app-shell__main">
         <div
@@ -40,14 +54,14 @@ const shellMode = computed(() => route.name === "player" ? "player" : "default")
       </main>
     </section>
 
-    <PlayerDock />
+    <PlayerDock v-if="!isPlayerFullscreen" />
   </div>
 </template>
 
 <style scoped lang="less">
 .app-shell {
   min-width: var(--layout-min-width);
-  min-height: 100vh;
+  min-height: var(--layout-min-height);
   height: 100vh;
   overflow: hidden;
   position: relative;
@@ -74,6 +88,12 @@ const shellMode = computed(() => route.name === "player" ? "player" : "default")
   min-width: calc(var(--layout-min-width) - var(--layout-sidebar-width) - (var(--layout-gap) * 3));
 }
 
+.app-shell__content--player {
+  margin-left: 0;
+  padding: 0;
+  min-width: 100%;
+}
+
 .app-shell__topbar {
   position: relative;
   z-index: var(--z-shell-topbar);
@@ -91,20 +111,34 @@ const shellMode = computed(() => route.name === "player" ? "player" : "default")
   padding-bottom: var(--space-6);
 }
 
+.app-shell__content--player .app-shell__main,
+.app-shell__content--player .app-shell__scroll {
+  height: 100vh;
+}
+
+.app-shell__content--player .app-shell__scroll {
+  padding-right: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
 .app-shell__page {
   min-width: calc(var(--layout-min-width) - var(--layout-sidebar-width) - (var(--layout-gap) * 3));
   min-height: 100%;
 }
 
-.app-shell[data-shell-mode="player"] .app-shell__content::before {
+.app-shell__content--player .app-shell__page {
+  min-width: 100%;
+}
+
+.app-shell[data-shell-mode="player-fullscreen"] .app-shell__content::before {
   content: "";
   position: absolute;
-  inset: 0 0 auto;
-  height: 160px;
-  border-radius: 0 0 32px 32px;
+  inset: 0;
   background:
-    radial-gradient(circle at top right, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 42%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 82%);
+    radial-gradient(circle at 12% 16%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 26%),
+    radial-gradient(circle at 78% 76%, rgba(105, 246, 184, 0.08), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 26%);
   pointer-events: none;
   opacity: 0.9;
 }
