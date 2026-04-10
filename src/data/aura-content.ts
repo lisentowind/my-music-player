@@ -216,7 +216,7 @@ export const auraDefaultPlaylistTracks = getAuraTracksByIds(auraDefaultPlaylist.
 export const auraFeaturedAlbums: FeaturedAlbum[] = auraRecommendationPlaylists.map(playlist => ({
   id: playlist.id,
   title: playlist.title,
-  artist: "Aura 合辑",
+  artist: "回声星港合辑",
   coverSrc: playlist.coverSrc,
   subtitle: playlist.subtitle,
   description: playlist.description,

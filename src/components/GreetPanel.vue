@@ -33,7 +33,7 @@ async function submitGreeting() {
   <section class="card greet-panel">
     <h2 class="greet-panel__title">原生命令回环</h2>
     <p class="text-subtle greet-panel__subtitle">
-      输入名称后调用 Rust `greet` 命令，确认桌面端命令链路。
+      输入名称后调用 Rust 的问候命令，确认桌面端命令链路。
     </p>
 
     <p v-if="!tauriAvailable" class="greet-panel__hint">
@@ -46,12 +46,12 @@ async function submitGreeting() {
         v-model="name"
         type="text"
         :disabled="!tauriAvailable"
-        placeholder="例如：Desktop User"
+        placeholder="例如：桌面听众"
       />
     </label>
 
     <button type="button" :disabled="loading || !tauriAvailable" @click="submitGreeting">
-      {{ loading ? "调用中..." : "调用 greet 命令" }}
+      {{ loading ? "调用中..." : "发送问候命令" }}
     </button>
 
     <p v-if="result" class="greet-panel__result">{{ result }}</p>

@@ -151,7 +151,7 @@ useGsapPointerTilt(coverRef, {
           <div class="player-view__meta">
             <p class="player-view__eyebrow">{{ playbackHeadline }}</p>
             <h1 class="player-view__title" data-testid="player-track-title">{{ currentTrack?.title || "挑一首歌，把空间点亮" }}</h1>
-            <p class="player-view__artist" data-testid="player-track-artist">{{ currentTrack ? `${currentTrack.artist} · ${currentTrack.album}` : "底部 Dock 与这里共用同一套播放器状态。" }}</p>
+            <p class="player-view__artist" data-testid="player-track-artist">{{ currentTrack ? `${currentTrack.artist} · ${currentTrack.album}` : "底部播放器栏与这里共用同一套播放器状态。" }}</p>
             <p class="player-view__description">
               {{ currentTrack ? "大封面、歌词和控制区保持同一节奏，切歌时会跟着当前会话同步。" : "还没开始播放时，先去首页或探索页挑一首歌。" }}
             </p>
@@ -192,7 +192,7 @@ useGsapPointerTilt(coverRef, {
         <MediaSectionTitle
           eyebrow="当前控制"
           title="播放控制"
-          description="这里的控制与底部 Dock 完全共用同一状态源。"
+          description="这里的控制与底部播放器栏完全共用同一状态源。"
         />
 
         <div class="player-view__control-stack" data-testid="player-view-controls">
@@ -239,7 +239,7 @@ useGsapPointerTilt(coverRef, {
         <MediaSectionTitle
           eyebrow="即将播放"
           title="队列预览"
-          description="保留和底部 Dock 相同的上下文，只是这里提供更大的沉浸视角。"
+          description="保留和底部播放器栏相同的上下文，只是这里提供更大的沉浸视角。"
         />
         <TrackQueueList :tracks="queuePreview" @select="playQueueTrack" />
       </UiSectionCard>

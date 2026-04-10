@@ -18,9 +18,9 @@ export function getRuntimeSnapshot(routePath: string, routeName?: string | null)
 
   return {
     runtimeLabel,
-    routeName: routeName ?? "unknown",
+    routeName: routeName ?? "未命名页面",
     routePath,
-    userAgent: typeof navigator === "undefined" ? "unknown" : navigator.userAgent,
+    userAgent: typeof navigator === "undefined" ? "不可用" : navigator.userAgent,
   };
 }
 
@@ -29,6 +29,6 @@ export async function getGreeting(name: string) {
     throw new Error(TAURI_UNAVAILABLE_MESSAGE);
   }
 
-  const normalizedName = name.trim() || "Player";
+  const normalizedName = name.trim() || "听众";
   return invoke<string>("greet", { name: normalizedName });
 }

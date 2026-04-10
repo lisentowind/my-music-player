@@ -137,7 +137,7 @@ useGsapHoverTargets(exploreRef, [".explore-view__tag-list > *", ".explore-view__
       <MediaSectionTitle
         eyebrow="探索声场"
         title="探索声场"
-        :description="`按曲名、艺人、专辑、歌单和标签检索当前在线模拟曲库，${EXPLORE_SEARCH_DEBOUNCE_MS}ms 后给出结果。`"
+        :description="`按曲名、艺人、专辑、歌单和标签检索当前在线模拟曲库，${EXPLORE_SEARCH_DEBOUNCE_MS} 毫秒后给出结果。`"
       />
 
       <label class="explore-view__search">

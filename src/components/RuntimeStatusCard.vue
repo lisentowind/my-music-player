@@ -25,7 +25,7 @@ const runtime = computed(() => getRuntimeSnapshot(route.path, route.name?.toStri
         <dd>{{ runtime.routePath }}</dd>
       </div>
       <div class="status-item">
-        <dt>UA</dt>
+        <dt>浏览器标识</dt>
         <dd class="status-item__ua">{{ runtime.userAgent }}</dd>
       </div>
     </dl>

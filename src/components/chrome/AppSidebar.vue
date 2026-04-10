@@ -92,7 +92,7 @@ useGsapHoverTargets(sidebarRef, [".app-sidebar__tag", ".nav-link"], {
         <div class="brand__copy">
           <span class="brand__eyebrow">回声星港</span>
           <strong class="brand__title">桌面聆听站</strong>
-          <p class="brand__subtitle">五个主页面共用一套深色控制壳层与唯一底部 Dock。</p>
+          <p class="brand__subtitle">五个主页面共用一套深色控制壳层与统一底部播放器栏。</p>
         </div>
       </div>
 

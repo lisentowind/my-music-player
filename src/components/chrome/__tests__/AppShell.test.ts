@@ -1,4 +1,6 @@
 import { flushPromises, mount } from "@vue/test-utils";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { createPinia, setActivePinia } from "pinia";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -50,6 +52,10 @@ class FakePlayerAudio {
 function expectLinkTarget(actualHref: string | undefined, expectedPath: string) {
   expect(actualHref).toBeTruthy();
   expect(actualHref === expectedPath || actualHref?.endsWith(expectedPath)).toBe(true);
+}
+
+function resolveFromTest(relativePath: string) {
+  return fileURLToPath(new URL(relativePath, import.meta.url));
 }
 
 describe("app shell route skeleton", () => {
@@ -240,5 +246,48 @@ describe("app shell route skeleton", () => {
     const dock = wrapper.get('[data-testid="player-dock-shell"]');
     expect(dock.find('[data-testid="player-dock-transport"]').exists()).toBe(true);
     expect(dock.find('[data-testid="player-dock-progress"]').exists()).toBe(true);
+  });
+
+  it("代码库中不再保留旧页面与旧测试文件", () => {
+    const legacyFiles = [
+      "../../../views/DiscoverView.vue",
+      "../../../views/LikedView.vue",
+      "../../../views/ProfileView.vue",
+      "../../../views/__tests__/DiscoverView.test.ts",
+      "../../../views/__tests__/LikedView.test.ts",
+      "../../../views/__tests__/ProfileView.test.ts",
+    ];
+
+    for (const relativePath of legacyFiles) {
+      expect(existsSync(resolveFromTest(relativePath))).toBe(false);
+    }
+  });
+
+  it("主壳层路由切换后不再出现旧页面根节点标识", async () => {
+    const { wrapper, router } = await mountShell("/");
+
+    const legacyPageIds = ["#discover-page", "#liked-page", "#profile-page"];
+
+    for (const path of ["/", "/explore", "/playlist", "/playlist/lofi-night", "/library", "/player"]) {
+      await router.push(path);
+      await flushPromises();
+
+      for (const legacyId of legacyPageIds) {
+        expect(wrapper.find(legacyId).exists()).toBe(false);
+      }
+    }
+  });
+
+  it("当前五个页面的可见文案不再出现残留英文界面词", async () => {
+    const { wrapper, router } = await mountShell("/");
+
+    for (const path of ["/", "/explore", "/playlist", "/playlist/lofi-night", "/library", "/player"]) {
+      await router.push(path);
+      await flushPromises();
+
+      const pageText = wrapper.text();
+      expect(pageText).not.toContain("Dock");
+      expect(pageText).not.toContain("ms");
+    }
   });
 });

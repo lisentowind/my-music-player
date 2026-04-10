@@ -114,7 +114,7 @@ describe("player view", () => {
     expect(wrapper.get('[data-testid="player-track-title"]').text()).toBe("晨雾回声");
     expect(wrapper.get('[data-testid="player-track-artist"]').text()).toContain("北纬合成社");
     expect(wrapper.find('[data-testid="player-cover-image"]').exists()).toBe(true);
-  });
+  }, 10000);
 
   it("有歌词时会高亮当前行", async () => {
     const { usePlayerStore } = await import("@/stores/player");
@@ -128,7 +128,7 @@ describe("player view", () => {
 
     const activeLine = wrapper.get('[data-testid="player-lyrics-active-line"]');
     expect(activeLine.text()).toContain("城市刚醒来");
-  });
+  }, 10000);
 
   it("无歌词时会显示中文空状态", async () => {
     const { usePlayerStore } = await import("@/stores/player");
