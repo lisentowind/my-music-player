@@ -23,7 +23,7 @@ export const useLyricsStore = defineStore("lyrics", () => {
     errorMessage.value = "";
   }
 
-  function loadFromText(text: string | null, trackId: string) {
+  function loadFromText(text: string | null, trackId: string, currentTime = 0) {
     resetState(trackId);
 
     if (!text) {
@@ -36,7 +36,7 @@ export const useLyricsStore = defineStore("lyrics", () => {
       adapter.setOffset(offsetMs.value);
       lines.value = adapter.loadFromText(text);
       status.value = lines.value.length > 0 ? "ready" : "empty";
-      activeLineIndex.value = lines.value.length > 0 ? 0 : -1;
+      activeLineIndex.value = lines.value.length > 0 ? adapter.sync(currentTime) : -1;
     } catch (error) {
       status.value = "error";
       errorMessage.value = error instanceof Error ? error.message : String(error);

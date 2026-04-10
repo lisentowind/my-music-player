@@ -5,14 +5,17 @@ import type { LyricLine } from "@/lib/lyrics/liricle-adapter";
 const props = withDefaults(defineProps<{
   lines: LyricLine[];
   activeLineIndex: number;
+  trackId?: string | null;
   status?: "idle" | "loading" | "ready" | "empty" | "error";
   errorMessage?: string;
 }>(), {
+  trackId: null,
   status: "idle",
   errorMessage: "",
 });
 
 const lineRefs = ref<HTMLElement[]>([]);
+const scrollRef = ref<HTMLElement | null>(null);
 
 function setLineRef(index: number, element: Element | null) {
   if (!element || !(element instanceof HTMLElement)) {
@@ -22,12 +25,15 @@ function setLineRef(index: number, element: Element | null) {
   lineRefs.value[index] = element;
 }
 
-watch(() => props.activeLineIndex, async (nextIndex) => {
+watch(() => [props.trackId, props.activeLineIndex, props.lines.length], async ([, nextIndex]) => {
+  await nextTick();
   if (nextIndex < 0) {
+    if (scrollRef.value) {
+      scrollRef.value.scrollTop = 0;
+    }
     return;
   }
 
-  await nextTick();
   const target = lineRefs.value[nextIndex];
   target?.scrollIntoView?.({
     block: "center",
@@ -53,7 +59,7 @@ watch(() => props.activeLineIndex, async (nextIndex) => {
       <p class="lyrics-panel__empty-copy">播放开始后，这里会跟着进度同步滚动。</p>
     </div>
 
-    <div v-else class="lyrics-panel__scroll">
+    <div v-else ref="scrollRef" class="lyrics-panel__scroll">
       <p
         v-for="(line, index) in lines"
         :key="`${line.time}-${index}`"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
+import { gsap } from "gsap";
 import PlaybackControls from "@/components/dock/PlaybackControls.vue";
 import PlaybackProgress from "@/components/dock/PlaybackProgress.vue";
 import VolumeControl from "@/components/dock/VolumeControl.vue";
@@ -12,7 +13,9 @@ import { useLyricsStore } from "@/stores/lyrics";
 import { usePlayerStore } from "@/stores/player";
 
 const playerRef = ref<HTMLElement | null>(null);
+const backdropRef = ref<HTMLElement | null>(null);
 const coverRef = ref<HTMLElement | null>(null);
+const lyricsCardRef = ref<HTMLElement | null>(null);
 const player = usePlayerStore();
 const lyrics = useLyricsStore();
 
@@ -27,7 +30,7 @@ watch(currentTrack, (track) => {
     return;
   }
 
-  lyrics.loadFromText(track.lyrics, track.id);
+  lyrics.loadFromText(track.lyrics, track.id, player.currentTime);
 }, {
   immediate: true,
 });
@@ -36,6 +39,32 @@ watch(() => player.currentTime, (time) => {
   lyrics.updateTime(time);
 }, {
   immediate: true,
+});
+
+watch(() => currentTrack.value?.id, (nextTrackId, previousTrackId) => {
+  if (!nextTrackId || !previousTrackId || nextTrackId === previousTrackId) {
+    return;
+  }
+
+  const targets = [coverRef.value, backdropRef.value, lyricsCardRef.value].filter(Boolean);
+  if (targets.length === 0) {
+    return;
+  }
+
+  gsap.fromTo(
+    targets,
+    { autoAlpha: 0.54, y: 14, scale: 0.985, filter: "blur(10px)" },
+    {
+      autoAlpha: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      duration: 0.42,
+      stagger: 0.04,
+      ease: "power3.out",
+      clearProps: "opacity,visibility,transform,filter",
+    },
+  );
 });
 
 function togglePlay() {
@@ -114,15 +143,15 @@ useGsapPointerTilt(coverRef, {
 
 <template>
   <section id="player-page" ref="playerRef" class="page player-view">
-    <div class="player-view__backdrop" aria-hidden="true" />
+    <div ref="backdropRef" class="player-view__backdrop" aria-hidden="true" />
 
     <div class="player-view__grid">
       <UiSectionCard class="player-view__hero" tone="contrast">
         <div class="player-view__hero-grid">
           <div class="player-view__meta">
             <p class="player-view__eyebrow">{{ playbackHeadline }}</p>
-            <h1 class="player-view__title">{{ currentTrack?.title || "挑一首歌，把空间点亮" }}</h1>
-            <p class="player-view__artist">{{ currentTrack ? `${currentTrack.artist} · ${currentTrack.album}` : "底部 Dock 与这里共用同一套播放器状态。" }}</p>
+            <h1 class="player-view__title" data-testid="player-track-title">{{ currentTrack?.title || "挑一首歌，把空间点亮" }}</h1>
+            <p class="player-view__artist" data-testid="player-track-artist">{{ currentTrack ? `${currentTrack.artist} · ${currentTrack.album}` : "底部 Dock 与这里共用同一套播放器状态。" }}</p>
             <p class="player-view__description">
               {{ currentTrack ? "大封面、歌词和控制区保持同一节奏，切歌时会跟着当前会话同步。" : "还没开始播放时，先去首页或探索页挑一首歌。" }}
             </p>
@@ -191,13 +220,14 @@ useGsapPointerTilt(coverRef, {
         </div>
       </UiSectionCard>
 
-      <UiSectionCard class="player-view__lyrics-card">
+      <UiSectionCard ref="lyricsCardRef" class="player-view__lyrics-card">
         <MediaSectionTitle
           eyebrow="同步歌词"
           title="逐行歌词"
           description="歌词高亮会跟着当前进度移动，没有歌词时则显示中文空状态。"
         />
         <LyricsPanel
+          :track-id="lyrics.currentTrackId"
           :lines="lyrics.lines"
           :active-line-index="lyrics.activeLineIndex"
           :status="lyrics.status"

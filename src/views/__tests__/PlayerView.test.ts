@@ -111,6 +111,8 @@ describe("player view", () => {
     expect(wrapper.find('[data-testid="app-shell-topbar"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(true);
     expect(wrapper.text()).toContain("正在播放");
+    expect(wrapper.get('[data-testid="player-track-title"]').text()).toBe("晨雾回声");
+    expect(wrapper.get('[data-testid="player-track-artist"]').text()).toContain("北纬合成社");
     expect(wrapper.find('[data-testid="player-cover-image"]').exists()).toBe(true);
   });
 
@@ -155,8 +157,27 @@ describe("player view", () => {
   });
 
   it("切入播放器页面会触发 GSAP 路由过渡和区块 reveal", async () => {
-    await mountPlayerShell("/player");
+    const { wrapper, router } = await mountPlayerShell("/");
+    const initialFromToCalls = gsapFromToMock.mock.calls.length;
 
-    expect(gsapFromToMock).toHaveBeenCalled();
+    await router.push("/player");
+    await flushPromises();
+
+    expect(wrapper.find("#player-page").exists()).toBe(true);
+    expect(gsapFromToMock.mock.calls.length).toBeGreaterThan(initialFromToCalls);
+  });
+
+  it("切歌时会再次触发封面与歌词区的过渡动画", async () => {
+    const { usePlayerStore } = await import("@/stores/player");
+    const { pinia } = await mountPlayerShell("/player");
+    const player = usePlayerStore(pinia);
+    const initialFromToCalls = gsapFromToMock.mock.calls.length;
+
+    await player.playTrackById("track-dawn-echo");
+    await flushPromises();
+    await player.playTrackById("track-silver-steps");
+    await flushPromises();
+
+    expect(gsapFromToMock.mock.calls.length).toBeGreaterThan(initialFromToCalls);
   });
 });
