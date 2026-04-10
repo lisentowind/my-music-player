@@ -1,4 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils";
+import { readFileSync } from "node:fs";
 import { createPinia, setActivePinia } from "pinia";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -10,6 +11,17 @@ vi.mock("gsap", () => ({
     fromTo: (_target: unknown, _from: unknown, to: { onComplete?: () => void }) => {
       to.onComplete?.();
       return { kill: vi.fn() };
+    },
+    timeline: () => {
+      const timeline = {
+        to: (_target: unknown, to: { onComplete?: () => void }) => {
+          to.onComplete?.();
+          return timeline;
+        },
+        kill: vi.fn(),
+      };
+
+      return timeline;
     },
     to: (_target: unknown, to: { onComplete?: () => void }) => {
       to.onComplete?.();
@@ -127,5 +139,11 @@ describe("library view", () => {
 
     expect(wrapper.text()).toContain("先播放一首歌，资料库会逐步形成你的个人轮廓。");
     expect(wrapper.text()).toContain("等你开始播放后，这里会出现常听艺人。");
+  });
+
+  it("资料库页源码不再保留会在四角露出直角边的 ambient 背景块", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/views/LibraryView.vue", "utf-8");
+
+    expect(source).not.toContain("library-view__ambient");
   });
 });

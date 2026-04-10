@@ -1,4 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils";
+import { readFileSync } from "node:fs";
 import { createPinia, setActivePinia } from "pinia";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -10,6 +11,17 @@ vi.mock("gsap", () => ({
     fromTo: (_target: unknown, _from: unknown, to: { onComplete?: () => void }) => {
       to.onComplete?.();
       return { kill: vi.fn() };
+    },
+    timeline: () => {
+      const timeline = {
+        to: (_target: unknown, to: { onComplete?: () => void }) => {
+          to.onComplete?.();
+          return timeline;
+        },
+        kill: vi.fn(),
+      };
+
+      return timeline;
     },
     to: (_target: unknown, to: { onComplete?: () => void }) => {
       to.onComplete?.();
@@ -119,5 +131,18 @@ describe("home view", () => {
     await flushPromises();
 
     expect(player.currentTrack?.id).toBeTruthy();
+  });
+
+  it("首页源码包含低幅度的动态氛围层，让下半区背景更有活力但不过分抢戏", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/views/HomeView.vue", "utf-8");
+
+    expect(source).toContain("home-view__ambient--ember");
+    expect(source).toContain("useGsapAmbientFlow(");
+    expect(source).toContain(".home-view__ambient--ember");
+    expect(source).toContain(".home-view__ambient--trail");
+    expect(source).toContain("x: -28");
+    expect(source).toContain("scale: 1.12");
+    expect(source).not.toContain("@keyframes home-ambient-drift");
+    expect(source).not.toContain("animation: home-ambient-drift");
   });
 });

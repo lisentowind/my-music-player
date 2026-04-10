@@ -18,6 +18,17 @@ vi.mock("gsap", () => ({
       to.onComplete?.();
       return { kill: vi.fn() };
     },
+    timeline: () => {
+      const timeline = {
+        to: (_target: unknown, to: { onComplete?: () => void }) => {
+          to.onComplete?.();
+          return timeline;
+        },
+        kill: vi.fn(),
+      };
+
+      return timeline;
+    },
     to: (_target: unknown, to: { onComplete?: () => void }) => {
       to.onComplete?.();
       return { kill: vi.fn() };
@@ -179,6 +190,14 @@ describe("app shell route skeleton", () => {
     expect(wrapper.get('[data-testid="app-shell-scroll"]').attributes("data-scroll-style")).toBe("overlay-floating");
     expect(wrapper.get('[data-testid="app-shell-scroll"]').attributes("data-scroll-surface")).toBe("transparent");
     expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(true);
+  });
+
+  it("右侧内容区、顶部栏与滚动画布都保留独立的窗口右边距", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/components/AppShell.vue", "utf-8");
+
+    expect(source).toContain("left: var(--layout-gap);");
+    expect(source).toContain("right: var(--layout-gap);");
+    expect(source).toContain("padding: calc(var(--layout-topbar-height) + 38px) var(--layout-gap) calc(var(--layout-dock-space) + 12px);");
   });
 
   it("Explore 外的页面顶部展示进入探索按钮，点击后跳转到 Explore", async () => {

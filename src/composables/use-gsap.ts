@@ -32,6 +32,25 @@ interface PointerTiltOptions {
   depthOffset?: number;
 }
 
+interface AmbientFlowItem {
+  selector: string;
+  x?: number;
+  y?: number;
+  scale?: number;
+  opacity?: number;
+  duration?: number;
+  delay?: number;
+}
+
+interface AmbientFlowWaypoint {
+  x?: number;
+  y?: number;
+  scale?: number;
+  opacity?: number;
+  borderRadius?: string;
+  duration?: number;
+}
+
 interface MotionPhase {
   duration: number;
   ease: string;
@@ -232,6 +251,81 @@ export function useGsapReveal(scopeRef: Ref<HTMLElement | null>, selectors: stri
         clearProps: "opacity,visibility,transform",
       },
     );
+  });
+}
+
+export function useGsapAmbientFlow(scopeRef: Ref<HTMLElement | null>, items: AmbientFlowItem[]) {
+  const animations: Array<{ kill: () => void }> = [];
+
+  const buildWaypoints = (item: AmbientFlowItem): AmbientFlowWaypoint[] => {
+    const travelX = item.x ?? 0;
+    const travelY = item.y ?? 0;
+    const targetScale = item.scale ?? 1.02;
+    const scaleDelta = targetScale - 1;
+    const targetOpacity = item.opacity;
+    const totalDuration = item.duration ?? 18;
+
+    return [
+      {
+        x: travelX,
+        y: travelY,
+        scale: 1 + scaleDelta,
+        opacity: targetOpacity,
+        borderRadius: "60% 40% 54% 46% / 42% 58% 44% 56%",
+        duration: totalDuration * 0.36,
+      },
+      {
+        x: travelX * -0.72,
+        y: travelY * 0.56,
+        scale: 1 + (scaleDelta * 0.52),
+        opacity: targetOpacity === undefined ? undefined : Math.max(0, targetOpacity - 0.07),
+        borderRadius: "46% 54% 42% 58% / 56% 44% 60% 40%",
+        duration: totalDuration * 0.34,
+      },
+      {
+        x: travelX * 0.38,
+        y: travelY * -0.78,
+        scale: 1 + (scaleDelta * 0.78),
+        opacity: targetOpacity === undefined ? undefined : Math.min(1, targetOpacity + 0.04),
+        borderRadius: "54% 46% 58% 42% / 48% 52% 40% 60%",
+        duration: totalDuration * 0.3,
+      },
+    ];
+  };
+
+  onMounted(() => {
+    const scope = scopeRef.value;
+    if (!scope || !canRunAnimations() || prefersReducedMotion()) {
+      return;
+    }
+
+    for (const item of items) {
+      const targets = resolveElements(scope, [item.selector]);
+      for (const target of targets) {
+        const timeline = gsap.timeline({
+          delay: item.delay ?? 0,
+          repeat: -1,
+          defaults: {
+            ease: "sine.inOut",
+            force3D: true,
+            overwrite: "auto",
+          },
+        });
+
+        buildWaypoints(item).forEach((waypoint) => {
+          timeline.to(target, waypoint);
+        });
+
+        animations.push(timeline);
+      }
+    }
+  });
+
+  onBeforeUnmount(() => {
+    for (const animation of animations) {
+      animation.kill();
+    }
+    animations.length = 0;
   });
 }
 

@@ -3,7 +3,7 @@ import { Icon } from "@iconify/vue";
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { iconRegistry } from "@/components/ui/icon-registry";
-import { useGsapHoverTargets, useGsapReveal, useGsapScrollReveal } from "@/composables/use-gsap";
+import { useGsapAmbientFlow, useGsapHoverTargets, useGsapReveal, useGsapScrollReveal } from "@/composables/use-gsap";
 import {
   auraDefaultPlaylist,
   auraDefaultPlaylistTracks,
@@ -126,6 +126,25 @@ useGsapHoverTargets(homeRef, [
   hoverY: -3,
   hoverScale: 1.01,
 });
+useGsapAmbientFlow(homeRef, [
+  {
+    selector: ".home-view__ambient--ember",
+    x: -28,
+    y: -22,
+    scale: 1.08,
+    opacity: 0.48,
+    duration: 22,
+  },
+  {
+    selector: ".home-view__ambient--trail",
+    x: 34,
+    y: -18,
+    scale: 1.12,
+    opacity: 0.32,
+    duration: 26,
+    delay: -6,
+  },
+]);
 </script>
 
 <template>
@@ -135,8 +154,8 @@ useGsapHoverTargets(homeRef, [
     class="page home-view home-view--stitch"
     data-home-visual="stitch-editorial"
   >
-    <div class="home-view__ambient home-view__ambient--violet" aria-hidden="true" />
-    <div class="home-view__ambient home-view__ambient--rose" aria-hidden="true" />
+    <div class="home-view__ambient home-view__ambient--ember" aria-hidden="true" />
+    <div class="home-view__ambient home-view__ambient--trail" aria-hidden="true" />
 
     <section class="home-view__hero" data-testid="home-hero-shell" data-home-layout="editorial-split">
       <article class="home-view__hero-main">
@@ -321,36 +340,55 @@ useGsapHoverTargets(homeRef, [
 }
 
 .home-view--stitch {
+  position: relative;
   padding: clamp(8px, 1.1vw, 12px);
   border-radius: 20px;
-  background:
-    radial-gradient(circle at 12% 12%, color-mix(in srgb, var(--color-accent) 18%, transparent), transparent 34%),
-    radial-gradient(circle at 88% 20%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 30%),
-    linear-gradient(180deg, color-mix(in srgb, var(--color-bg-elevated) 92%, transparent), var(--color-bg));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-bg-elevated) 96%, transparent), var(--color-bg));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 78%, transparent);
+}
+
+.home-view--stitch::before {
+  content: "";
+  position: absolute;
+  inset: auto 10% -18% 16%;
+  height: 220px;
+  border-radius: 58% 42% 52% 48% / 44% 56% 46% 54%;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--color-accent) 24%, transparent), color-mix(in srgb, var(--color-accent) 8%, transparent) 54%, transparent 100%);
+  filter: blur(84px);
+  opacity: 0.34;
+  pointer-events: none;
 }
 
 .home-view__ambient {
   position: absolute;
   z-index: -1;
-  width: clamp(260px, 34vw, 420px);
-  aspect-ratio: 1;
-  border-radius: 999px;
-  filter: blur(90px);
-  opacity: 0.58;
+  border-radius: 54% 46% 58% 42% / 52% 48% 44% 56%;
+  filter: blur(84px);
+  opacity: 0.28;
   pointer-events: none;
+  mix-blend-mode: screen;
+  will-change: transform, opacity, border-radius;
 }
 
-.home-view__ambient--violet {
-  top: -170px;
-  right: 2%;
-  background: color-mix(in srgb, var(--color-accent) 54%, transparent);
+.home-view__ambient--ember {
+  bottom: -120px;
+  right: 10%;
+  width: clamp(340px, 42vw, 620px);
+  height: 220px;
+  aspect-ratio: auto;
+  border-radius: 54% 46% 58% 42% / 52% 48% 44% 56%;
+  background: radial-gradient(circle at 48% 54%, color-mix(in srgb, var(--color-accent) 34%, white 4%), color-mix(in srgb, var(--color-accent) 12%, transparent) 58%, transparent 100%);
+  filter: blur(88px);
+  opacity: 0.38;
 }
 
-.home-view__ambient--rose {
-  bottom: -180px;
-  left: 0;
-  background: color-mix(in srgb, var(--color-accent) 24%, var(--color-bg-elevated) 76%);
+.home-view__ambient--trail {
+  bottom: -86px;
+  left: 18%;
+  width: clamp(280px, 30vw, 420px);
+  height: 160px;
+  background: radial-gradient(circle at 52% 48%, color-mix(in srgb, var(--color-accent) 24%, white 2%), color-mix(in srgb, var(--color-accent) 10%, transparent) 56%, transparent 100%);
+  opacity: 0.24;
 }
 
 .home-view__hero,
@@ -372,9 +410,7 @@ useGsapHoverTargets(homeRef, [
 .home-view__poster-card,
 .home-view__mood-card {
   border: 0;
-  background:
-    linear-gradient(145deg, var(--color-panel-glow-start), transparent 40%),
-    var(--color-panel-fill);
+  background: var(--color-panel-fill);
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--color-border) 92%, transparent),
     inset 0 1px 0 var(--color-panel-glow-end),
@@ -609,9 +645,7 @@ useGsapHoverTargets(homeRef, [
   padding: 12px;
   border-radius: 16px;
   border: 0;
-  background:
-    linear-gradient(145deg, var(--color-panel-glow-start), transparent 40%),
-    var(--color-panel-fill);
+  background: var(--color-panel-fill);
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--color-border) 92%, transparent),
     inset 0 1px 0 var(--color-panel-glow-end);
@@ -862,4 +896,5 @@ useGsapHoverTargets(homeRef, [
     grid-template-columns: 1fr;
   }
 }
+
 </style>

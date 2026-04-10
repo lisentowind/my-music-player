@@ -165,16 +165,12 @@ async function animateReturnFromPlayer() {
         duration: MOTION_TOKENS.coverMorph.duration,
         ease: MOTION_TOKENS.coverMorph.ease,
         onComplete: () => {
-          ghost.remove();
-          gsap.to([surfaceElement, coverElement], {
-            autoAlpha: 1,
-            y: 0,
-            scale: 1,
-            filter: "blur(0px)",
-            duration: MOTION_TOKENS.coverMorph.fadeDuration,
-            ease: MOTION_TOKENS.popover.enter.ease,
-            stagger: 0.03,
-            clearProps: "opacity,visibility,transform,filter",
+          gsap.set([surfaceElement, coverElement], { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)" });
+          requestAnimationFrame(() => {
+            ghost.remove();
+            gsap.set([surfaceElement, coverElement], {
+              clearProps: "opacity,visibility,transform,filter",
+            });
           });
         },
       },
@@ -372,8 +368,8 @@ watch(() => player.currentTrack?.id, () => {
 <style scoped lang="less">
 .player-dock {
   position: fixed;
-  left: calc(var(--layout-sidebar-width) + (var(--layout-gap) * 2));
-  right: 0;
+  left: calc(var(--layout-sidebar-width) + (var(--layout-gap) * 3));
+  right: var(--layout-gap);
   bottom: var(--layout-gap);
   width: auto;
   z-index: 30;

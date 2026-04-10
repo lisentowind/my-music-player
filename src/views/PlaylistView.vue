@@ -77,11 +77,6 @@ useGsapHoverTargets(playlistRef, [".playlist-view__meta-card", ".playlist-view__
 
 <template>
   <section id="playlist-page" ref="playlistRef" class="page playlist-view playlist-view--stitch">
-    <div class="playlist-view__ambient" aria-hidden="true">
-      <span class="playlist-view__ambient-orb playlist-view__ambient-orb--primary" />
-      <span class="playlist-view__ambient-orb playlist-view__ambient-orb--secondary" />
-    </div>
-
     <article class="playlist-view__hero playlist-view__hero-shell">
       <div class="playlist-view__hero-cover">
         <img :src="currentPlaylist.coverSrc" :alt="`${currentPlaylist.title} 封面`">
@@ -167,40 +162,8 @@ useGsapHoverTargets(playlistRef, [".playlist-view__meta-card", ".playlist-view__
   border-radius: 22px;
   color: var(--color-text);
   isolation: isolate;
-  background:
-    radial-gradient(circle at 12% 10%, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 36%),
-    radial-gradient(circle at 92% 18%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 30%),
-    linear-gradient(180deg, color-mix(in srgb, var(--color-bg-elevated) 94%, transparent), var(--color-bg));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-bg-elevated) 96%, transparent), var(--color-bg));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 74%, transparent);
-}
-
-.playlist-view__ambient {
-  position: absolute;
-  inset: -180px -120px auto;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.playlist-view__ambient-orb {
-  position: absolute;
-  border-radius: 999px;
-  filter: blur(90px);
-}
-
-.playlist-view__ambient-orb--primary {
-  top: 0;
-  left: 0;
-  width: 360px;
-  height: 360px;
-  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
-}
-
-.playlist-view__ambient-orb--secondary {
-  top: 80px;
-  right: 0;
-  width: 260px;
-  height: 260px;
-  background: color-mix(in srgb, var(--color-accent) 16%, var(--color-bg-elevated) 84%);
 }
 
 .playlist-view__hero,
@@ -210,9 +173,7 @@ useGsapHoverTargets(playlistRef, [".playlist-view__meta-card", ".playlist-view__
   z-index: 1;
   border-radius: 18px;
   overflow: hidden;
-  background:
-    linear-gradient(140deg, var(--color-panel-glow-start), transparent 44%),
-    var(--color-panel-fill);
+  background: var(--color-panel-fill);
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--color-border) 92%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--color-panel-glow-start) 84%, transparent);

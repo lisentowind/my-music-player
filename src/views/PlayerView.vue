@@ -7,7 +7,7 @@ import PlaybackControls from "@/components/dock/PlaybackControls.vue";
 import PlaybackProgress from "@/components/dock/PlaybackProgress.vue";
 import VolumeControl from "@/components/dock/VolumeControl.vue";
 import LyricsPanel from "@/components/music/LyricsPanel.vue";
-import { MOTION_TOKENS, useGsapHoverTargets, useGsapPointerTilt, useGsapReveal, useGsapScrollReveal } from "@/composables/use-gsap";
+import { MOTION_TOKENS, useGsapAmbientFlow, useGsapHoverTargets, useGsapPointerTilt, useGsapReveal, useGsapScrollReveal } from "@/composables/use-gsap";
 import { iconRegistry } from "@/components/ui/icon-registry";
 import { useLyricsStore } from "@/stores/lyrics";
 import { usePlayerStore } from "@/stores/player";
@@ -95,14 +95,10 @@ async function animateFromDockCover() {
         duration: MOTION_TOKENS.coverMorph.duration,
         ease: MOTION_TOKENS.coverMorph.ease,
         onComplete: () => {
-          ghost.remove();
-          gsap.to(coverElement, {
-            autoAlpha: 1,
-            scale: 1,
-            filter: "blur(0px)",
-            duration: MOTION_TOKENS.coverMorph.fadeDuration,
-            ease: MOTION_TOKENS.popover.enter.ease,
-            clearProps: "opacity,visibility,transform,filter",
+          gsap.set(coverElement, { autoAlpha: 1, scale: 1, filter: "blur(0px)" });
+          requestAnimationFrame(() => {
+            ghost.remove();
+            gsap.set(coverElement, { clearProps: "opacity,visibility,transform,filter" });
           });
         },
       },
@@ -254,6 +250,43 @@ useGsapPointerTilt(coverRef, {
   liftY: -4,
   scale: 1.008,
 });
+useGsapAmbientFlow(playerRef, [
+  {
+    selector: ".player-view__backdrop-orb--primary",
+    x: -32,
+    y: -24,
+    scale: 1.12,
+    opacity: 0.52,
+    duration: 18,
+  },
+  {
+    selector: ".player-view__backdrop-orb--secondary",
+    x: 38,
+    y: -20,
+    scale: 1.12,
+    opacity: 0.36,
+    duration: 24,
+    delay: -7,
+  },
+  {
+    selector: ".player-view__backdrop-orb--tertiary",
+    x: -24,
+    y: 18,
+    scale: 1.08,
+    opacity: 0.3,
+    duration: 21,
+    delay: -11,
+  },
+  {
+    selector: ".player-view__art-glow",
+    x: 26,
+    y: -18,
+    scale: 1.08,
+    opacity: 0.72,
+    duration: 17,
+    delay: -3,
+  },
+]);
 </script>
 
 <template>
@@ -265,7 +298,11 @@ useGsapPointerTilt(coverRef, {
     data-player-min-width="1220"
     data-player-min-height="760"
   >
-    <div ref="backdropRef" class="player-view__backdrop" aria-hidden="true" />
+    <div ref="backdropRef" class="player-view__backdrop" aria-hidden="true">
+      <span class="player-view__backdrop-orb player-view__backdrop-orb--primary" />
+      <span class="player-view__backdrop-orb player-view__backdrop-orb--secondary" />
+      <span class="player-view__backdrop-orb player-view__backdrop-orb--tertiary" />
+    </div>
 
     <header class="player-view__topbar">
       <div class="player-view__top-left">
@@ -430,11 +467,44 @@ useGsapPointerTilt(coverRef, {
 .player-view__backdrop {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(circle at 18% 14%, color-mix(in srgb, var(--color-accent) 34%, transparent), transparent 34%),
-    radial-gradient(circle at 72% 82%, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 26%),
-    linear-gradient(135deg, color-mix(in srgb, var(--color-bg-elevated) 94%, var(--color-accent) 6%), var(--color-bg) 52%, color-mix(in srgb, var(--color-bg) 88%, #06110d 12%) 100%);
+  overflow: hidden;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-bg-elevated) 96%, var(--color-accent) 4%), var(--color-bg) 56%, color-mix(in srgb, var(--color-bg) 90%, #06110d 10%) 100%);
   pointer-events: none;
+}
+
+.player-view__backdrop-orb {
+  position: absolute;
+  display: block;
+  border-radius: 58% 42% 52% 48% / 44% 56% 46% 54%;
+  background: radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--color-accent) 38%, white 6%), color-mix(in srgb, var(--color-accent) 16%, transparent) 58%, transparent 100%);
+  filter: blur(62px);
+  opacity: 0.34;
+  mix-blend-mode: screen;
+  will-change: transform, opacity, border-radius;
+}
+
+.player-view__backdrop-orb--primary {
+  top: 11%;
+  left: 26%;
+  width: 248px;
+  height: 448px;
+  opacity: 0.42;
+}
+
+.player-view__backdrop-orb--secondary {
+  right: 8%;
+  bottom: 11%;
+  width: 420px;
+  height: 248px;
+  opacity: 0.28;
+}
+
+.player-view__backdrop-orb--tertiary {
+  left: 16%;
+  bottom: 10%;
+  width: 340px;
+  height: 148px;
+  opacity: 0.24;
 }
 
 .player-view__topbar,
@@ -537,13 +607,14 @@ useGsapPointerTilt(coverRef, {
 .player-view__art-glow {
   position: absolute;
   inset: 12% auto auto 8%;
-  width: 76%;
+  width: 64%;
   aspect-ratio: 1;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-accent) 82%, transparent);
   filter: blur(108px);
-  opacity: 0.68;
+  opacity: 0.58;
   pointer-events: none;
+  will-change: transform, opacity, border-radius;
 }
 
 .player-view__cover-wrap {
@@ -928,4 +999,5 @@ useGsapPointerTilt(coverRef, {
     grid-template-columns: minmax(160px, 0.82fr) minmax(300px, 1fr) minmax(200px, 0.74fr);
   }
 }
+
 </style>

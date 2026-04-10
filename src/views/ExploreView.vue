@@ -193,9 +193,6 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 
 <template>
   <section id="explore-page" ref="exploreRef" class="page explore-view" data-testid="explore-stitch-shell">
-    <div class="explore-view__ambient explore-view__ambient--violet" aria-hidden="true" />
-    <div class="explore-view__ambient explore-view__ambient--mint" aria-hidden="true" />
-
     <section class="explore-view__hero explore-view__panel" data-testid="explore-stitch-hero" data-explore-layout="editorial-search">
       <p class="explore-view__eyebrow">探索声场</p>
       <h1 class="explore-view__hero-title">探索实验室</h1>
@@ -408,40 +405,19 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
   overflow: hidden;
   padding: clamp(10px, 1.35vw, 16px);
   border-radius: 20px;
-  background: radial-gradient(circle at 20% 12%, color-mix(in srgb, var(--color-accent) 24%, transparent), transparent 46%),
-    radial-gradient(circle at 88% 24%, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 44%),
-    linear-gradient(135deg, var(--color-bg-elevated) 0%, var(--color-bg) 45%, color-mix(in srgb, var(--color-bg) 82%, var(--color-accent) 18%) 100%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-bg-elevated) 96%, transparent), color-mix(in srgb, var(--color-bg) 98%, transparent));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 78%, transparent);
-}
-
-.explore-view__ambient {
-  position: absolute;
-  z-index: -1;
-  width: clamp(220px, 38vw, 420px);
-  aspect-ratio: 1;
-  border-radius: 999px;
-  filter: blur(70px);
-  opacity: 0.7;
-}
-
-.explore-view__ambient--violet {
-  top: -180px;
-  right: -50px;
-  background: color-mix(in srgb, var(--color-accent) 60%, transparent);
-}
-
-.explore-view__ambient--mint {
-  bottom: -230px;
-  left: -100px;
-  background: color-mix(in srgb, var(--color-accent) 28%, var(--color-bg-elevated) 72%);
 }
 
 .explore-view__panel {
   border-radius: 18px;
   padding: clamp(14px, 1.5vw, 18px);
-  background: linear-gradient(155deg, var(--color-panel-glow-start), transparent 48%), var(--color-panel-fill);
-  border: 1px solid var(--color-border);
-  box-shadow: inset 0 1px 0 var(--color-panel-glow-end), var(--shadow-md);
+  background: var(--color-panel-fill);
+  border: 0;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-border) 92%, transparent),
+    inset 0 1px 0 var(--color-panel-glow-end),
+    var(--shadow-md);
 }
 
 .explore-view__panel-head {
@@ -816,7 +792,7 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 
 .explore-view__playlist-grid :deep(.media-shelf-card),
 .explore-view__result-grid :deep(.media-shelf-card) {
-  background: linear-gradient(155deg, var(--color-panel-glow-start), transparent 48%), var(--color-panel-fill);
+  background: var(--color-panel-fill);
   border-color: var(--color-border);
 }
 

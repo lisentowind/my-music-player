@@ -98,8 +98,8 @@ const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" 
 .app-shell__topbar {
   position: absolute;
   top: 16px;
-  left: 0;
-  right: 0;
+  left: var(--layout-gap);
+  right: var(--layout-gap);
   z-index: var(--z-shell-topbar);
 }
 
@@ -115,7 +115,7 @@ const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" 
   height: 100%;
   overflow-y: auto;
   overflow-x: auto;
-  padding: calc(var(--layout-topbar-height) + 38px) 0 calc(var(--layout-dock-space) + 12px);
+  padding: calc(var(--layout-topbar-height) + 38px) var(--layout-gap) calc(var(--layout-dock-space) + 12px);
 }
 
 .app-shell__content--player .app-shell__main,

@@ -300,12 +300,13 @@ describe("player dock", () => {
 
     expect(source).toContain("PLAYER_FULLSCREEN_RETURN_KEY");
     expect(source).toContain("animateReturnFromPlayer");
+    expect(source).toContain("gsap.set([surfaceElement, coverElement], { autoAlpha: 1, y: 0, scale: 1, filter: \"blur(0px)\" });");
   });
 
   it("Dock 宽度与顶部内容区保持同一左右基线", () => {
     const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/components/dock/PlayerDock.vue", "utf-8");
 
-    expect(source).toContain("left: calc(var(--layout-sidebar-width) + (var(--layout-gap) * 2));");
-    expect(source).toContain("right: 0;");
+    expect(source).toContain("left: calc(var(--layout-sidebar-width) + (var(--layout-gap) * 3));");
+    expect(source).toContain("right: var(--layout-gap);");
   });
 });

@@ -22,6 +22,17 @@ vi.mock("howler", () => ({
 vi.mock("gsap", () => ({
   gsap: {
     fromTo: gsapFromToMock,
+    timeline: () => {
+      const timeline = {
+        to: (_target: unknown, to: { onComplete?: () => void }) => {
+          to.onComplete?.();
+          return timeline;
+        },
+        kill: vi.fn(),
+      };
+
+      return timeline;
+    },
     to: gsapToMock,
     registerPlugin: vi.fn(),
   },
@@ -198,6 +209,7 @@ describe("player view", () => {
     expect(source).toContain(".player-view__control-stage::before");
     expect(source).toContain(":mode=\"player.mode\"");
     expect(source).toContain("height: 100vh;");
+    expect(source).toContain("gsap.set(coverElement, { autoAlpha: 1, scale: 1, filter: \"blur(0px)\" });");
   });
 
   it("沉浸式播放器右下角图标区为独立操作组，并和音量区保持明确间距", () => {
@@ -230,5 +242,18 @@ describe("player view", () => {
     await flushPromises();
 
     expect(gsapFromToMock.mock.calls.length).toBeGreaterThan(initialFromToCalls);
+  });
+
+  it("沉浸式背景源码包含低幅度的动态主题光晕，让画面更灵动但保持克制", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/views/PlayerView.vue", "utf-8");
+
+    expect(source).toContain("player-view__backdrop-orb");
+    expect(source).toContain("useGsapAmbientFlow(");
+    expect(source).toContain(".player-view__backdrop-orb");
+    expect(source).toContain(".player-view__art-glow");
+    expect(source).toContain("x: -32");
+    expect(source).toContain("scale: 1.12");
+    expect(source).not.toContain("@keyframes player-aura-drift");
+    expect(source).not.toContain("animation: player-aura-drift");
   });
 });

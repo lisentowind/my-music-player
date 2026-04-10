@@ -1,13 +1,21 @@
+import { mount } from "@vue/test-utils";
+import { defineComponent, h, ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { gsapFromToMock, gsapToMock } = vi.hoisted(() => ({
+const { gsapFromToMock, gsapTimelineMock, gsapToMock, timelineToMock } = vi.hoisted(() => ({
   gsapFromToMock: vi.fn(() => ({ kill: vi.fn() })),
+  timelineToMock: vi.fn(),
+  gsapTimelineMock: vi.fn(() => ({
+    to: timelineToMock,
+    kill: vi.fn(),
+  })),
   gsapToMock: vi.fn(() => ({ kill: vi.fn() })),
 }));
 
 vi.mock("gsap", () => ({
   gsap: {
     fromTo: gsapFromToMock,
+    timeline: gsapTimelineMock,
     to: gsapToMock,
     registerPlugin: vi.fn(),
   },
@@ -20,7 +28,9 @@ vi.mock("gsap/ScrollTrigger", () => ({
 describe("use-gsap motion tokens", () => {
   beforeEach(() => {
     gsapFromToMock.mockClear();
+    gsapTimelineMock.mockClear();
     gsapToMock.mockClear();
+    timelineToMock.mockClear();
   });
 
   it("为路由、弹层与封面过渡导出统一的 motion token", async () => {
@@ -83,5 +93,50 @@ describe("use-gsap motion tokens", () => {
         ease: MOTION_TOKENS.popover.leave.ease,
       }),
     );
+  });
+
+  it("环境光流动会走 GSAP timeline 的多段漂移，而不是单次 yoyo 往返", async () => {
+    const { useGsapAmbientFlow } = await import("@/composables/use-gsap");
+    const TestComponent = defineComponent({
+      setup() {
+        const scopeRef = ref<HTMLElement | null>(null);
+        useGsapAmbientFlow(scopeRef, [
+          {
+            selector: ".ambient",
+            x: 18,
+            y: -14,
+            scale: 1.06,
+            opacity: 0.46,
+            duration: 20,
+          },
+        ]);
+
+        return { scopeRef };
+      },
+      render() {
+        return h("div", { ref: "scopeRef" }, [
+          h("div", { class: "ambient" }),
+        ]);
+      },
+    });
+
+    const wrapper = mount(TestComponent, {
+      attachTo: document.body,
+    });
+
+    expect(gsapTimelineMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        repeat: -1,
+      }),
+    );
+    expect(timelineToMock).toHaveBeenCalledTimes(3);
+    expect(gsapToMock).not.toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        yoyo: true,
+      }),
+    );
+
+    wrapper.unmount();
   });
 });

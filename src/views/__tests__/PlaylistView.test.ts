@@ -1,4 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils";
+import { readFileSync } from "node:fs";
 import { createPinia, setActivePinia } from "pinia";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -13,6 +14,17 @@ vi.mock("gsap", () => ({
     fromTo: (_target: unknown, _from: unknown, to: { onComplete?: () => void }) => {
       to.onComplete?.();
       return { kill: vi.fn() };
+    },
+    timeline: () => {
+      const timeline = {
+        to: (_target: unknown, to: { onComplete?: () => void }) => {
+          to.onComplete?.();
+          return timeline;
+        },
+        kill: vi.fn(),
+      };
+
+      return timeline;
     },
     to: (_target: unknown, to: { onComplete?: () => void }) => {
       to.onComplete?.();
@@ -114,7 +126,7 @@ describe("playlist view", () => {
     const { wrapper } = await mountPlaylist("/playlist");
 
     expect(wrapper.find(".playlist-view--stitch").exists()).toBe(true);
-    expect(wrapper.find(".playlist-view__ambient").exists()).toBe(true);
+    expect(wrapper.find(".playlist-view__ambient").exists()).toBe(false);
     expect(wrapper.find(".playlist-view__hero-shell").exists()).toBe(true);
     expect(wrapper.find(".playlist-view__hero-cover").exists()).toBe(true);
     expect(wrapper.findAll(".playlist-view__summary-item")).toHaveLength(2);
@@ -159,5 +171,11 @@ describe("playlist view", () => {
 
     expect(player.likedTrackIdList).not.toContain(targetTrackId);
     expect(wrapper.get(`[data-testid="track-like-${targetTrackId}"]`).text()).toContain("喜欢");
+  });
+
+  it("歌单页源码不再保留会在四角露出直角边的 orb 背景块", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/views/PlaylistView.vue", "utf-8");
+
+    expect(source).not.toContain("playlist-view__ambient-orb");
   });
 });

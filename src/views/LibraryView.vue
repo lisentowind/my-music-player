@@ -120,9 +120,6 @@ useGsapHoverTargets(libraryRef, [
     class="page library-view library-view--stitch"
     data-library-visual="stitch-library"
   >
-    <div class="library-view__ambient library-view__ambient--violet" aria-hidden="true" />
-    <div class="library-view__ambient library-view__ambient--mint" aria-hidden="true" />
-
     <section class="library-view__hero">
       <article class="library-view__focus-card">
         <img class="library-view__focus-image" :src="fallbackCoverSrc" :alt="focusTrack ? `${focusTrack.title} 封面` : '资料库主封面'">
@@ -256,34 +253,8 @@ useGsapHoverTargets(libraryRef, [
 .library-view--stitch {
   padding: clamp(10px, 1.3vw, 14px);
   border-radius: 22px;
-  background:
-    radial-gradient(circle at 10% 10%, color-mix(in srgb, var(--color-accent) 18%, transparent), transparent 36%),
-    radial-gradient(circle at 90% 18%, color-mix(in srgb, var(--color-accent) 14%, transparent), transparent 32%),
-    linear-gradient(180deg, var(--color-bg-elevated), var(--color-bg));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-bg-elevated) 96%, transparent), var(--color-bg));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 74%, transparent);
-}
-
-.library-view__ambient {
-  position: absolute;
-  z-index: -1;
-  width: clamp(240px, 34vw, 420px);
-  aspect-ratio: 1;
-  border-radius: 999px;
-  filter: blur(92px);
-  opacity: 0.54;
-  pointer-events: none;
-}
-
-.library-view__ambient--violet {
-  top: -160px;
-  left: -20px;
-  background: color-mix(in srgb, var(--color-accent) 56%, transparent);
-}
-
-.library-view__ambient--mint {
-  right: 2%;
-  bottom: -170px;
-  background: color-mix(in srgb, var(--color-accent) 22%, var(--color-bg-elevated) 78%);
 }
 
 .library-view__hero,
@@ -306,9 +277,7 @@ useGsapHoverTargets(libraryRef, [
 .library-view__artist-card,
 .library-view__artist-empty {
   border: 0;
-  background:
-    linear-gradient(145deg, var(--color-panel-glow-start), transparent 44%),
-    var(--color-panel-fill);
+  background: var(--color-panel-fill);
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--color-border) 92%, transparent),
     inset 0 1px 0 var(--color-panel-glow-end),
