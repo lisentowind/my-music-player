@@ -103,24 +103,24 @@ useGsapHoverTargets(sidebarRef, [".app-sidebar__tag", ".nav-link", ".app-sidebar
 .app-sidebar__panel {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
-  gap: 14px;
+  gap: 12px;
   height: 100%;
-  padding: 18px 16px;
+  padding: 16px 15px;
   overflow: hidden;
-  border-radius: 0 32px 32px 0;
-  border-right-color: color-mix(in srgb, var(--color-panel-border) 86%, transparent);
+  border-radius: 30px;
   background:
-    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 32%),
-    linear-gradient(180deg, var(--color-panel-glow-start), transparent 18%),
+    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 30%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 92%, transparent), transparent 16%),
     var(--color-panel-fill);
   box-shadow:
-    var(--shadow-md),
+    0 20px 44px var(--color-popover-shadow),
     inset 0 1px 0 var(--color-panel-glow-end);
+  backdrop-filter: blur(22px) saturate(1.04);
 }
 
 .brand__badge {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -143,8 +143,8 @@ useGsapHoverTargets(sidebarRef, [".app-sidebar__tag", ".nav-link", ".app-sidebar
   display: block;
   color: var(--color-text-strong);
   font-family: "Plus Jakarta Sans", "Inter", sans-serif;
-  font-size: 21px;
-  font-weight: 800;
+  font-size: 20px;
+  font-weight: 760;
   letter-spacing: -0.04em;
   line-height: 1;
 }
@@ -153,21 +153,21 @@ useGsapHoverTargets(sidebarRef, [".app-sidebar__tag", ".nav-link", ".app-sidebar
   display: inline-flex;
   margin: 4px 0 0;
   color: var(--color-text-secondary);
-  font-size: 10px;
-  letter-spacing: 0.22em;
+  font-size: 9px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
 .app-sidebar__tag {
-  min-height: 30px;
-  padding: 0 9px;
+  min-height: 28px;
+  padding: 0 8px;
   border: 1px solid var(--color-border);
   border-radius: 999px;
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 80%, transparent), transparent 100%),
     var(--color-control-surface);
   color: var(--color-text-secondary);
-  font-size: 10px;
+  font-size: 9px;
   box-shadow: inset 0 1px 0 var(--color-panel-glow-end);
 }
 
@@ -182,7 +182,7 @@ useGsapHoverTargets(sidebarRef, [".app-sidebar__tag", ".nav-link", ".app-sidebar
 
 .nav-list {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   padding: 0;
   margin: 0;
   list-style: none;
@@ -192,10 +192,10 @@ useGsapHoverTargets(sidebarRef, [".app-sidebar__tag", ".nav-link", ".app-sidebar
   display: grid;
   grid-template-columns: 36px minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
-  padding: 10px;
+  gap: 9px;
+  padding: 8px 10px;
   border: 1px solid transparent;
-  border-radius: 16px;
+  border-radius: 18px;
   background: transparent;
   color: var(--color-text-secondary);
   transition:
@@ -219,8 +219,8 @@ useGsapHoverTargets(sidebarRef, [".app-sidebar__tag", ".nav-link", ".app-sidebar
 }
 
 .nav-link__icon {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -244,23 +244,23 @@ useGsapHoverTargets(sidebarRef, [".app-sidebar__tag", ".nav-link", ".app-sidebar
 .nav-link__label {
   display: block;
   font-family: "Plus Jakarta Sans", "Inter", sans-serif;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 680;
 }
 
 .app-sidebar__cta {
-  min-height: 44px;
+  min-height: 42px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   border: 0;
-  border-radius: 16px;
+  border-radius: 999px;
   background: var(--gradient-primary);
   color: var(--color-on-accent);
   font-family: "Plus Jakarta Sans", "Inter", sans-serif;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 760;
   cursor: pointer;
   box-shadow: var(--shadow-primary-hover);
   transition: transform 180ms ease, box-shadow 180ms ease;

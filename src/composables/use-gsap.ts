@@ -32,6 +32,75 @@ interface PointerTiltOptions {
   depthOffset?: number;
 }
 
+interface MotionPhase {
+  duration: number;
+  ease: string;
+}
+
+export const MOTION_TOKENS = {
+  hover: {
+    y: -2,
+    scale: 1.008,
+    pressScale: 0.986,
+    duration: 0.24,
+    ease: "power3.out",
+  },
+  reveal: {
+    distance: 18,
+    duration: 0.78,
+    stagger: 0.07,
+    ease: "power3.out",
+  },
+  scrollReveal: {
+    distance: 26,
+    scale: 0.988,
+    duration: 0.82,
+    stagger: 0.08,
+    ease: "power3.out",
+    blur: 10,
+  },
+  pointerTilt: {
+    duration: 0.38,
+    ease: "power3.out",
+  },
+  route: {
+    enter: {
+      duration: 0.68,
+      ease: "power3.out",
+    } satisfies MotionPhase,
+    leave: {
+      duration: 0.3,
+      ease: "power2.inOut",
+    } satisfies MotionPhase,
+  },
+  popover: {
+    enter: {
+      duration: 0.28,
+      ease: "power3.out",
+    } satisfies MotionPhase,
+    leave: {
+      duration: 0.2,
+      ease: "power2.inOut",
+    } satisfies MotionPhase,
+  },
+  dockEnter: {
+    duration: 0.82,
+    ease: "power3.out",
+  } satisfies MotionPhase,
+  surfaceSwap: {
+    duration: 0.48,
+    ease: "power3.out",
+    blur: 12,
+  },
+  coverMorph: {
+    duration: 0.56,
+    ease: "power3.inOut",
+    fadeDuration: 0.22,
+    startRadius: 14,
+    endRadius: 28,
+  },
+} as const;
+
 let pluginsRegistered = false;
 
 function canUseDom() {
@@ -76,10 +145,10 @@ function resolveNestedElements(root: HTMLElement, selector?: string | string[]) 
 
 function attachHoverListeners(element: HTMLElement, options: HoverAnimationOptions = {}) {
   const {
-    hoverY = -3,
-    hoverScale = 1.01,
-    pressScale = 0.98,
-    duration = 0.2,
+    hoverY = MOTION_TOKENS.hover.y,
+    hoverScale = MOTION_TOKENS.hover.scale,
+    pressScale = MOTION_TOKENS.hover.pressScale,
+    duration = MOTION_TOKENS.hover.duration,
   } = options;
 
   const onEnter = () => {
@@ -87,8 +156,9 @@ function attachHoverListeners(element: HTMLElement, options: HoverAnimationOptio
       y: hoverY,
       scale: hoverScale,
       duration,
-      ease: "power2.out",
+      ease: MOTION_TOKENS.hover.ease,
       overwrite: "auto",
+      force3D: true,
     });
   };
 
@@ -97,26 +167,29 @@ function attachHoverListeners(element: HTMLElement, options: HoverAnimationOptio
       y: 0,
       scale: 1,
       duration,
-      ease: "power2.out",
+      ease: MOTION_TOKENS.hover.ease,
       overwrite: "auto",
+      force3D: true,
     });
   };
 
   const onDown = () => {
     gsap.to(element, {
       scale: pressScale,
-      duration: 0.12,
-      ease: "power2.out",
+      duration: 0.14,
+      ease: MOTION_TOKENS.hover.ease,
       overwrite: "auto",
+      force3D: true,
     });
   };
 
   const onUp = () => {
     gsap.to(element, {
       scale: hoverScale,
-      duration: 0.14,
-      ease: "power2.out",
+      duration: 0.18,
+      ease: MOTION_TOKENS.hover.ease,
       overwrite: "auto",
+      force3D: true,
     });
   };
 
@@ -147,14 +220,15 @@ export function useGsapReveal(scopeRef: Ref<HTMLElement | null>, selectors: stri
 
     gsap.fromTo(
       targets,
-      { autoAlpha: 0, y: 18 },
+      { autoAlpha: 0, y: MOTION_TOKENS.reveal.distance, scale: 0.992 },
       {
         autoAlpha: 1,
         y: 0,
-        duration: 0.7,
+        scale: 1,
+        duration: MOTION_TOKENS.reveal.duration,
         delay,
-        stagger: 0.06,
-        ease: "power3.out",
+        stagger: MOTION_TOKENS.reveal.stagger,
+        ease: MOTION_TOKENS.reveal.ease,
         clearProps: "opacity,visibility,transform",
       },
     );
@@ -163,10 +237,10 @@ export function useGsapReveal(scopeRef: Ref<HTMLElement | null>, selectors: stri
 
 export function useGsapHover(elementRef: Ref<HTMLElement | null>, options: HoverAnimationOptions = {}) {
   const {
-    hoverY = -3,
-    hoverScale = 1.01,
-    pressScale = 0.98,
-    duration = 0.2,
+    hoverY = MOTION_TOKENS.hover.y,
+    hoverScale = MOTION_TOKENS.hover.scale,
+    pressScale = MOTION_TOKENS.hover.pressScale,
+    duration = MOTION_TOKENS.hover.duration,
   } = options;
 
   let element: HTMLElement | null = null;
@@ -246,9 +320,9 @@ export function useGsapScrollReveal(scopeRef: Ref<HTMLElement | null>, groups: S
         {
           autoAlpha: 0,
           x: group.x ?? 0,
-          y: group.y ?? 28,
-          scale: group.scale ?? 0.985,
-          filter: "blur(10px)",
+          y: group.y ?? MOTION_TOKENS.scrollReveal.distance,
+          scale: group.scale ?? MOTION_TOKENS.scrollReveal.scale,
+          filter: `blur(${MOTION_TOKENS.scrollReveal.blur}px)`,
         },
         {
           autoAlpha: 1,
@@ -256,10 +330,10 @@ export function useGsapScrollReveal(scopeRef: Ref<HTMLElement | null>, groups: S
           y: 0,
           scale: 1,
           filter: "blur(0px)",
-          duration: group.duration ?? 0.78,
+          duration: group.duration ?? MOTION_TOKENS.scrollReveal.duration,
           delay: group.delay ?? 0,
-          stagger: group.stagger ?? 0.08,
-          ease: "power3.out",
+          stagger: group.stagger ?? MOTION_TOKENS.scrollReveal.stagger,
+          ease: MOTION_TOKENS.scrollReveal.ease,
           clearProps: "opacity,visibility,transform,filter",
           scrollTrigger: {
             trigger,
@@ -284,7 +358,7 @@ export function useGsapPointerTilt(elementRef: Ref<HTMLElement | null>, options:
     maxRotateY = 10,
     liftY = -8,
     scale = 1.015,
-    duration = 0.34,
+    duration = MOTION_TOKENS.pointerTilt.duration,
     depthSelector,
     depthOffset = 12,
   } = options;
@@ -308,10 +382,11 @@ export function useGsapPointerTilt(elementRef: Ref<HTMLElement | null>, options:
       gsap.to(element, {
         ...vars,
         duration,
-        ease: "power3.out",
+        ease: MOTION_TOKENS.pointerTilt.ease,
         overwrite: "auto",
         transformPerspective: 1200,
         transformOrigin: "center center",
+        force3D: true,
       });
     };
 
@@ -323,8 +398,9 @@ export function useGsapPointerTilt(elementRef: Ref<HTMLElement | null>, options:
       gsap.to(depthTargets, {
         ...vars,
         duration: duration + 0.04,
-        ease: "power3.out",
+        ease: MOTION_TOKENS.pointerTilt.ease,
         overwrite: "auto",
+        force3D: true,
       });
     };
 
@@ -409,13 +485,14 @@ export function useGsapPointerTilt(elementRef: Ref<HTMLElement | null>, options:
 export function animateRouteEnter(element: Element, done: () => void) {
   gsap.fromTo(
     element,
-    { autoAlpha: 0, y: 18, filter: "blur(10px)" },
+    { autoAlpha: 0, y: 20, scale: 0.994, filter: "blur(10px)" },
     {
       autoAlpha: 1,
       y: 0,
+      scale: 1,
       filter: "blur(0px)",
-      duration: 0.55,
-      ease: "power3.out",
+      duration: MOTION_TOKENS.route.enter.duration,
+      ease: MOTION_TOKENS.route.enter.ease,
       clearProps: "opacity,visibility,transform,filter",
       onComplete: done,
     },
@@ -425,10 +502,11 @@ export function animateRouteEnter(element: Element, done: () => void) {
 export function animateRouteLeave(element: Element, done: () => void) {
   gsap.to(element, {
     autoAlpha: 0,
-    y: -12,
+    y: -10,
+    scale: 0.996,
     filter: "blur(8px)",
-    duration: 0.24,
-    ease: "power2.in",
+    duration: MOTION_TOKENS.route.leave.duration,
+    ease: MOTION_TOKENS.route.leave.ease,
     onComplete: done,
   });
 }
@@ -436,13 +514,13 @@ export function animateRouteLeave(element: Element, done: () => void) {
 export function animatePopoverEnter(element: Element, done: () => void) {
   gsap.fromTo(
     element,
-    { autoAlpha: 0, y: -10, scale: 0.96, transformOrigin: "top right" },
+    { autoAlpha: 0, y: -8, scale: 0.972, transformOrigin: "top right" },
     {
       autoAlpha: 1,
       y: 0,
       scale: 1,
-      duration: 0.22,
-      ease: "power2.out",
+      duration: MOTION_TOKENS.popover.enter.duration,
+      ease: MOTION_TOKENS.popover.enter.ease,
       clearProps: "opacity,visibility,transform",
       onComplete: done,
     },
@@ -452,10 +530,10 @@ export function animatePopoverEnter(element: Element, done: () => void) {
 export function animatePopoverLeave(element: Element, done: () => void) {
   gsap.to(element, {
     autoAlpha: 0,
-    y: -8,
-    scale: 0.98,
-    duration: 0.18,
-    ease: "power2.in",
+    y: -6,
+    scale: 0.986,
+    duration: MOTION_TOKENS.popover.leave.duration,
+    ease: MOTION_TOKENS.popover.leave.ease,
     onComplete: done,
   });
 }

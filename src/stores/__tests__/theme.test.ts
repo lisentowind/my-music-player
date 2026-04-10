@@ -43,6 +43,7 @@ function mockMatchMedia(matches = false) {
 describe("useThemeStore", () => {
   beforeEach(() => {
     vi.unstubAllGlobals();
+    window.localStorage.clear();
     document.documentElement.removeAttribute("data-theme-mode");
     document.documentElement.removeAttribute("data-theme-resolved");
     document.documentElement.style.removeProperty("--theme-accent");
@@ -120,6 +121,23 @@ describe("useThemeStore", () => {
     expect(store.activePresetId).toBe(secondPreset.id);
     expect(store.customColor).toBe("");
     expect(store.themeColor).toBe(secondPreset.color);
+  });
+
+  it("会记住用户上次选择的主题模式和主题色来源", async () => {
+    mockMatchMedia(false);
+    const store = useThemeStore();
+
+    store.setMode("dark");
+    store.setCustomColor("#12ab34");
+    await nextTick();
+
+    setActivePinia(createPinia());
+    const restored = useThemeStore();
+
+    expect(restored.mode).toBe("dark");
+    expect(restored.customColor).toBe("#12ab34");
+    expect(restored.activePresetId).toBe("");
+    expect(restored.themeColor).toBe("#12ab34");
   });
 
   it("会规范化自由颜色输入，并忽略非法值", async () => {

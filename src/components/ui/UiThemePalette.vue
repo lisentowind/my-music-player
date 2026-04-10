@@ -78,7 +78,7 @@ const activePresetName = computed(() => props.presets.find(preset => preset.id =
 .ui-theme-palette {
   width: 100%;
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .ui-theme-palette__meta {
@@ -93,7 +93,7 @@ const activePresetName = computed(() => props.presets.find(preset => preset.id =
   align-items: center;
   gap: 8px;
   color: var(--color-text-secondary);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -107,7 +107,7 @@ const activePresetName = computed(() => props.presets.find(preset => preset.id =
 
 .ui-theme-palette__value {
   color: var(--color-text-tertiary);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -116,15 +116,15 @@ const activePresetName = computed(() => props.presets.find(preset => preset.id =
 .ui-theme-palette__presets {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .ui-theme-palette__swatch {
-  min-width: 70px;
+  min-width: 66px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px 6px 8px;
+  gap: 7px;
+  padding: 5px 9px 5px 7px;
   border: 1px solid color-mix(in srgb, var(--color-accent) 10%, var(--color-border));
   border-radius: 999px;
   background:
@@ -150,8 +150,8 @@ const activePresetName = computed(() => props.presets.find(preset => preset.id =
 }
 
 .ui-theme-palette__swatch-core {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--color-text) 34%, transparent);
@@ -162,7 +162,7 @@ const activePresetName = computed(() => props.presets.find(preset => preset.id =
 
 .ui-theme-palette__swatch-name {
   color: var(--color-text-secondary);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
 }
 
@@ -181,10 +181,10 @@ const activePresetName = computed(() => props.presets.find(preset => preset.id =
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
+  gap: 8px;
+  padding: 7px 9px;
   border: 1px solid color-mix(in srgb, var(--color-accent) 10%, var(--color-border));
-  border-radius: 14px;
+  border-radius: 12px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 54%),
     color-mix(in srgb, var(--color-control-surface) 96%, rgba(255, 255, 255, 0.1));
@@ -199,8 +199,8 @@ const activePresetName = computed(() => props.presets.find(preset => preset.id =
 }
 
 .ui-theme-palette__custom-icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -216,14 +216,14 @@ const activePresetName = computed(() => props.presets.find(preset => preset.id =
 
 .ui-theme-palette__custom-label {
   color: var(--color-text-secondary);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
 }
 
 .ui-theme-palette__custom-value {
   min-width: 0;
   color: var(--color-text-tertiary);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-align: right;
@@ -231,10 +231,10 @@ const activePresetName = computed(() => props.presets.find(preset => preset.id =
 }
 
 .ui-theme-palette__custom input[type="color"] {
-  width: 34px;
-  height: 26px;
+  width: 30px;
+  height: 24px;
   border: 1px solid color-mix(in srgb, var(--color-accent) 16%, var(--color-border));
-  border-radius: 10px;
+  border-radius: 9px;
   padding: 0;
   background: transparent;
   box-shadow: 0 6px 14px rgba(15, 23, 42, 0.1);

@@ -81,6 +81,9 @@ describe("home view", () => {
     const { wrapper } = await mountHome();
 
     expect(wrapper.find("#home-page").exists()).toBe(true);
+    expect(wrapper.get('[data-testid="home-hero-shell"]').attributes("data-home-layout")).toBe("editorial-split");
+    expect(wrapper.get('[data-testid="home-continue-shell"]').attributes("data-home-region")).toBe("recent-and-trending");
+    expect(wrapper.get('[data-testid="home-recommend-shell"]').attributes("data-home-region")).toBe("editorial-posters");
     expect(wrapper.text()).toContain("夜色常驻");
     expect(wrapper.text()).toContain("最近播放");
     expect(wrapper.text()).toContain("推荐歌单");

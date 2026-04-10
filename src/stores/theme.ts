@@ -90,6 +90,13 @@ export const THEME_PRESETS: ThemePreset[] = [
 ];
 
 const COLOR_HEX_PATTERN = /^#([0-9a-fA-F]{6})$/;
+const THEME_STORAGE_KEY = "aura-player-theme-preferences";
+
+interface PersistedThemePreferences {
+  mode?: ThemeMode;
+  activePresetId?: string;
+  customColor?: string;
+}
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -403,11 +410,46 @@ function getSystemPrefersDark() {
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
+function readPersistedPreferences(): PersistedThemePreferences {
+  if (typeof window === "undefined" || !window.localStorage) {
+    return {};
+  }
+
+  try {
+    const raw = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (!raw) {
+      return {};
+    }
+
+    const parsed = JSON.parse(raw) as PersistedThemePreferences;
+    return typeof parsed === "object" && parsed ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function persistPreferences(nextState: PersistedThemePreferences) {
+  if (typeof window === "undefined" || !window.localStorage) {
+    return;
+  }
+
+  window.localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(nextState));
+}
+
 export const useThemeStore = defineStore("theme", () => {
-  const mode = ref<ThemeMode>("system");
   const presets = THEME_PRESETS;
-  const activePresetId = ref(presets[0]?.id ?? "");
-  const customColor = ref("");
+  const persisted = readPersistedPreferences();
+  const persistedMode = persisted.mode === "light" || persisted.mode === "dark" || persisted.mode === "system"
+    ? persisted.mode
+    : "system";
+  const persistedCustomColor = normalizeHexColor(persisted.customColor ?? "");
+  const persistedPresetId = presets.some(item => item.id === persisted.activePresetId)
+    ? persisted.activePresetId ?? presets[0]?.id ?? ""
+    : presets[0]?.id ?? "";
+
+  const mode = ref<ThemeMode>(persistedMode);
+  const activePresetId = ref(persistedCustomColor ? "" : persistedPresetId);
+  const customColor = ref(persistedCustomColor);
   const systemPrefersDark = ref(getSystemPrefersDark());
 
   const activePreset = computed(() => presets.find(item => item.id === activePresetId.value) ?? null);
@@ -537,6 +579,13 @@ export const useThemeStore = defineStore("theme", () => {
   }
 
   watch([mode, resolvedMode, themeColor, colorSource], syncToDocument, { immediate: true });
+  watch([mode, activePresetId, customColor], () => {
+    persistPreferences({
+      mode: mode.value,
+      activePresetId: customColor.value ? "" : activePresetId.value,
+      customColor: customColor.value,
+    });
+  }, { immediate: true });
 
   return {
     mode,

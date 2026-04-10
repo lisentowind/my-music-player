@@ -87,9 +87,9 @@ describe("explore view", () => {
 
     expect(wrapper.find("#explore-page").exists()).toBe(true);
     wrapper.get('[data-testid="explore-stitch-shell"]');
-    wrapper.get('[data-testid="explore-stitch-hero"]');
-    wrapper.get('[data-testid="explore-stitch-featured"]');
-    wrapper.get('[data-testid="explore-category-grid"]');
+    expect(wrapper.get('[data-testid="explore-stitch-hero"]').attributes("data-explore-layout")).toBe("editorial-search");
+    expect(wrapper.get('[data-testid="explore-stitch-featured"]').attributes("data-explore-region")).toBe("hero-featured");
+    expect(wrapper.get('[data-testid="explore-category-grid"]').attributes("data-explore-region")).toBe("browse-categories");
     wrapper.get('[data-testid="explore-search-input"]');
     expect(wrapper.text()).toContain("探索实验室");
     expect(wrapper.text()).toContain("浏览分类");

@@ -2,6 +2,7 @@
 import { Icon } from "@iconify/vue";
 import { gsap } from "gsap";
 import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
+import { MOTION_TOKENS } from "@/composables/use-gsap";
 import UiThemePalette from "@/components/ui/UiThemePalette.vue";
 import UiThemeToggle from "@/components/ui/UiThemeToggle.vue";
 import { iconRegistry } from "@/components/ui/icon-registry";
@@ -53,12 +54,20 @@ watch(() => props.open, async (isOpen) => {
       gsap.fromTo(
         dialogRef.value,
         { autoAlpha: 0 },
-        { autoAlpha: 1, duration: 0.18, ease: "power2.out" },
+        { autoAlpha: 1, duration: 0.2, ease: MOTION_TOKENS.popover.enter.ease },
       );
       gsap.fromTo(
         panelRef.value,
-        { autoAlpha: 0, y: -14, scale: 0.98 },
-        { autoAlpha: 1, y: 0, scale: 1, duration: 0.22, ease: "power3.out" },
+        { autoAlpha: 0, y: -10, scale: 0.976, filter: "blur(10px)" },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          filter: "blur(0px)",
+          duration: MOTION_TOKENS.popover.enter.duration,
+          ease: MOTION_TOKENS.popover.enter.ease,
+          clearProps: "opacity,visibility,transform,filter",
+        },
       );
     }
     return;
@@ -129,19 +138,6 @@ onBeforeUnmount(() => {
           @update:model-value="onCustomColorChange"
         />
       </section>
-
-      <section class="app-settings-dialog__preview">
-        <div class="app-settings-dialog__preview-card">
-          <span class="app-settings-dialog__preview-label">界面预览</span>
-          <strong class="app-settings-dialog__preview-title">胶囊 Dock · 玻璃面板 · 中文排版</strong>
-          <p class="app-settings-dialog__preview-copy">主题色会自动针对浅色和深色模式生成更合适的按钮、阴影、背景辉光和文字对比。</p>
-          <div class="app-settings-dialog__preview-swatches">
-            <span class="app-settings-dialog__preview-swatch app-settings-dialog__preview-swatch--accent" />
-            <span class="app-settings-dialog__preview-swatch app-settings-dialog__preview-swatch--surface" />
-            <span class="app-settings-dialog__preview-swatch app-settings-dialog__preview-swatch--text" />
-          </div>
-        </div>
-      </section>
     </section>
   </div>
 </template>
@@ -156,22 +152,22 @@ onBeforeUnmount(() => {
   align-items: start;
   padding: calc(var(--layout-gap) + 54px) var(--layout-gap) var(--layout-gap);
   background: var(--color-overlay-scrim);
-  backdrop-filter: blur(16px);
 }
 
 .app-settings-dialog__panel {
-  width: min(420px, calc(100vw - (var(--layout-gap) * 2)));
+  width: min(398px, calc(100vw - (var(--layout-gap) * 2)));
   display: grid;
-  gap: 16px;
-  padding: 18px;
+  gap: 12px;
+  padding: 16px;
   border: 1px solid var(--color-panel-border);
-  border-radius: 24px;
+  border-radius: 22px;
   background:
-    linear-gradient(180deg, var(--color-popover-glow-start), transparent 36%),
-    var(--color-popover-fill);
+    linear-gradient(180deg, color-mix(in srgb, var(--color-popover-glow-start) 86%, transparent), transparent 34%),
+    color-mix(in srgb, var(--color-popover-fill) 96%, transparent);
   box-shadow:
-    0 28px 56px var(--color-popover-shadow),
+    0 22px 46px var(--color-popover-shadow),
     inset 0 1px 0 var(--color-popover-glow-end);
+  backdrop-filter: blur(22px) saturate(1.04);
 }
 
 .app-settings-dialog__header,
@@ -189,30 +185,31 @@ onBeforeUnmount(() => {
 .app-settings-dialog__eyebrow {
   display: inline-flex;
   color: var(--color-text-tertiary);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .app-settings-dialog__title {
-  margin: 6px 0 0;
+  margin: 5px 0 0;
   color: var(--color-text-strong);
   font-family: "Plus Jakarta Sans", "Inter", sans-serif;
-  font-size: 24px;
+  font-size: 21px;
+  font-weight: 760;
   letter-spacing: -0.05em;
 }
 
 .app-settings-dialog__subtitle {
-  margin: 6px 0 0;
+  margin: 5px 0 0;
   color: var(--color-text-secondary);
-  font-size: 12px;
-  line-height: 1.6;
+  font-size: 11px;
+  line-height: 1.55;
 }
 
 .app-settings-dialog__close {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -240,61 +237,28 @@ onBeforeUnmount(() => {
   height: 18px;
 }
 
-.app-settings-dialog__section,
-.app-settings-dialog__preview-card {
+.app-settings-dialog__section {
   display: grid;
-  gap: 12px;
-  padding: 14px;
+  gap: 10px;
+  padding: 12px;
   border: 1px solid var(--color-panel-border);
-  border-radius: 18px;
+  border-radius: 16px;
   background:
     linear-gradient(180deg, var(--color-panel-glow-start), transparent 42%),
     var(--color-panel-fill);
 }
 
-.app-settings-dialog__section-head > span,
-.app-settings-dialog__preview-title {
+.app-settings-dialog__section-head > span {
   color: var(--color-text-strong);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 680;
 }
 
-.app-settings-dialog__section-head > small,
-.app-settings-dialog__preview-label {
+.app-settings-dialog__section-head > small {
   color: var(--color-text-tertiary);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-}
-
-.app-settings-dialog__preview-copy {
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-size: 12px;
-  line-height: 1.65;
-}
-
-.app-settings-dialog__preview-swatches {
-  display: flex;
-  gap: 8px;
-}
-
-.app-settings-dialog__preview-swatch {
-  width: 52px;
-  height: 12px;
-  border-radius: 999px;
-}
-
-.app-settings-dialog__preview-swatch--accent {
-  background: var(--gradient-primary);
-}
-
-.app-settings-dialog__preview-swatch--surface {
-  background: var(--color-card-surface-soft);
-}
-
-.app-settings-dialog__preview-swatch--text {
-  background: linear-gradient(90deg, var(--color-text-strong) 0%, var(--color-text-secondary) 100%);
 }
 </style>

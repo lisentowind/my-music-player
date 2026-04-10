@@ -89,18 +89,18 @@ function seek(event: Event) {
 
 .playback-progress__time {
   color: var(--color-text-tertiary);
-  font-size: 11px;
+  font-size: 10px;
   text-align: center;
 }
 
 .playback-progress__rail {
   display: flex;
   align-items: center;
-  min-height: 28px;
+  min-height: 24px;
 }
 
 .playback-progress__slider {
-  height: 6px;
+  height: 4px;
   border: 1px solid var(--color-state-border-subtle);
   border-radius: 999px;
   background:
@@ -115,15 +115,15 @@ function seek(event: Event) {
 }
 
 .playback-progress__slider::-webkit-slider-thumb {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border: 1px solid var(--color-range-thumb-border);
   background: var(--color-range-thumb-bg);
 }
 
 .playback-progress__slider::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border: 1px solid var(--color-range-thumb-border);
   background: var(--color-range-thumb-bg);
 }

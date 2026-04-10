@@ -175,6 +175,9 @@ describe("app shell route skeleton", () => {
     expect(wrapper.find('[data-testid="app-shell-sidebar"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="app-shell-topbar"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="app-shell-scroll"]').exists()).toBe(true);
+    expect(wrapper.get('[data-testid="app-shell-topbar"]').attributes("data-topbar-anchor")).toBe("content-overlay");
+    expect(wrapper.get('[data-testid="app-shell-scroll"]').attributes("data-scroll-style")).toBe("overlay-floating");
+    expect(wrapper.get('[data-testid="app-shell-scroll"]').attributes("data-scroll-surface")).toBe("transparent");
     expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(true);
   });
 
@@ -238,10 +241,20 @@ describe("app shell route skeleton", () => {
 
     expect(wrapper.get('[data-testid="settings-dialog"]').attributes("open")).toBeDefined();
     expect(wrapper.text()).toContain("外观设置");
+    expect(wrapper.text()).not.toContain("界面预览");
+    expect(wrapper.text()).not.toContain("胶囊 Dock");
     expect(wrapper.get("[data-testid='theme-mode-light']").attributes("aria-label")).toContain("浅色");
     expect(wrapper.get("[data-testid='theme-mode-dark']").attributes("aria-label")).toContain("深色");
     expect(wrapper.get("[data-testid='theme-mode-system']").attributes("aria-label")).toContain("跟随系统");
     expect(wrapper.get("[data-testid='theme-preset-frost']").attributes("title")).toContain("霜蓝");
+  });
+
+  it("设置弹窗不再模糊背景页面，并移除界面预览占位区", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/components/chrome/AppSettingsDialog.vue", "utf-8");
+
+    expect(source).not.toContain("backdrop-filter: blur(16px);");
+    expect(source).not.toContain("界面预览");
+    expect(source).not.toContain("胶囊 Dock · 玻璃面板 · 中文排版");
   });
 
   it("主题切换与主题色面板入口已从壳层移除", async () => {

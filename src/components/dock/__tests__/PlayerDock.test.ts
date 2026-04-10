@@ -134,9 +134,11 @@ describe("player dock", () => {
     expect(wrapper.get('[data-testid="player-dock-artist"]').text()).toContain("北纬合成社");
     expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(true);
     expect(wrapper.get('[data-testid="player-dock-shell"]').attributes("data-dock-layout")).toBe("single-row");
+    expect(wrapper.get('[data-testid="player-dock-shell"]').attributes("data-dock-density")).toBe("compact");
     expect(wrapper.get('[data-testid="player-dock-shell"]').attributes("data-dock-min-width")).toBe("880");
-    expect(wrapper.get('[data-testid="player-dock-shell"]').attributes("data-dock-min-height")).toBe("84");
-    expect(wrapper.get('[data-testid="player-dock-shell"]').attributes("data-dock-span")).toBe("viewport");
+    expect(wrapper.get('[data-testid="player-dock-shell"]').attributes("data-dock-min-height")).toBe("76");
+    expect(wrapper.get('[data-testid="player-dock-shell"]').attributes("data-dock-span")).toBe("content-pane");
+    expect(wrapper.get('[data-testid="player-dock-shell"]').attributes("data-dock-anchor")).toBe("content-pane");
     expect(wrapper.find('[data-testid="player-dock-transport"]').exists()).toBe(true);
     expect(wrapper.text()).not.toContain("当前播放");
     expect(wrapper.text()).not.toContain("Mode");

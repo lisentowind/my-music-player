@@ -46,7 +46,7 @@ function setMode(nextMode: ThemeMode) {
 .ui-theme-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .ui-theme-toggle__button {
@@ -55,7 +55,7 @@ function setMode(nextMode: ThemeMode) {
 
 .ui-theme-toggle__resolved {
   color: var(--color-text-tertiary);
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }

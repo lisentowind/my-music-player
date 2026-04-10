@@ -7,7 +7,7 @@ import PlaybackControls from "@/components/dock/PlaybackControls.vue";
 import PlaybackProgress from "@/components/dock/PlaybackProgress.vue";
 import VolumeControl from "@/components/dock/VolumeControl.vue";
 import QueuePopover from "@/components/music/QueuePopover.vue";
-import { animatePopoverEnter, animatePopoverLeave, useGsapHoverTargets, useGsapReveal } from "@/composables/use-gsap";
+import { MOTION_TOKENS, animatePopoverEnter, animatePopoverLeave, useGsapHoverTargets, useGsapReveal } from "@/composables/use-gsap";
 import { iconRegistry } from "@/components/ui/icon-registry";
 import { usePlayerStore } from "@/stores/player";
 
@@ -115,7 +115,7 @@ function handleKeydown(event: KeyboardEvent) {
 useGsapReveal(dockRef, [".player-dock__meta", ".player-dock__center", ".player-dock__aside"], 0.12);
 useGsapHoverTargets(dockRef, [".player-dock__chip", ".player-dock__action"], {
   hoverY: -2,
-  hoverScale: 1.01,
+  hoverScale: 1.008,
 });
 
 onMounted(() => {
@@ -125,14 +125,16 @@ onMounted(() => {
 
   gsap.fromTo(
     dockRef.value,
-    { autoAlpha: 0, y: 24 },
+    { autoAlpha: 0, y: 18, scale: 0.994, filter: "blur(10px)" },
     {
       autoAlpha: 1,
       y: 0,
-      duration: 0.7,
-      delay: 0.2,
-      ease: "power3.out",
-      clearProps: "opacity,visibility,transform",
+      scale: 1,
+      filter: "blur(0px)",
+      duration: MOTION_TOKENS.dockEnter.duration,
+      delay: 0.18,
+      ease: MOTION_TOKENS.dockEnter.ease,
+      clearProps: "opacity,visibility,transform,filter",
     },
   );
 
@@ -152,14 +154,15 @@ watch(() => player.currentTrack?.id, () => {
 
   gsap.fromTo(
     coverRef.value,
-    { scale: 0.92, rotate: -4, autoAlpha: 0.6 },
+    { scale: 0.94, rotate: -3, autoAlpha: 0.68, filter: `blur(${MOTION_TOKENS.surfaceSwap.blur}px)` },
     {
       scale: 1,
       rotate: 0,
       autoAlpha: 1,
-      duration: 0.42,
-      ease: "power2.out",
-      clearProps: "transform,opacity,visibility",
+      filter: "blur(0px)",
+      duration: MOTION_TOKENS.surfaceSwap.duration,
+      ease: MOTION_TOKENS.surfaceSwap.ease,
+      clearProps: "transform,opacity,visibility,filter",
     },
   );
 });
@@ -175,9 +178,11 @@ watch(() => player.currentTrack?.id, () => {
       data-dock-style="capsule"
       data-dock-glass="heavy"
       data-dock-layout="single-row"
-      data-dock-span="viewport"
+      data-dock-density="compact"
+      data-dock-span="content-pane"
+      data-dock-anchor="content-pane"
       data-dock-min-width="880"
-      data-dock-min-height="84"
+      data-dock-min-height="76"
     >
       <div class="player-dock__meta">
         <button
@@ -266,7 +271,7 @@ watch(() => player.currentTrack?.id, () => {
 <style scoped lang="less">
 .player-dock {
   position: fixed;
-  left: var(--layout-gap);
+  left: calc(var(--layout-sidebar-width) + (var(--layout-gap) * 3));
   right: var(--layout-gap);
   bottom: var(--layout-gap);
   width: auto;
@@ -277,52 +282,51 @@ watch(() => player.currentTrack?.id, () => {
 .player-dock__ambient {
   position: absolute;
   inset: auto 20% -6px;
-  height: 52px;
+  height: 42px;
   border-radius: 999px;
-  background: radial-gradient(ellipse at center, rgba(204, 151, 255, 0.34) 0%, rgba(204, 151, 255, 0.08) 44%, transparent 80%);
-  filter: blur(20px);
-  opacity: 0.64;
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--color-accent) 22%, transparent) 0%, color-mix(in srgb, var(--color-accent) 6%, transparent) 44%, transparent 80%);
+  filter: blur(16px);
+  opacity: 0.38;
   animation: dock-breathing 4.5s ease-in-out infinite;
 }
 
 .player-dock__surface {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(180px, 220px) minmax(340px, 1fr) minmax(180px, 220px);
+  grid-template-columns: minmax(158px, 208px) minmax(320px, 1fr) minmax(144px, 186px);
   align-items: center;
   min-width: 880px;
-  min-height: 84px;
-  gap: 10px;
-  padding: 8px 14px;
+  min-height: 76px;
+  gap: 6px;
+  padding: 6px 10px;
   border: 1px solid color-mix(in srgb, var(--color-panel-border) 92%, transparent);
   border-radius: 999px;
   background:
-    radial-gradient(circle at 12% 50%, var(--color-panel-glow-start), transparent 24%),
-    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 82%, transparent), transparent 46%),
-    linear-gradient(180deg, var(--color-popover-glow-start), transparent 38%),
-    var(--color-popover-fill);
+    radial-gradient(circle at 12% 50%, color-mix(in srgb, var(--color-panel-glow-start) 86%, transparent), transparent 22%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 74%, transparent), transparent 40%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-popover-glow-start) 72%, transparent), transparent 34%),
+    color-mix(in srgb, var(--color-popover-fill) 95%, transparent);
   box-shadow:
-    var(--shadow-md),
-    0 22px 44px var(--color-popover-shadow),
+    0 16px 34px var(--color-popover-shadow),
     inset 0 1px 0 var(--color-panel-glow-end);
-  backdrop-filter: blur(22px) saturate(1.08);
+  backdrop-filter: blur(18px) saturate(1.04);
   pointer-events: auto;
 }
 
 .player-dock__meta {
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr);
+  grid-template-columns: 44px minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
 }
 
 .player-dock__cover {
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: 1px solid color-mix(in srgb, var(--color-panel-border) 88%, transparent);
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 78%, transparent), transparent 100%),
@@ -353,8 +357,8 @@ watch(() => player.currentTrack?.id, () => {
 .player-dock__title {
   margin: 0;
   color: var(--color-text-strong);
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 680;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -363,7 +367,7 @@ watch(() => player.currentTrack?.id, () => {
 .player-dock__artist {
   margin: 0;
   color: var(--color-text-secondary);
-  font-size: 10px;
+  font-size: 9px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -376,9 +380,9 @@ watch(() => player.currentTrack?.id, () => {
 
 .player-dock__center-shell {
   display: grid;
-  grid-template-columns: auto minmax(220px, 1fr);
+  grid-template-columns: auto minmax(210px, 1fr);
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   padding: 0;
   border-radius: 999px;
 }
@@ -388,18 +392,18 @@ watch(() => player.currentTrack?.id, () => {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 5px;
 }
 
 .player-dock__actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 3px;
 }
 
 .player-dock__action {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -426,18 +430,18 @@ watch(() => player.currentTrack?.id, () => {
 }
 
 .player-dock__action :deep(svg) {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
 }
 
 .player-dock__aside :deep(.volume-control) {
-  grid-template-columns: 32px minmax(72px, 80px);
-  gap: 6px;
+  grid-template-columns: 28px minmax(58px, 66px);
+  gap: 4px;
 }
 
 .player-dock__aside :deep(.volume-control__mute) {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: 1px solid var(--color-border);
   border-radius: 999px;
   background: var(--color-control-surface);
@@ -445,13 +449,13 @@ watch(() => player.currentTrack?.id, () => {
 
 .player-dock__center-shell :deep(.playback-controls) {
   grid-template-columns: auto 1fr;
-  gap: 8px;
+  gap: 6px;
 }
 
 .player-dock__center-shell :deep(.playback-controls__mode) {
-  min-height: 32px;
-  min-width: 32px;
-  width: 32px;
+  min-height: 28px;
+  min-width: 28px;
+  width: 28px;
   padding: 0;
   border: 1px solid var(--color-border);
   border-radius: 999px;
@@ -464,36 +468,36 @@ watch(() => player.currentTrack?.id, () => {
 
 .player-dock__center-shell :deep(.playback-controls__mode-icon),
 .player-dock__center-shell :deep(.playback-controls__button) {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 999px;
 }
 
 .player-dock__center-shell :deep(.playback-controls__transport) {
-  min-height: 40px;
-  padding: 0 8px;
+  min-height: 32px;
+  padding: 0 4px;
   border: none;
   border-radius: 999px;
   background: transparent;
 }
 
 .player-dock__center-shell :deep(.playback-controls__button--primary) {
-  width: 54px;
-  height: 54px;
-  box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-accent) 12%, transparent), var(--shadow-primary-active);
+  width: 42px;
+  height: 42px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 10%, transparent), var(--shadow-primary-active);
 }
 
 .player-dock__center-shell :deep(.playback-progress) {
-  grid-template-columns: 32px minmax(180px, 1fr) 32px;
-  gap: 4px;
+  grid-template-columns: 28px minmax(156px, 1fr) 28px;
+  gap: 3px;
 }
 
 .player-dock__center-shell :deep(.playback-progress__time) {
-  font-size: 9px;
+  font-size: 8px;
 }
 
 .player-dock__center-shell :deep(.playback-progress__slider) {
-  height: 4px;
+  height: 2px;
   border: none;
 }
 

@@ -138,7 +138,7 @@ useGsapHoverTargets(homeRef, [
     <div class="home-view__ambient home-view__ambient--violet" aria-hidden="true" />
     <div class="home-view__ambient home-view__ambient--rose" aria-hidden="true" />
 
-    <section class="home-view__hero">
+    <section class="home-view__hero" data-testid="home-hero-shell" data-home-layout="editorial-split">
       <article class="home-view__hero-main">
         <img class="home-view__hero-image" :src="auraDefaultPlaylist.coverSrc" :alt="`${auraDefaultPlaylist.title} 封面`">
         <div class="home-view__hero-shade" aria-hidden="true" />
@@ -184,7 +184,7 @@ useGsapHoverTargets(homeRef, [
       </aside>
     </section>
 
-    <section class="home-view__panel home-view__continue">
+    <section class="home-view__panel home-view__continue" data-testid="home-continue-shell" data-home-region="recent-and-trending">
       <header class="home-view__section-head">
         <div>
           <p class="home-view__eyebrow">继续接续</p>
@@ -247,7 +247,7 @@ useGsapHoverTargets(homeRef, [
       </div>
     </section>
 
-    <section class="home-view__panel home-view__recommend">
+    <section class="home-view__panel home-view__recommend" data-testid="home-recommend-shell" data-home-region="editorial-posters">
       <header class="home-view__section-head">
         <div>
           <p class="home-view__eyebrow">编辑推荐</p>
@@ -311,7 +311,7 @@ useGsapHoverTargets(homeRef, [
 <style scoped lang="less">
 .page {
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 .home-view {
@@ -321,13 +321,13 @@ useGsapHoverTargets(homeRef, [
 }
 
 .home-view--stitch {
-  padding: clamp(10px, 1.3vw, 14px);
-  border-radius: 22px;
+  padding: clamp(8px, 1.1vw, 12px);
+  border-radius: 20px;
   background:
-    radial-gradient(circle at 12% 12%, color-mix(in srgb, var(--color-accent) 20%, transparent), transparent 34%),
-    radial-gradient(circle at 88% 20%, color-mix(in srgb, #ff7b97 16%, transparent), transparent 30%),
-    linear-gradient(180deg, var(--color-bg-elevated), var(--color-bg));
-  border: 1px solid var(--color-border);
+    radial-gradient(circle at 12% 12%, color-mix(in srgb, var(--color-accent) 18%, transparent), transparent 34%),
+    radial-gradient(circle at 88% 20%, color-mix(in srgb, #ff7b97 14%, transparent), transparent 30%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-bg-elevated) 92%, transparent), var(--color-bg));
+  border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
 }
 
 .home-view__ambient {
@@ -361,8 +361,8 @@ useGsapHoverTargets(homeRef, [
 
 .home-view__hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.9fr);
-  gap: 12px;
+  grid-template-columns: minmax(0, 1.72fr) minmax(272px, 0.78fr);
+  gap: 10px;
 }
 
 .home-view__hero-main,
@@ -375,15 +375,15 @@ useGsapHoverTargets(homeRef, [
   background:
     linear-gradient(145deg, var(--color-panel-glow-start), transparent 40%),
     var(--color-panel-fill);
-  box-shadow: inset 0 1px 0 var(--color-panel-glow-end), 0 24px 60px var(--color-popover-shadow);
+  box-shadow: inset 0 1px 0 var(--color-panel-glow-end), var(--shadow-md);
   backdrop-filter: blur(24px);
 }
 
 .home-view__hero-main {
   position: relative;
   overflow: hidden;
-  min-height: 332px;
-  border-radius: 20px;
+  min-height: 304px;
+  border-radius: 18px;
 }
 
 .home-view__hero-image,
@@ -416,9 +416,9 @@ useGsapHoverTargets(homeRef, [
   display: grid;
   align-content: end;
   gap: 0;
-  min-height: 332px;
-  max-width: 620px;
-  padding: clamp(18px, 2vw, 24px);
+  min-height: 304px;
+  max-width: 560px;
+  padding: clamp(18px, 1.8vw, 22px);
 }
 
 .home-view__eyebrow,
@@ -436,21 +436,21 @@ useGsapHoverTargets(homeRef, [
   margin: 14px 0 0;
   color: color-mix(in srgb, white 94%, var(--color-accent) 6%);
   font-family: "Plus Jakarta Sans", "Inter", sans-serif;
-  font-size: clamp(36px, 4.4vw, 56px);
+  font-size: clamp(34px, 4vw, 52px);
   line-height: 0.96;
   letter-spacing: -0.06em;
 }
 
 .home-view__hero-description {
-  max-width: 520px;
-  margin: 12px 0 0;
+  max-width: 500px;
+  margin: 10px 0 0;
   color: color-mix(in srgb, white 76%, var(--color-accent) 24%);
   font-size: 12px;
-  line-height: 1.56;
+  line-height: 1.52;
 }
 
 .home-view__hero-meta {
-  margin-top: 14px;
+  margin-top: 12px;
   flex-wrap: wrap;
 }
 
@@ -467,7 +467,7 @@ useGsapHoverTargets(homeRef, [
 }
 
 .home-view__hero-actions {
-  margin-top: 18px;
+  margin-top: 16px;
   flex-wrap: wrap;
 }
 
@@ -514,22 +514,22 @@ useGsapHoverTargets(homeRef, [
 
 .home-view__hero-side {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .home-view__hero-metric {
   display: grid;
   align-content: end;
-  min-height: 98px;
-  padding: 16px;
-  border-radius: 18px;
+  min-height: 92px;
+  padding: 14px;
+  border-radius: 16px;
 }
 
 .home-view__metric-value {
-  margin: 12px 0 0;
+  margin: 10px 0 0;
   color: var(--color-text-strong);
   font-family: "Plus Jakarta Sans", "Inter", sans-serif;
-  font-size: clamp(20px, 2.2vw, 26px);
+  font-size: clamp(18px, 2vw, 24px);
   line-height: 1.02;
   letter-spacing: -0.04em;
 }
@@ -542,8 +542,8 @@ useGsapHoverTargets(homeRef, [
 }
 
 .home-view__panel {
-  border-radius: 20px;
-  padding: clamp(14px, 1.8vw, 20px);
+  border-radius: 18px;
+  padding: clamp(14px, 1.6vw, 18px);
 }
 
 .home-view__section-head {
@@ -551,7 +551,7 @@ useGsapHoverTargets(homeRef, [
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .home-view__section-title {
@@ -573,8 +573,8 @@ useGsapHoverTargets(homeRef, [
 
 .home-view__continue-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.9fr);
-  gap: 12px;
+  grid-template-columns: minmax(0, 1.72fr) minmax(250px, 0.86fr);
+  gap: 10px;
 }
 
 .home-view__continue-grid {
@@ -586,13 +586,13 @@ useGsapHoverTargets(homeRef, [
 .home-view__continue-card {
   position: relative;
   display: grid;
-  grid-template-columns: 74px minmax(0, 1fr);
+  grid-template-columns: 66px minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  min-height: 98px;
-  padding: 12px;
-  border-radius: 18px;
+  min-height: 88px;
+  padding: 10px;
+  border-radius: 16px;
   color: inherit;
   text-align: left;
   cursor: pointer;
@@ -602,9 +602,9 @@ useGsapHoverTargets(homeRef, [
 .home-view__trend-panel {
   display: grid;
   align-content: start;
-  gap: 8px;
+  gap: 6px;
   padding: 12px;
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px solid var(--color-border);
   background:
     linear-gradient(145deg, var(--color-panel-glow-start), transparent 40%),
@@ -628,9 +628,9 @@ useGsapHoverTargets(homeRef, [
   display: grid;
   grid-template-columns: 28px 48px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  padding: 10px 0;
+  padding: 8px 0;
   border: none;
   border-radius: 16px;
   background: transparent;
@@ -689,7 +689,7 @@ useGsapHoverTargets(homeRef, [
 .home-view__mood-card:hover {
   transform: translateY(-2px);
   border-color: var(--color-state-border-emphasis);
-  box-shadow: 0 22px 44px var(--color-popover-shadow);
+  box-shadow: var(--shadow-md);
 }
 
 .home-view__continue-image,
@@ -719,7 +719,7 @@ useGsapHoverTargets(homeRef, [
 }
 
 .home-view__card-title {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .home-view__card-subtitle,
@@ -733,10 +733,10 @@ useGsapHoverTargets(homeRef, [
 
 .home-view__card-play {
   position: absolute;
-  right: 14px;
-  bottom: 14px;
-  width: 36px;
-  height: 36px;
+  right: 12px;
+  bottom: 12px;
+  width: 34px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -749,15 +749,15 @@ useGsapHoverTargets(homeRef, [
 .home-view__recommend-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .home-view__poster-card {
   position: relative;
   overflow: hidden;
-  min-height: 280px;
+  min-height: 252px;
   padding: 0;
-  border-radius: 24px;
+  border-radius: 20px;
   cursor: pointer;
   text-align: left;
   transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
@@ -788,7 +788,7 @@ useGsapHoverTargets(homeRef, [
   position: absolute;
   inset: auto 0 0;
   z-index: 1;
-  padding: 14px;
+  padding: 12px;
 }
 
 .home-view__poster-badge {
@@ -805,7 +805,7 @@ useGsapHoverTargets(homeRef, [
 }
 
 .home-view__poster-title {
-  font-size: clamp(22px, 2.6vw, 30px);
+  font-size: clamp(20px, 2.3vw, 26px);
   color: color-mix(in srgb, white 94%, var(--color-accent) 6%);
 }
 
@@ -816,18 +816,18 @@ useGsapHoverTargets(homeRef, [
 .home-view__moods-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .home-view__mood-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 96px;
+  grid-template-columns: minmax(0, 1fr) 84px;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  min-height: 140px;
-  padding: 14px;
-  border-radius: 20px;
+  min-height: 126px;
+  padding: 12px;
+  border-radius: 18px;
   color: inherit;
   text-align: left;
   cursor: pointer;

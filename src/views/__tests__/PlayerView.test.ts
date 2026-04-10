@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { flushPromises, mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { createMemoryHistory, createRouter } from "vue-router";
@@ -149,9 +150,19 @@ describe("player view", () => {
     expect(page.attributes("data-player-visual")).toBe("immersive-stitch");
     expect(page.attributes("data-player-min-width")).toBe("1220");
     expect(page.attributes("data-player-min-height")).toBe("760");
+    expect(wrapper.get('[data-testid="player-canvas-layout"]').attributes("data-player-layout")).toBe("cover-lyrics-split");
+    expect(wrapper.get('[data-testid="player-canvas-layout"]').attributes("data-player-balance")).toBe("art-left-heavy");
     expect(wrapper.get('[data-testid="player-cover-stage"]').attributes("data-player-region")).toBe("art");
     expect(wrapper.get('[data-testid="player-lyrics-stage"]').attributes("data-player-region")).toBe("lyrics");
     expect(wrapper.get('[data-testid="player-progress-stage"]').attributes("data-player-region")).toBe("progress");
+  });
+
+  it("沉浸式播放器对较小高度窗口提供封面自适应约束，避免遮挡歌词和信息", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/views/PlayerView.vue", "utf-8");
+
+    expect(source).toContain("data-player-art-sizing=\"responsive-contained\"");
+    expect(source).toContain("@media (max-height: 860px)");
+    expect(source).toContain("calc(100vh - 350px)");
   });
 
   it("页面内播放控制与共享播放器状态同步", async () => {

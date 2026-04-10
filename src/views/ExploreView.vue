@@ -187,7 +187,7 @@ useGsapScrollReveal(exploreRef, [
 ]);
 useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view__category-grid > *", ".explore-view__tag-list > *", ".explore-view__playlist-grid > *", ".explore-view__result-grid > *"], {
   hoverY: -3,
-  hoverScale: 1.01,
+  hoverScale: 1.008,
 });
 </script>
 
@@ -196,7 +196,7 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
     <div class="explore-view__ambient explore-view__ambient--violet" aria-hidden="true" />
     <div class="explore-view__ambient explore-view__ambient--mint" aria-hidden="true" />
 
-    <section class="explore-view__hero explore-view__panel" data-testid="explore-stitch-hero">
+    <section class="explore-view__hero explore-view__panel" data-testid="explore-stitch-hero" data-explore-layout="editorial-search">
       <p class="explore-view__eyebrow">探索声场</p>
       <h1 class="explore-view__hero-title">探索实验室</h1>
       <p class="explore-view__hero-copy">
@@ -226,6 +226,7 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
       v-if="!hasQuery"
       class="explore-view__featured"
       data-testid="explore-stitch-featured"
+      data-explore-region="hero-featured"
     >
       <button type="button" class="explore-view__featured-card explore-view__featured-card--primary" @click="openPlaylist(auraDefaultPlaylist.id)">
         <img class="explore-view__featured-image" :src="auraDefaultPlaylist.coverSrc" :alt="`${auraDefaultPlaylist.title} 封面`">
@@ -251,6 +252,7 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
       v-if="!hasQuery"
       class="explore-view__categories explore-view__panel"
       data-testid="explore-category-grid"
+      data-explore-region="browse-categories"
     >
       <header class="explore-view__panel-head">
         <p class="explore-view__eyebrow">探索分区</p>
@@ -397,19 +399,19 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 <style scoped lang="less">
 .page {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .explore-view {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: clamp(12px, 1.6vw, 18px);
-  border-radius: 22px;
+  padding: clamp(10px, 1.35vw, 16px);
+  border-radius: 20px;
   background: radial-gradient(circle at 20% 12%, color-mix(in srgb, var(--color-accent) 24%, transparent), transparent 46%),
     radial-gradient(circle at 88% 24%, color-mix(in srgb, #54f1bc 18%, transparent), transparent 44%),
     linear-gradient(135deg, var(--color-bg-elevated) 0%, var(--color-bg) 45%, color-mix(in srgb, var(--color-bg) 82%, var(--color-accent) 18%) 100%);
-  border: 1px solid var(--color-border);
+  border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
 }
 
 .explore-view__ambient {
@@ -436,10 +438,10 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 
 .explore-view__panel {
   border-radius: 18px;
-  padding: clamp(14px, 1.8vw, 18px);
+  padding: clamp(14px, 1.5vw, 18px);
   background: linear-gradient(155deg, var(--color-panel-glow-start), transparent 48%), var(--color-panel-fill);
   border: 1px solid var(--color-border);
-  box-shadow: inset 0 1px 0 var(--color-panel-glow-end), 0 24px 40px var(--color-popover-shadow);
+  box-shadow: inset 0 1px 0 var(--color-panel-glow-end), var(--shadow-md);
 }
 
 .explore-view__panel-head {
@@ -473,6 +475,8 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 .explore-view__hero {
   position: relative;
   overflow: hidden;
+  padding-top: 18px;
+  padding-bottom: 18px;
 }
 
 .explore-view__hero::after {
@@ -486,23 +490,24 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 .explore-view__hero-title {
   margin: 0;
   color: var(--color-text-strong);
-  font-size: clamp(28px, 3.8vw, 36px);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
+  font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+  font-size: clamp(42px, 5vw, 64px);
+  line-height: 0.92;
+  letter-spacing: -0.06em;
 }
 
 .explore-view__hero-copy {
-  margin: 10px 0 0;
-  max-width: 760px;
+  margin: 12px 0 0;
+  max-width: 700px;
   color: var(--color-text-secondary);
-  font-size: 12px;
-  line-height: 1.52;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .explore-view__search {
   display: grid;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 18px;
 }
 
 .explore-view__search-label {
@@ -530,7 +535,7 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 
 .explore-view__search-input {
   width: 100%;
-  min-height: 46px;
+  min-height: 50px;
   padding: 0 18px 0 44px;
   border: 1px solid var(--color-border);
   border-radius: 999px;
@@ -566,27 +571,27 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 .explore-view__featured {
   display: grid;
   gap: 12px;
-  grid-template-columns: 1.85fr 1fr;
+  grid-template-columns: 1.95fr 0.88fr;
 }
 
 .explore-view__featured-card {
   position: relative;
   overflow: hidden;
-  min-height: 280px;
-  border: 1px solid color-mix(in srgb, white 18%, transparent);
-  border-radius: 18px;
+  min-height: 296px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  border-radius: 22px;
   padding: 0;
   cursor: pointer;
   text-align: left;
-  background: rgba(0, 0, 0, 0.45);
+  background: color-mix(in srgb, var(--color-surface-contrast) 12%, transparent);
   color: color-mix(in srgb, white 94%, var(--color-accent) 6%);
   transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
 }
 
 .explore-view__featured-card:hover {
   transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--color-accent) 72%, white 28%);
-  box-shadow: 0 16px 36px rgba(4, 2, 10, 0.45);
+  border-color: color-mix(in srgb, var(--color-accent) 36%, var(--color-border));
+  box-shadow: var(--shadow-lg);
 }
 
 .explore-view__featured-image {
@@ -612,7 +617,7 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
   inset: auto 0 0;
   display: grid;
   gap: 7px;
-  padding: clamp(16px, 2vw, 20px);
+  padding: clamp(18px, 2vw, 22px);
 }
 
 .explore-view__featured-badge {
@@ -634,14 +639,14 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 }
 
 .explore-view__featured-copy strong {
-  font-size: clamp(22px, 2.8vw, 30px);
-  letter-spacing: -0.02em;
+  font-size: clamp(26px, 3vw, 36px);
+  letter-spacing: -0.04em;
 }
 
 .explore-view__featured-copy small {
   color: color-mix(in srgb, white 84%, var(--color-accent) 16%);
-  font-size: 12px;
-  line-height: 1.55;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .explore-view__categories {
@@ -652,18 +657,18 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 .explore-view__category-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
 }
 
 .explore-view__category-card {
   position: relative;
-  min-height: 148px;
+  min-height: 176px;
   display: grid;
   align-content: space-between;
   gap: 16px;
-  padding: 14px;
+  padding: 16px;
   border: none;
-  border-radius: 18px;
+  border-radius: 28px;
   color: color-mix(in srgb, white 92%, var(--color-accent) 8%);
   text-align: left;
   cursor: pointer;
@@ -715,7 +720,7 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 
 .explore-view__category-copy strong {
   font-family: "Plus Jakarta Sans", "Inter", sans-serif;
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1.05;
   letter-spacing: -0.03em;
 }
@@ -757,7 +762,7 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 .explore-view__tag-chip {
   border: 1px solid var(--color-border);
   border-radius: 999px;
-  padding: 7px 11px;
+  padding: 8px 12px;
   background: var(--color-control-surface);
   color: var(--color-text);
   font-size: 11px;

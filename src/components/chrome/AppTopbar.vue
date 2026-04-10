@@ -139,24 +139,24 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
   display: grid;
   grid-template-columns: minmax(260px, 1.1fr) minmax(280px, 1fr) auto;
   align-items: center;
-  gap: var(--space-4);
-  min-height: var(--layout-topbar-height);
-  padding: 6px 12px;
+  gap: 14px;
+  min-height: 68px;
+  padding: 5px 10px;
   border: 1px solid var(--color-panel-border);
   border-radius: 999px;
   background:
-    linear-gradient(180deg, var(--color-panel-glow-start), transparent 46%),
-    linear-gradient(180deg, color-mix(in srgb, var(--color-surface-strong) 52%, transparent), transparent 100%),
-    var(--color-panel-fill);
+    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 88%, transparent), transparent 44%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-popover-glow-start) 74%, transparent), transparent 100%),
+    color-mix(in srgb, var(--color-popover-fill) 94%, transparent);
   box-shadow:
-    var(--shadow-sm),
+    0 14px 30px var(--color-popover-shadow),
     inset 0 1px 0 var(--color-panel-glow-end);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(22px) saturate(1.06);
 }
 
 .app-topbar__mark {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -172,10 +172,10 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
 
 .app-topbar__eyebrow {
   display: inline-flex;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   color: var(--color-text-tertiary);
-  font-size: 10px;
-  letter-spacing: 0.2em;
+  font-size: 9px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
@@ -183,15 +183,15 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
   margin: 0;
   color: var(--color-text-strong);
   font-family: "Plus Jakarta Sans", "Inter", sans-serif;
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1;
   letter-spacing: -0.04em;
 }
 
 .app-topbar__subtitle {
-  margin: 4px 0 0;
+  margin: 3px 0 0;
   color: var(--color-text-secondary);
-  font-size: 10px;
+  font-size: 9px;
   line-height: 1.5;
 }
 
@@ -229,8 +229,8 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
 
 .app-topbar__search-shell {
   width: min(560px, 100%);
-  min-height: 42px;
-  padding: 0 14px;
+  min-height: 40px;
+  padding: 0 13px;
 }
 
 .app-topbar__search-icon {
@@ -247,7 +247,7 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
   border: 0;
   background: transparent;
   color: var(--color-text);
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .app-topbar__search-input::placeholder {
@@ -255,12 +255,12 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
 }
 
 .app-topbar__jump {
-  min-height: 42px;
+  min-height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 0 10px 0 16px;
+  gap: 10px;
+  padding: 0 9px 0 14px;
   color: var(--color-text);
 }
 
@@ -270,13 +270,13 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
 
 .app-topbar__jump-label {
   font-family: "Plus Jakarta Sans", "Inter", sans-serif;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 760;
 }
 
 .app-topbar__jump-hint {
   color: var(--color-text-tertiary);
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .app-topbar__jump-icon,
@@ -288,8 +288,8 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
 }
 
 .app-topbar__jump-icon {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   background: var(--gradient-primary);
   color: var(--color-on-accent);
 }
@@ -301,17 +301,17 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
 }
 
 .app-topbar__settings {
-  min-height: 44px;
+  min-height: 40px;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 12px;
+  gap: 8px;
+  padding: 0 11px;
   color: var(--color-text);
 }
 
 .app-topbar__settings-icon {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   background: color-mix(in srgb, var(--color-accent) 16%, transparent);
   color: var(--color-accent);
 }
@@ -323,7 +323,7 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
 
 .app-topbar__settings-label {
   color: var(--color-text-strong);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 680;
 }
 </style>

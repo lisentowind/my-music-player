@@ -37,6 +37,7 @@ const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" 
         class="app-shell__topbar"
         data-testid="app-shell-topbar"
         data-topbar-visual="floating"
+        data-topbar-anchor="content-overlay"
       />
 
       <main class="app-shell__main">
@@ -44,6 +45,8 @@ const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" 
           class="app-shell__scroll desktop-scroll-x"
           data-testid="app-shell-scroll"
           data-overflow-x="auto"
+          data-scroll-style="overlay-floating"
+          data-scroll-surface="transparent"
         >
           <RouterView v-slot="{ Component, route: currentRoute }">
             <Transition mode="out-in" :css="false" @enter="animateRouteEnter" @leave="animateRouteLeave">
@@ -73,19 +76,17 @@ const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" 
   top: var(--layout-gap);
   left: var(--layout-gap);
   width: var(--layout-sidebar-width);
-  height: calc(100vh - (var(--layout-gap) * 2) - var(--layout-dock-space));
+  height: calc(100vh - (var(--layout-gap) * 2));
   z-index: var(--z-shell-sidebar);
 }
 
 .app-shell__content {
   position: relative;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: var(--space-4);
   height: 100vh;
   margin-left: calc(var(--layout-sidebar-width) + (var(--layout-gap) * 2));
-  padding: var(--layout-gap) var(--layout-gap) calc(var(--layout-gap) + var(--layout-dock-space)) 0;
+  padding: var(--layout-gap);
   min-width: calc(var(--layout-min-width) - var(--layout-sidebar-width) - (var(--layout-gap) * 3));
+  overflow: hidden;
 }
 
 .app-shell__content--player {
@@ -95,11 +96,17 @@ const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" 
 }
 
 .app-shell__topbar {
-  position: relative;
+  position: absolute;
+  top: 12px;
+  left: 0;
+  right: 0;
   z-index: var(--z-shell-topbar);
 }
 
 .app-shell__main {
+  position: relative;
+  z-index: 1;
+  height: 100%;
   min-height: 0;
 }
 
@@ -107,8 +114,7 @@ const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" 
   height: 100%;
   overflow-y: auto;
   overflow-x: auto;
-  padding-right: var(--space-2);
-  padding-bottom: var(--space-6);
+  padding: calc(var(--layout-topbar-height) + 38px) 0 calc(var(--layout-dock-space) + 12px);
 }
 
 .app-shell__content--player .app-shell__main,
@@ -117,13 +123,13 @@ const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" 
 }
 
 .app-shell__content--player .app-shell__scroll {
-  padding-right: 0;
-  padding-bottom: 0;
+  padding: 0;
   overflow: hidden;
 }
 
 .app-shell__page {
-  min-width: calc(var(--layout-min-width) - var(--layout-sidebar-width) - (var(--layout-gap) * 3));
+  width: 100%;
+  min-width: 100%;
   min-height: 100%;
 }
 

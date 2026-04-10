@@ -86,30 +86,30 @@ watch([
 
 .lyrics-panel__scroll {
   display: grid;
-  gap: 18px;
-  max-height: 520px;
+  gap: 20px;
+  max-height: 560px;
   overflow: auto;
-  padding-right: 8px;
+  padding: 10px 18px 10px 0;
 }
 
 .lyrics-panel__line {
   margin: 0;
   color: var(--color-text-tertiary);
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: -0.02em;
+  line-height: 1.22;
+  letter-spacing: -0.04em;
   transition:
     color 180ms ease,
     transform 180ms ease,
     opacity 180ms ease;
-  opacity: 0.66;
+  opacity: 0.52;
 }
 
 .lyrics-panel__line.is-active {
   color: var(--color-text-strong);
   opacity: 1;
-  transform: translateX(6px);
+  transform: translateX(8px);
 }
 
 .lyrics-panel__empty {
