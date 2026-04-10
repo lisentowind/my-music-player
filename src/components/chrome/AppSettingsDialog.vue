@@ -4,7 +4,6 @@ import { gsap } from "gsap";
 import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { MOTION_TOKENS } from "@/composables/use-gsap";
 import UiThemePalette from "@/components/ui/UiThemePalette.vue";
-import UiThemeToggle from "@/components/ui/UiThemeToggle.vue";
 import { iconRegistry } from "@/components/ui/icon-registry";
 import { useThemeStore } from "@/stores/theme";
 
@@ -112,18 +111,6 @@ onBeforeUnmount(() => {
           <Icon :icon="iconRegistry['solar:settings-minimalistic-outline']" />
         </button>
       </header>
-
-      <section class="app-settings-dialog__section">
-        <div class="app-settings-dialog__section-head">
-          <span>显示模式</span>
-          <small>当前生效：{{ theme.resolvedMode === "dark" ? "深色" : "浅色" }}</small>
-        </div>
-        <UiThemeToggle
-          :model-value="theme.mode"
-          :resolved-mode="theme.resolvedMode"
-          @update:model-value="theme.setMode"
-        />
-      </section>
 
       <section class="app-settings-dialog__section">
         <div class="app-settings-dialog__section-head">

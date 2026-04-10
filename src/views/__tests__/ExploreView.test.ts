@@ -102,9 +102,13 @@ describe("explore view", () => {
     expect(wrapper.get('[data-testid="explore-stitch-hero"]').attributes("data-explore-layout")).toBe("editorial-search");
     expect(wrapper.get('[data-testid="explore-stitch-featured"]').attributes("data-explore-region")).toBe("hero-featured");
     expect(wrapper.get('[data-testid="explore-category-grid"]').attributes("data-explore-region")).toBe("browse-categories");
+    expect(wrapper.get('[data-testid="explore-scene-grid"]').attributes("data-explore-region")).toBe("editorial-scenes");
+    expect(wrapper.get('[data-testid="explore-browse-grid"]').attributes("data-explore-region")).toBe("browse-extension");
     wrapper.get('[data-testid="explore-search-input"]');
     expect(wrapper.text()).toContain("探索实验室");
     expect(wrapper.text()).toContain("浏览分类");
+    expect(wrapper.text()).toContain("专题场景");
+    expect(wrapper.text()).toContain("延伸浏览");
     expect(wrapper.text()).toContain("热门标签");
     expect(wrapper.text()).toContain("推荐歌单");
   });
@@ -116,14 +120,15 @@ describe("explore view", () => {
 
     await input.setValue("低温");
     await flushPromises();
-    expect(wrapper.text()).not.toContain("晨雾回声");
+    expect(wrapper.text()).not.toContain("匹配歌曲");
 
     vi.advanceTimersByTime(EXPLORE_SEARCH_DEBOUNCE_MS - 1);
     await flushPromises();
-    expect(wrapper.text()).not.toContain("晨雾回声");
+    expect(wrapper.text()).not.toContain("匹配歌曲");
 
     vi.advanceTimersByTime(1);
     await flushPromises();
+    expect(wrapper.text()).toContain("匹配歌曲");
     expect(wrapper.text()).toContain("晨雾回声");
 
     await input.setValue("北纬合成社");
@@ -165,6 +170,16 @@ describe("explore view", () => {
   it("探索页源码不再保留会在四角露出直角边的 ambient 背景块", () => {
     const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/views/ExploreView.vue", "utf-8");
 
-    expect(source).not.toContain("explore-view__ambient");
+    expect(source).toContain("explore-view__ambient--aurora");
+    expect(source).toContain("explore-view__ambient--pulse");
+    expect(source).toContain("useGsapAmbientFlow(");
+  });
+
+  it("探索页搜索区改用共享 UiSearchField 组件，避免和顶栏输入框继续分叉", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/views/ExploreView.vue", "utf-8");
+
+    expect(source).toContain('import UiSearchField from "@/components/ui/UiSearchField.vue"');
+    expect(source).toContain("<UiSearchField");
+    expect(source).not.toContain('class="explore-view__search-input"');
   });
 });

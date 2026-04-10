@@ -255,42 +255,64 @@ export function useGsapReveal(scopeRef: Ref<HTMLElement | null>, selectors: stri
 }
 
 export function useGsapAmbientFlow(scopeRef: Ref<HTMLElement | null>, items: AmbientFlowItem[]) {
-  const animations: Array<{ kill: () => void }> = [];
+  const runtimes: Array<{ tween?: { kill?: () => void } }> = [];
+  const pendingTimers: number[] = [];
 
-  const buildWaypoints = (item: AmbientFlowItem): AmbientFlowWaypoint[] => {
-    const travelX = item.x ?? 0;
-    const travelY = item.y ?? 0;
+  const ambientShapes = [
+    "60% 40% 54% 46% / 42% 58% 44% 56%",
+    "46% 54% 42% 58% / 56% 44% 60% 40%",
+    "54% 46% 58% 42% / 48% 52% 40% 60%",
+    "44% 56% 52% 48% / 60% 40% 58% 42%",
+  ] as const;
+
+  const randomBetween = (min: number, max: number) => {
+    if (min === max) {
+      return min;
+    }
+
+    return min + ((max - min) * Math.random());
+  };
+
+  const scheduleAmbientStep = (
+    target: HTMLElement,
+    item: AmbientFlowItem,
+    runtime: { tween?: { kill?: () => void } },
+  ) => {
+    const travelX = Math.abs(item.x ?? 0);
+    const travelY = Math.abs(item.y ?? 0);
     const targetScale = item.scale ?? 1.02;
-    const scaleDelta = targetScale - 1;
-    const targetOpacity = item.opacity;
-    const totalDuration = item.duration ?? 18;
+    const baseOpacity = item.opacity;
+    const baseDuration = item.duration ?? 18;
 
-    return [
-      {
-        x: travelX,
-        y: travelY,
-        scale: 1 + scaleDelta,
-        opacity: targetOpacity,
-        borderRadius: "60% 40% 54% 46% / 42% 58% 44% 56%",
-        duration: totalDuration * 0.36,
+    const nextStep: AmbientFlowWaypoint = {
+      x: randomBetween(-travelX, travelX),
+      y: randomBetween(-travelY, travelY),
+      scale: randomBetween(1, targetScale),
+      opacity: baseOpacity === undefined
+        ? undefined
+        : randomBetween(Math.max(0, baseOpacity - 0.1), Math.min(1, baseOpacity + 0.06)),
+      borderRadius: ambientShapes[Math.floor(Math.random() * ambientShapes.length)],
+      duration: randomBetween(baseDuration * 0.78, baseDuration * 1.18),
+    };
+
+    const tween = gsap.to(target, {
+      ...nextStep,
+      ease: "sine.inOut",
+      force3D: true,
+      overwrite: "auto",
+      onComplete: () => {
+        const timeoutId = window.setTimeout(() => {
+          const timerIndex = pendingTimers.indexOf(timeoutId);
+          if (timerIndex >= 0) {
+            pendingTimers.splice(timerIndex, 1);
+          }
+          scheduleAmbientStep(target, item, runtime);
+        }, randomBetween(320, 1400));
+        pendingTimers.push(timeoutId);
       },
-      {
-        x: travelX * -0.72,
-        y: travelY * 0.56,
-        scale: 1 + (scaleDelta * 0.52),
-        opacity: targetOpacity === undefined ? undefined : Math.max(0, targetOpacity - 0.07),
-        borderRadius: "46% 54% 42% 58% / 56% 44% 60% 40%",
-        duration: totalDuration * 0.34,
-      },
-      {
-        x: travelX * 0.38,
-        y: travelY * -0.78,
-        scale: 1 + (scaleDelta * 0.78),
-        opacity: targetOpacity === undefined ? undefined : Math.min(1, targetOpacity + 0.04),
-        borderRadius: "54% 46% 58% 42% / 48% 52% 40% 60%",
-        duration: totalDuration * 0.3,
-      },
-    ];
+    });
+
+    runtime.tween = tween;
   };
 
   onMounted(() => {
@@ -302,30 +324,31 @@ export function useGsapAmbientFlow(scopeRef: Ref<HTMLElement | null>, items: Amb
     for (const item of items) {
       const targets = resolveElements(scope, [item.selector]);
       for (const target of targets) {
-        const timeline = gsap.timeline({
-          delay: item.delay ?? 0,
-          repeat: -1,
-          defaults: {
-            ease: "sine.inOut",
-            force3D: true,
-            overwrite: "auto",
-          },
-        });
-
-        buildWaypoints(item).forEach((waypoint) => {
-          timeline.to(target, waypoint);
-        });
-
-        animations.push(timeline);
+        const runtime: { tween?: { kill?: () => void } } = {};
+        runtimes.push(runtime);
+        const startDelay = Math.max(0, item.delay ?? 0) * 1000;
+        if (startDelay > 0) {
+          const timeoutId = window.setTimeout(() => {
+            const timerIndex = pendingTimers.indexOf(timeoutId);
+            if (timerIndex >= 0) {
+              pendingTimers.splice(timerIndex, 1);
+            }
+            scheduleAmbientStep(target, item, runtime);
+          }, startDelay);
+          pendingTimers.push(timeoutId);
+        } else {
+          scheduleAmbientStep(target, item, runtime);
+        }
       }
     }
   });
 
   onBeforeUnmount(() => {
-    for (const animation of animations) {
-      animation.kill();
+    for (const runtime of runtimes) {
+      runtime.tween?.kill?.();
     }
-    animations.length = 0;
+    pendingTimers.splice(0).forEach(timeoutId => window.clearTimeout(timeoutId));
+    runtimes.length = 0;
   });
 }
 
@@ -601,6 +624,7 @@ export function animateRouteLeave(element: Element, done: () => void) {
     filter: "blur(8px)",
     duration: MOTION_TOKENS.route.leave.duration,
     ease: MOTION_TOKENS.route.leave.ease,
+    clearProps: "opacity,visibility,transform,filter",
     onComplete: done,
   });
 }

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { computed, onScopeDispose, ref } from "vue";
+import { computed, onScopeDispose, ref, watch } from "vue";
 import { likedTrackIds, tracks } from "@/data/music-library";
 import { createPlayerAudio } from "@/lib/player/audio";
 import {
@@ -183,20 +183,70 @@ const playbackModeLabelMap: Record<PlaybackMode, string> = {
   "repeat-one": "单曲循环",
   shuffle: "随机播放",
 };
+const PLAYER_PREFERENCES_STORAGE_KEY = "aura-player-playback-preferences";
+
+interface PersistedPlayerPreferences {
+  mode?: PlaybackMode;
+  volume?: number;
+  muted?: boolean;
+}
+
+function canUsePlayerStorage() {
+  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+}
+
+function isPlaybackMode(value: unknown): value is PlaybackMode {
+  return value === "sequential" || value === "repeat-one" || value === "shuffle";
+}
+
+function loadPersistedPlayerPreferences(): PersistedPlayerPreferences {
+  if (!canUsePlayerStorage()) {
+    return {};
+  }
+
+  try {
+    const raw = window.localStorage.getItem(PLAYER_PREFERENCES_STORAGE_KEY);
+    if (!raw) {
+      return {};
+    }
+
+    const parsed = JSON.parse(raw) as PersistedPlayerPreferences;
+    return {
+      mode: isPlaybackMode(parsed.mode) ? parsed.mode : undefined,
+      volume: typeof parsed.volume === "number" ? clampVolume(parsed.volume) : undefined,
+      muted: typeof parsed.muted === "boolean" ? parsed.muted : undefined,
+    };
+  } catch {
+    return {};
+  }
+}
+
+function persistPlayerPreferences(preferences: PersistedPlayerPreferences) {
+  if (!canUsePlayerStorage()) {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(PLAYER_PREFERENCES_STORAGE_KEY, JSON.stringify(preferences));
+  } catch {
+    // Ignore storage errors so playback controls remain responsive.
+  }
+}
 
 const trackById = new Map(tracks.map(track => [track.id, track] as const));
 
 export const usePlayerStore = defineStore("player", () => {
   const audio = getSharedAudio();
+  const persistedPreferences = loadPersistedPlayerPreferences();
   const queue = ref<Track[]>([...tracks]);
   const initialTrackIndex = findTrackIndexByAudioSource(queue.value, audio.src);
   const currentIndex = ref(initialTrackIndex >= 0 ? initialTrackIndex : 0);
   const isPlaying = ref(!audio.paused && initialTrackIndex >= 0);
   const currentTime = ref(toSafeTime(audio.currentTime));
   const duration = ref(toSafeDuration(audio.duration));
-  const volume = ref(clampVolume(audio.volume));
-  const muted = ref(Boolean(audio.muted));
-  const mode = ref<PlaybackMode>("sequential");
+  const volume = ref(persistedPreferences.volume ?? clampVolume(audio.volume));
+  const muted = ref(persistedPreferences.muted ?? Boolean(audio.muted));
+  const mode = ref<PlaybackMode>(persistedPreferences.mode ?? "sequential");
   const queueSource = ref<QueueSource>(createQueueSource("global", toTrackIds(queue.value)));
   const shuffleAnchorTrackId = ref<string | null>(queue.value[currentIndex.value]?.id ?? null);
   const likedIds = ref(new Set(likedTrackIds));
@@ -258,6 +308,14 @@ export const usePlayerStore = defineStore("player", () => {
 
   audio.volume = volume.value;
   audio.muted = muted.value;
+
+  watch([mode, volume, muted], () => {
+    persistPlayerPreferences({
+      mode: mode.value,
+      volume: volume.value,
+      muted: muted.value,
+    });
+  }, { immediate: true, flush: "sync" });
 
   let actionToken = 0;
   let disposed = false;

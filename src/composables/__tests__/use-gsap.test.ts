@@ -72,6 +72,7 @@ describe("use-gsap motion tokens", () => {
       expect.objectContaining({
         duration: MOTION_TOKENS.route.leave.duration,
         ease: MOTION_TOKENS.route.leave.ease,
+        clearProps: "opacity,visibility,transform,filter",
       }),
     );
 
@@ -96,6 +97,7 @@ describe("use-gsap motion tokens", () => {
   });
 
   it("环境光流动会走 GSAP timeline 的多段漂移，而不是单次 yoyo 往返", async () => {
+    vi.useFakeTimers();
     const { useGsapAmbientFlow } = await import("@/composables/use-gsap");
     const TestComponent = defineComponent({
       setup() {
@@ -124,19 +126,22 @@ describe("use-gsap motion tokens", () => {
       attachTo: document.body,
     });
 
-    expect(gsapTimelineMock).toHaveBeenCalledWith(
+    expect(gsapTimelineMock).not.toHaveBeenCalled();
+    expect(gsapToMock).toHaveBeenCalledTimes(1);
+    expect(gsapToMock).toHaveBeenCalledWith(
+      expect.any(HTMLElement),
       expect.objectContaining({
-        repeat: -1,
-      }),
-    );
-    expect(timelineToMock).toHaveBeenCalledTimes(3);
-    expect(gsapToMock).not.toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({
-        yoyo: true,
+        onComplete: expect.any(Function),
       }),
     );
 
+    const firstStep = gsapToMock.mock.calls[0]?.[1] as { onComplete?: () => void };
+    firstStep.onComplete?.();
+    vi.advanceTimersByTime(1600);
+
+    expect(gsapToMock).toHaveBeenCalledTimes(2);
+
     wrapper.unmount();
+    vi.useRealTimers();
   });
 });

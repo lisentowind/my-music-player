@@ -1,6 +1,7 @@
 import type { IconifyIcon } from "@iconify/vue";
 import heartBold from "@iconify-icons/solar/heart-bold";
 import heartOutline from "@iconify-icons/solar/heart-outline";
+import minimalisticMagniferOutline from "@iconify-icons/solar/minimalistic-magnifer-outline";
 import monitorOutline from "@iconify-icons/solar/monitor-outline";
 import musicNotesOutline from "@iconify-icons/solar/music-notes-outline";
 import moonOutline from "@iconify-icons/solar/moon-outline";
@@ -18,6 +19,7 @@ import volumeLoudOutline from "@iconify-icons/solar/volume-loud-outline";
 export const iconRegistry: Record<string, IconifyIcon> = {
   "solar:heart-bold": heartBold,
   "solar:heart-outline": heartOutline,
+  "solar:minimalistic-magnifer-outline": minimalisticMagniferOutline,
   "solar:monitor-outline": monitorOutline,
   "solar:music-notes-outline": musicNotesOutline,
   "solar:moon-outline": moonOutline,

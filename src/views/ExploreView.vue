@@ -3,21 +3,25 @@ import { Icon } from "@iconify/vue";
 import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import MediaShelfCard from "@/components/music/MediaShelfCard.vue";
+import UiSearchField from "@/components/ui/UiSearchField.vue";
 import { iconRegistry } from "@/components/ui/icon-registry";
-import { useGsapHoverTargets, useGsapReveal, useGsapScrollReveal } from "@/composables/use-gsap";
+import { useGsapAmbientFlow, useGsapHoverTargets, useGsapReveal, useGsapScrollReveal } from "@/composables/use-gsap";
+import { storeToRefs } from "pinia";
 import {
   auraDefaultPlaylist,
   auraLibraryPlaylists,
   auraRecommendationPlaylists,
   auraTracks,
 } from "@/data/aura-content";
+import { useExploreStore } from "@/stores/explore";
 import { usePlayerStore } from "@/stores/player";
 import { EXPLORE_SEARCH_DEBOUNCE_MS } from "@/views/explore.constants";
 
 const exploreRef = ref<HTMLElement | null>(null);
 const router = useRouter();
 const player = usePlayerStore();
-const searchText = ref("");
+const explore = useExploreStore();
+const { searchText } = storeToRefs(explore);
 const debouncedSearch = ref("");
 let searchTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -34,6 +38,14 @@ const allTags = computed(() => Array.from(new Set([
 
 const hotTags = computed(() => allTags.value.slice(0, 8));
 const secondaryFeaturedPlaylist = computed(() => auraRecommendationPlaylists[0] ?? auraDefaultPlaylist);
+const editorialScenes = computed(() => auraRecommendationPlaylists.map((playlist, index) => ({
+  ...playlist,
+  badge: index === 0 ? "TRENDING NOW" : index === 1 ? "CURATED MOOD" : "FRESH CUT",
+  accent: ["violet", "amber", "mint"][index] ?? "slate",
+  leadTrackId: playlist.trackIds[0] ?? auraTracks[0]?.id ?? "",
+})));
+const extensionShelves = computed(() => [...auraLibraryPlaylists, auraDefaultPlaylist].slice(0, 3));
+const quickExploreTracks = computed(() => auraTracks.slice(0, 4));
 const browseCategories = computed(() => {
   const seedTags = hotTags.value;
   return [
@@ -154,7 +166,7 @@ function applyTag(tag: string) {
   searchText.value = tag;
 }
 
-useGsapReveal(exploreRef, [".explore-view__hero", ".explore-view__featured", ".explore-view__categories", ".explore-view__tags", ".explore-view__playlists", ".explore-view__results"], 0.08);
+useGsapReveal(exploreRef, [".explore-view__hero", ".explore-view__featured", ".explore-view__categories", ".explore-view__scenes", ".explore-view__extension", ".explore-view__tags", ".explore-view__playlists", ".explore-view__results"], 0.08);
 useGsapScrollReveal(exploreRef, [
   {
     selector: ".explore-view__category-grid > *",
@@ -162,6 +174,20 @@ useGsapScrollReveal(exploreRef, [
     y: 22,
     scale: 0.98,
     stagger: 0.04,
+  },
+  {
+    selector: ".explore-view__scene-grid > *",
+    triggerSelector: ".explore-view__scenes",
+    y: 24,
+    scale: 0.98,
+    stagger: 0.05,
+  },
+  {
+    selector: ".explore-view__extension-grid > *",
+    triggerSelector: ".explore-view__extension",
+    y: 24,
+    scale: 0.98,
+    stagger: 0.05,
   },
   {
     selector: ".explore-view__tag-list > *",
@@ -185,14 +211,46 @@ useGsapScrollReveal(exploreRef, [
     stagger: 0.05,
   },
 ]);
-useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view__category-grid > *", ".explore-view__tag-list > *", ".explore-view__playlist-grid > *", ".explore-view__result-grid > *"], {
+useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view__category-grid > *", ".explore-view__scene-grid > *", ".explore-view__extension-grid > *", ".explore-view__tag-list > *", ".explore-view__playlist-grid > *", ".explore-view__result-grid > *"], {
   hoverY: -3,
   hoverScale: 1.008,
 });
+useGsapAmbientFlow(exploreRef, [
+  {
+    selector: ".explore-view__ambient--aurora",
+    x: 52,
+    y: 38,
+    scale: 1.2,
+    opacity: 0.24,
+    duration: 20,
+  },
+  {
+    selector: ".explore-view__ambient--pulse",
+    x: 44,
+    y: 32,
+    scale: 1.16,
+    opacity: 0.2,
+    duration: 17,
+    delay: 0.7,
+  },
+  {
+    selector: ".explore-view__ambient--mist",
+    x: 58,
+    y: 36,
+    scale: 1.22,
+    opacity: 0.16,
+    duration: 24,
+    delay: 1.1,
+  },
+]);
 </script>
 
 <template>
   <section id="explore-page" ref="exploreRef" class="page explore-view" data-testid="explore-stitch-shell">
+    <div class="explore-view__ambient explore-view__ambient--aurora" aria-hidden="true" />
+    <div class="explore-view__ambient explore-view__ambient--pulse" aria-hidden="true" />
+    <div class="explore-view__ambient explore-view__ambient--mist" aria-hidden="true" />
+
     <section class="explore-view__hero explore-view__panel" data-testid="explore-stitch-hero" data-explore-layout="editorial-search">
       <p class="explore-view__eyebrow">探索声场</p>
       <h1 class="explore-view__hero-title">探索实验室</h1>
@@ -201,17 +259,14 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
       </p>
       <label class="explore-view__search">
         <span class="explore-view__search-label">搜索输入</span>
-        <span class="explore-view__search-shell">
-          <span class="explore-view__search-icon" aria-hidden="true">⌕</span>
-          <input
-            v-model="searchText"
-            data-testid="explore-search-input"
-            class="explore-view__search-input"
-            type="search"
-            autocomplete="off"
-            placeholder="搜索歌曲、歌单、标签或艺人"
-          >
-        </span>
+        <UiSearchField
+          v-model="searchText"
+          class="explore-view__search-field"
+          input-id="explore-search-input"
+          data-testid="explore-search-input"
+          placeholder="搜索歌曲、歌单、标签或艺人"
+          aria-label="探索页搜索输入框"
+        />
       </label>
       <div class="explore-view__hero-meta">
         <p>热门标签 {{ hotTags.length }} 个</p>
@@ -278,6 +333,37 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
       </div>
     </section>
 
+    <section
+      v-if="!hasQuery"
+      class="explore-view__scenes explore-view__panel"
+      data-testid="explore-scene-grid"
+      data-explore-region="editorial-scenes"
+    >
+      <header class="explore-view__panel-head">
+        <p class="explore-view__eyebrow">编辑专题</p>
+        <h2 class="explore-view__section-title">专题场景</h2>
+        <p class="explore-view__section-copy">把参考稿里的二级精选区补进来，除了大封面，再提供几张更聚焦的专题入口，帮助你直接进入某种氛围带。</p>
+      </header>
+      <div class="explore-view__scene-grid">
+        <button
+          v-for="scene in editorialScenes"
+          :key="`scene-${scene.id}`"
+          type="button"
+          class="explore-view__scene-card"
+          :class="`is-${scene.accent}`"
+          @click="openPlaylist(scene.id)"
+        >
+          <img class="explore-view__scene-image" :src="scene.coverSrc" :alt="`${scene.title} 封面`">
+          <span class="explore-view__scene-mask" />
+          <span class="explore-view__scene-copy">
+            <span class="explore-view__scene-badge">{{ scene.badge }}</span>
+            <strong>{{ scene.title }}</strong>
+            <small>{{ scene.description }}</small>
+          </span>
+        </button>
+      </div>
+    </section>
+
     <section class="explore-view__tags explore-view__panel">
       <header class="explore-view__panel-head">
         <p class="explore-view__eyebrow">快捷入口</p>
@@ -294,6 +380,55 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
         >
           {{ tag }}
         </button>
+      </div>
+    </section>
+
+    <section
+      v-if="!hasQuery"
+      class="explore-view__extension explore-view__panel"
+      data-testid="explore-browse-grid"
+      data-explore-region="browse-extension"
+    >
+      <header class="explore-view__panel-head">
+        <p class="explore-view__eyebrow">继续下潜</p>
+        <h2 class="explore-view__section-title">延伸浏览</h2>
+        <p class="explore-view__section-copy">参考 Explore 示例页的内容密度，再补一层“快速点播 + 资料库歌单”组合，让无搜索态不只停在分类磁贴。</p>
+      </header>
+      <div class="explore-view__extension-grid">
+        <section class="explore-view__quick-panel">
+          <h3 class="explore-view__group-title">快速点播</h3>
+          <button
+            v-for="(track, index) in quickExploreTracks"
+            :key="`quick-${track.id}`"
+            type="button"
+            class="explore-view__quick-item"
+            @click="playTrack(track.id)"
+          >
+            <span class="explore-view__quick-rank">{{ String(index + 1).padStart(2, "0") }}</span>
+            <img class="explore-view__quick-image" :src="track.coverSrc" :alt="`${track.title} 封面`">
+            <span class="explore-view__quick-copy">
+              <strong>{{ track.title }}</strong>
+              <small>{{ track.artist }}</small>
+            </span>
+            <span class="explore-view__quick-time">{{ track.durationLabel }}</span>
+          </button>
+        </section>
+
+        <section class="explore-view__shelf-panel">
+          <h3 class="explore-view__group-title">资料库与主打歌单</h3>
+          <div class="explore-view__shelf-grid">
+            <MediaShelfCard
+              v-for="playlist in extensionShelves"
+              :key="`shelf-${playlist.id}`"
+              eyebrow="延伸浏览"
+              :title="playlist.title"
+              :subtitle="playlist.subtitle"
+              :meta="playlist.description"
+              :cover-src="playlist.coverSrc"
+              @select="openPlaylist(playlist.id)"
+            />
+          </div>
+        </section>
       </div>
     </section>
 
@@ -409,7 +544,48 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 78%, transparent);
 }
 
+.explore-view__ambient {
+  position: absolute;
+  z-index: 0;
+  border-radius: 999px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  will-change: transform, opacity, border-radius;
+}
+
+.explore-view__ambient--aurora {
+  top: -36px;
+  right: 10%;
+  width: clamp(220px, 28vw, 420px);
+  height: 220px;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--color-accent) 26%, white 14%), color-mix(in srgb, var(--color-accent) 10%, transparent) 56%, transparent 100%);
+  filter: blur(84px);
+  opacity: 0.14;
+}
+
+.explore-view__ambient--pulse {
+  top: 22%;
+  left: -2%;
+  width: clamp(160px, 18vw, 280px);
+  height: clamp(160px, 18vw, 280px);
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, #69f6b8 24%, white 12%), color-mix(in srgb, #69f6b8 8%, transparent) 58%, transparent 100%);
+  filter: blur(92px);
+  opacity: 0.12;
+}
+
+.explore-view__ambient--mist {
+  bottom: 6%;
+  right: 18%;
+  width: clamp(220px, 24vw, 360px);
+  height: 200px;
+  background: radial-gradient(circle at 48% 52%, color-mix(in srgb, #ff8b9a 18%, white 10%), color-mix(in srgb, #ff8b9a 8%, transparent) 58%, transparent 100%);
+  filter: blur(90px);
+  opacity: 0.1;
+}
+
 .explore-view__panel {
+  position: relative;
+  z-index: 1;
   border-radius: 18px;
   padding: clamp(14px, 1.5vw, 18px);
   background: var(--color-panel-fill);
@@ -494,38 +670,8 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
   font-weight: 600;
 }
 
-.explore-view__search-shell {
-  position: relative;
-  display: block;
-}
-
-.explore-view__search-icon {
-  position: absolute;
-  top: 50%;
-  left: 16px;
-  transform: translateY(-50%);
-  color: var(--color-accent);
-  font-size: 16px;
-  pointer-events: none;
-}
-
-.explore-view__search-input {
-  width: 100%;
-  min-height: 50px;
-  padding: 0 18px 0 44px;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: var(--color-control-surface);
-  color: var(--color-text);
-  font-size: 12px;
-  outline: none;
-  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
-}
-
-.explore-view__search-input:focus {
-  border-color: var(--color-state-border-emphasis);
-  box-shadow: 0 0 0 4px var(--color-state-accent-soft);
-  background: var(--color-control-surface-strong);
+.explore-view__search-field {
+  max-width: 720px;
 }
 
 .explore-view__hero-meta {
@@ -625,6 +771,93 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
   line-height: 1.5;
 }
 
+.explore-view__scene-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.explore-view__scene-card {
+  position: relative;
+  min-height: 220px;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--color-surface-contrast) 16%, transparent);
+  color: color-mix(in srgb, white 94%, var(--color-accent) 6%);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.explore-view__scene-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--color-accent) 38%, var(--color-border));
+  box-shadow: var(--shadow-lg);
+}
+
+.explore-view__scene-card.is-amber {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #f3c76b 20%, transparent);
+}
+
+.explore-view__scene-card.is-mint {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #69f6b8 20%, transparent);
+}
+
+.explore-view__scene-image,
+.explore-view__scene-mask {
+  position: absolute;
+  inset: 0;
+}
+
+.explore-view__scene-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 520ms ease;
+}
+
+.explore-view__scene-card:hover .explore-view__scene-image {
+  transform: scale(1.08);
+}
+
+.explore-view__scene-mask {
+  background: linear-gradient(180deg, rgba(8, 8, 8, 0.14), rgba(8, 8, 8, 0.82) 68%, rgba(8, 8, 8, 0.94) 100%);
+}
+
+.explore-view__scene-copy {
+  position: absolute;
+  inset: auto 0 0;
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+}
+
+.explore-view__scene-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, white 18%, transparent);
+  color: color-mix(in srgb, white 92%, var(--color-accent) 8%);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.explore-view__scene-copy strong {
+  font-size: clamp(20px, 2.4vw, 28px);
+  letter-spacing: -0.03em;
+}
+
+.explore-view__scene-copy small {
+  color: color-mix(in srgb, white 80%, var(--color-accent) 20%);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .explore-view__categories {
   position: relative;
   overflow: hidden;
@@ -649,31 +882,43 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
   text-align: left;
   cursor: pointer;
   overflow: hidden;
-  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease, background-color 180ms ease;
 }
 
 .explore-view__category-card.is-violet {
-  background: linear-gradient(145deg, #6b3cff, #22143f);
+  background: #4f2bb8;
 }
 
 .explore-view__category-card.is-rose {
-  background: linear-gradient(145deg, #d84f76, #402034);
+  background: #b3476a;
 }
 
 .explore-view__category-card.is-mint {
-  background: linear-gradient(145deg, #149c77, #0f2f2a);
+  background: #15795f;
 }
 
 .explore-view__category-card.is-amber {
-  background: linear-gradient(145deg, #ae6b17, #3d2614);
+  background: #956015;
 }
 
 .explore-view__category-card.is-blue {
-  background: linear-gradient(145deg, #2966cc, #162746);
+  background: #315cae;
 }
 
 .explore-view__category-card.is-slate {
-  background: linear-gradient(145deg, #485168, #20242d);
+  background: #485066;
+}
+
+.explore-view__category-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 38%);
+  pointer-events: none;
 }
 
 .explore-view__category-icon {
@@ -719,14 +964,7 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 }
 
 .explore-view__category-glow {
-  position: absolute;
-  right: -20px;
-  bottom: -26px;
-  width: 92px;
-  height: 92px;
-  border-radius: 999px;
-  background: color-mix(in srgb, white 18%, transparent);
-  filter: blur(26px);
+  display: none;
 }
 
 .explore-view__tag-list {
@@ -755,6 +993,90 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 
 .explore-view__playlist-grid,
 .explore-view__result-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.explore-view__extension-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(280px, 0.86fr) minmax(0, 1.14fr);
+}
+
+.explore-view__quick-panel,
+.explore-view__shelf-panel {
+  border-radius: 18px;
+  padding: 14px;
+  background: color-mix(in srgb, var(--color-panel-fill) 88%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 88%, transparent);
+}
+
+.explore-view__quick-panel {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+}
+
+.explore-view__quick-item {
+  display: grid;
+  grid-template-columns: 24px 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 0;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.explore-view__quick-item:hover {
+  transform: translateX(2px);
+  background: var(--color-control-surface);
+}
+
+.explore-view__quick-rank,
+.explore-view__quick-time {
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.explore-view__quick-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.explore-view__quick-copy {
+  display: grid;
+  min-width: 0;
+}
+
+.explore-view__quick-copy strong,
+.explore-view__quick-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.explore-view__quick-copy strong {
+  color: var(--color-text-strong);
+  font-size: 14px;
+}
+
+.explore-view__quick-copy small {
+  margin-top: 4px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.explore-view__shelf-grid {
   display: grid;
   gap: 12px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -809,8 +1131,21 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
     min-height: 200px;
   }
 
+  .explore-view__scene-card {
+    min-height: 200px;
+  }
+
+  .explore-view__scene-grid,
   .explore-view__playlist-grid,
   .explore-view__result-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .explore-view__extension-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .explore-view__shelf-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -826,7 +1161,9 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
     padding: 16px;
   }
 
+  .explore-view__scene-grid,
   .explore-view__category-grid,
+  .explore-view__shelf-grid,
   .explore-view__playlist-grid,
   .explore-view__result-grid {
     grid-template-columns: minmax(0, 1fr);

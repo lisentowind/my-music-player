@@ -16,12 +16,6 @@ const sidebarSpecs = [
   { name: "library", icon: iconRegistry["solar:user-outline"] },
 ] as const;
 
-const quickTags = [
-  { key: "wave", label: "在线曲库", icon: iconRegistry["solar:music-notes-outline"] },
-  { key: "night", label: "深夜聆听", icon: iconRegistry["solar:moon-outline"] },
-  { key: "picked", label: "精选收藏", icon: iconRegistry["solar:heart-outline"] },
-] as const;
-
 const navItems = computed(() => {
   const routeMap = new Map(
     routes
@@ -41,8 +35,8 @@ const navItems = computed(() => {
   }).filter(item => item.label);
 });
 
-useGsapReveal(sidebarRef, [".brand", ".app-sidebar__tag", ".nav-link", ".app-sidebar__cta"], 0.08);
-useGsapHoverTargets(sidebarRef, [".app-sidebar__tag", ".nav-link", ".app-sidebar__cta"], {
+useGsapReveal(sidebarRef, [".brand", ".nav-link", ".app-sidebar__cta"], 0.08);
+useGsapHoverTargets(sidebarRef, [".nav-link", ".app-sidebar__cta"], {
   hoverY: -2,
   hoverScale: 1.01,
 });
@@ -60,18 +54,6 @@ useGsapHoverTargets(sidebarRef, [".app-sidebar__tag", ".nav-link", ".app-sidebar
           <p class="brand__eyebrow">高保真桌面声场</p>
         </div>
       </div>
-
-      <div class="app-sidebar__tags flex flex-wrap gap-2" aria-label="内容速览">
-        <span
-          v-for="tag in quickTags"
-          :key="tag.key"
-          class="app-sidebar__tag inline-flex items-center gap-2"
-        >
-          <Icon :icon="tag.icon" />
-          <span>{{ tag.label }}</span>
-        </span>
-      </div>
-
       <nav class="app-sidebar__nav" aria-label="主导航">
         <ul class="nav-list">
           <li v-for="item in navItems" :key="item.key">
@@ -102,7 +84,7 @@ useGsapHoverTargets(sidebarRef, [".app-sidebar__tag", ".nav-link", ".app-sidebar
 
 .app-sidebar__panel {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 12px;
   height: 100%;
   padding: 16px 15px;
@@ -156,24 +138,6 @@ useGsapHoverTargets(sidebarRef, [".app-sidebar__tag", ".nav-link", ".app-sidebar
   font-size: 9px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-}
-
-.app-sidebar__tag {
-  min-height: 28px;
-  padding: 0 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 80%, transparent), transparent 100%),
-    var(--color-control-surface);
-  color: var(--color-text-secondary);
-  font-size: 9px;
-  box-shadow: inset 0 1px 0 var(--color-panel-glow-end);
-}
-
-.app-sidebar__tag :deep(svg) {
-  width: 14px;
-  height: 14px;
 }
 
 .app-sidebar__nav {

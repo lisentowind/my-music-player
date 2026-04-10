@@ -8,6 +8,7 @@ import {
   auraDefaultPlaylist,
   auraDefaultPlaylistTracks,
   auraDiscoverAtmospheres,
+  auraLibraryPlaylists,
   auraRecommendationPlaylists,
   auraTracks,
 } from "@/data/aura-content";
@@ -24,6 +25,11 @@ const trendingTracks = computed(() => {
   const seed = player.recentPlayTracks.length > 0 ? player.recentPlayTracks : auraTracks;
   return seed.slice(0, 4);
 });
+const topMixCards = computed(() => [...auraRecommendationPlaylists, ...auraLibraryPlaylists].slice(0, 5).map((playlist, index) => ({
+  ...playlist,
+  accent: ["violet", "mint", "amber", "blue", "rose"][index] ?? "slate",
+  meta: playlist.tags.slice(0, 3).join(" · "),
+})));
 const heroMetrics = computed(() => [
   {
     label: "本周主推",
@@ -82,6 +88,7 @@ function playTrack(trackId: string) {
 
 useGsapReveal(homeRef, [
   ".home-view__hero",
+  ".home-view__mixes",
   ".home-view__continue",
   ".home-view__recommend",
   ".home-view__moods",
@@ -90,6 +97,13 @@ useGsapScrollReveal(homeRef, [
   {
     selector: ".home-view__hero-side > *",
     triggerSelector: ".home-view__hero",
+    y: 24,
+    scale: 0.98,
+    stagger: 0.05,
+  },
+  {
+    selector: ".home-view__mix-grid > *",
+    triggerSelector: ".home-view__mixes",
     y: 24,
     scale: 0.98,
     stagger: 0.05,
@@ -119,6 +133,7 @@ useGsapScrollReveal(homeRef, [
 useGsapHoverTargets(homeRef, [
   ".home-view__hero-main",
   ".home-view__hero-metric",
+  ".home-view__mix-grid > *",
   ".home-view__continue-grid > *",
   ".home-view__recommend-grid > *",
   ".home-view__moods-grid > *",
@@ -129,20 +144,38 @@ useGsapHoverTargets(homeRef, [
 useGsapAmbientFlow(homeRef, [
   {
     selector: ".home-view__ambient--ember",
-    x: -28,
-    y: -22,
-    scale: 1.08,
-    opacity: 0.48,
-    duration: 22,
+    x: 44,
+    y: 34,
+    scale: 1.14,
+    opacity: 0.52,
+    duration: 18,
   },
   {
     selector: ".home-view__ambient--trail",
-    x: 34,
-    y: -18,
-    scale: 1.12,
-    opacity: 0.32,
-    duration: 26,
-    delay: -6,
+    x: 56,
+    y: 28,
+    scale: 1.18,
+    opacity: 0.34,
+    duration: 22,
+    delay: 0.9,
+  },
+  {
+    selector: ".home-view__ambient--halo",
+    x: 40,
+    y: 40,
+    scale: 1.16,
+    opacity: 0.3,
+    duration: 20,
+    delay: 0.4,
+  },
+  {
+    selector: ".home-view__ambient--veil",
+    x: 62,
+    y: 30,
+    scale: 1.22,
+    opacity: 0.24,
+    duration: 24,
+    delay: 1.3,
   },
 ]);
 </script>
@@ -156,6 +189,8 @@ useGsapAmbientFlow(homeRef, [
   >
     <div class="home-view__ambient home-view__ambient--ember" aria-hidden="true" />
     <div class="home-view__ambient home-view__ambient--trail" aria-hidden="true" />
+    <div class="home-view__ambient home-view__ambient--halo" aria-hidden="true" />
+    <div class="home-view__ambient home-view__ambient--veil" aria-hidden="true" />
 
     <section class="home-view__hero" data-testid="home-hero-shell" data-home-layout="editorial-split">
       <article class="home-view__hero-main">
@@ -201,6 +236,40 @@ useGsapAmbientFlow(homeRef, [
           <p class="home-view__metric-detail">{{ metric.detail }}</p>
         </article>
       </aside>
+    </section>
+
+    <section class="home-view__panel home-view__mixes" data-testid="home-mixes-shell" data-home-region="top-mixes">
+      <header class="home-view__section-head">
+        <div>
+          <p class="home-view__eyebrow">个人定制</p>
+          <h2 class="home-view__section-title">你的混合精选</h2>
+          <p class="home-view__section-copy">参考首页示例里的 top mixes，补一层更轻快的封面入口，让首页在主打之外还能快速分流到不同情绪带。</p>
+        </div>
+      </header>
+
+      <div class="home-view__mix-grid">
+        <button
+          v-for="playlist in topMixCards"
+          :key="`mix-${playlist.id}`"
+          type="button"
+          class="home-view__mix-card"
+          :class="`is-${playlist.accent}`"
+          @click="openPlaylist(playlist.id)"
+        >
+          <div class="home-view__mix-cover">
+            <img class="home-view__mix-image" :src="playlist.coverSrc" :alt="`${playlist.title} 封面`">
+            <span class="home-view__mix-play" aria-hidden="true">
+              <Icon :icon="iconRegistry['solar:play-bold']" />
+            </span>
+          </div>
+          <div class="home-view__mix-copy">
+            <p class="home-view__card-eyebrow">{{ playlist.zone }}</p>
+            <h3 class="home-view__card-title">{{ playlist.title }}</h3>
+            <p class="home-view__card-subtitle">{{ playlist.subtitle }}</p>
+            <p class="home-view__card-meta">{{ playlist.meta }}</p>
+          </div>
+        </button>
+      </div>
     </section>
 
     <section class="home-view__panel home-view__continue" data-testid="home-continue-shell" data-home-region="recent-and-trending">
@@ -389,6 +458,26 @@ useGsapAmbientFlow(homeRef, [
   height: 160px;
   background: radial-gradient(circle at 52% 48%, color-mix(in srgb, var(--color-accent) 24%, white 2%), color-mix(in srgb, var(--color-accent) 10%, transparent) 56%, transparent 100%);
   opacity: 0.24;
+}
+
+.home-view__ambient--halo {
+  top: 12%;
+  right: 4%;
+  width: clamp(180px, 22vw, 320px);
+  height: clamp(180px, 22vw, 320px);
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, white 18%, var(--color-accent) 32%), color-mix(in srgb, var(--color-accent) 18%, transparent) 56%, transparent 100%);
+  filter: blur(96px);
+  opacity: 0.18;
+}
+
+.home-view__ambient--veil {
+  top: 24%;
+  left: -3%;
+  width: clamp(220px, 26vw, 360px);
+  height: 180px;
+  background: radial-gradient(circle at 54% 48%, color-mix(in srgb, var(--color-accent) 16%, white 8%), color-mix(in srgb, var(--color-accent) 8%, transparent) 58%, transparent 100%);
+  filter: blur(92px);
+  opacity: 0.16;
 }
 
 .home-view__hero,
@@ -608,6 +697,94 @@ useGsapAmbientFlow(homeRef, [
   color: var(--color-text-secondary);
   font-size: 12px;
   line-height: 1.55;
+}
+
+.home-view__mix-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.home-view__mix-card {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 0;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 74%, transparent), transparent 100%),
+    var(--color-control-surface);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.home-view__mix-card.is-violet {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #c284ff 28%, transparent), var(--shadow-md);
+}
+
+.home-view__mix-card.is-mint {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #69f6b8 24%, transparent), var(--shadow-md);
+}
+
+.home-view__mix-card.is-amber {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #f3c76b 24%, transparent), var(--shadow-md);
+}
+
+.home-view__mix-card.is-blue,
+.home-view__mix-card.is-rose {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 20%, transparent), var(--shadow-md);
+}
+
+.home-view__mix-card:hover {
+  background: var(--color-control-surface-strong);
+  box-shadow: var(--shadow-lg);
+}
+
+.home-view__mix-cover {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.home-view__mix-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 360ms ease;
+}
+
+.home-view__mix-card:hover .home-view__mix-image {
+  transform: scale(1.08);
+}
+
+.home-view__mix-play {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--gradient-primary);
+  color: var(--color-on-accent);
+  box-shadow: var(--shadow-primary-active);
+  transform: translateY(10px);
+  opacity: 0;
+  transition: transform 220ms ease, opacity 220ms ease;
+}
+
+.home-view__mix-card:hover .home-view__mix-play {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.home-view__mix-copy {
+  min-width: 0;
 }
 
 .home-view__continue-layout {
@@ -884,9 +1061,10 @@ useGsapAmbientFlow(homeRef, [
     grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
   }
 
+  .home-view__mix-grid,
   .home-view__recommend-grid,
   .home-view__moods-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -894,6 +1072,20 @@ useGsapAmbientFlow(homeRef, [
   .home-view__hero,
   .home-view__continue-layout {
     grid-template-columns: 1fr;
+  }
+
+  .home-view__mix-grid,
+  .home-view__recommend-grid,
+  .home-view__moods-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 840px) {
+  .home-view__mix-grid,
+  .home-view__recommend-grid,
+  .home-view__moods-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

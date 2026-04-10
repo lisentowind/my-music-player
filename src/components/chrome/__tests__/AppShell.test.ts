@@ -7,6 +7,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vites
 import AppShell from "@/components/AppShell.vue";
 import { configurePlayerAudioFactory, createHowlerPlayerAudio } from "@/lib/player/audio";
 import { routes } from "@/router/routes";
+import { useThemeStore } from "@/stores/theme";
 
 vi.mock("howler", () => ({
   Howl: class {},
@@ -190,14 +191,17 @@ describe("app shell route skeleton", () => {
     expect(wrapper.get('[data-testid="app-shell-scroll"]').attributes("data-scroll-style")).toBe("overlay-floating");
     expect(wrapper.get('[data-testid="app-shell-scroll"]').attributes("data-scroll-surface")).toBe("transparent");
     expect(wrapper.find('[data-testid="player-dock-shell"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="app-shell-theme-toggle"]').exists()).toBe(true);
   });
 
   it("右侧内容区、顶部栏与滚动画布都保留独立的窗口右边距", () => {
     const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/components/AppShell.vue", "utf-8");
 
-    expect(source).toContain("left: var(--layout-gap);");
     expect(source).toContain("right: var(--layout-gap);");
-    expect(source).toContain("padding: calc(var(--layout-topbar-height) + 38px) var(--layout-gap) calc(var(--layout-dock-space) + 12px);");
+    expect(source).toContain("left: auto;");
+    expect(source).toContain("top: 8px;");
+    expect(source).toContain("width: max-content;");
+    expect(source).toContain("padding: calc(var(--layout-topbar-height) + 16px) var(--layout-gap) calc(var(--layout-dock-space) + 12px);");
   });
 
   it("Explore 外的页面顶部展示进入探索按钮，点击后跳转到 Explore", async () => {
@@ -227,6 +231,56 @@ describe("app shell route skeleton", () => {
     expect(wrapper.find('[data-testid="topbar-enter-explore"]').exists()).toBe(true);
   });
 
+  it("Explore 页源码里的顶部搜索框已切到共享 UiSearchField 组件", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/components/chrome/AppTopbar.vue", "utf-8");
+
+    expect(source).toContain('import UiSearchField from "@/components/ui/UiSearchField.vue"');
+    expect(source).toContain("<UiSearchField");
+    expect(source).not.toContain('class="app-topbar__search-input"');
+  });
+
+  it("顶部图标按钮默认保持图标居中，悬停后再展开标签", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/components/chrome/AppTopbar.vue", "utf-8");
+
+    expect(source).toContain("justify-content: center;");
+    expect(source).toContain("justify-content: flex-start;");
+  });
+
+  it("顶部不再额外显示当前页面名称胶囊", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/components/chrome/AppTopbar.vue", "utf-8");
+
+    expect(source).not.toContain("app-topbar__page");
+    expect(source).not.toContain("page-label");
+  });
+
+  it("主滚动区在路由切换后会自动回到顶部，避免沿用上一页滚动位置", async () => {
+    const { wrapper, router } = await mountShell("/");
+    const scrollElement = wrapper.get('[data-testid="app-shell-scroll"]').element as HTMLElement;
+
+    scrollElement.scrollTop = 240;
+
+    await router.push("/explore");
+    await flushPromises();
+
+    expect(scrollElement.scrollTop).toBe(0);
+  });
+
+  it("页面切走再回来时会保留缓存页面的本地内容状态", async () => {
+    const { wrapper, router } = await mountShell("/explore");
+    const exploreSearch = wrapper.get('#explore-page [data-testid="explore-search-input"]');
+
+    await exploreSearch.setValue("漂移中的搜索词");
+    expect((exploreSearch.element as HTMLInputElement).value).toBe("漂移中的搜索词");
+
+    await router.push("/library");
+    await flushPromises();
+    await router.push("/explore");
+    await flushPromises();
+
+    const restoredSearch = wrapper.get('#explore-page [data-testid="explore-search-input"]');
+    expect((restoredSearch.element as HTMLInputElement).value).toBe("漂移中的搜索词");
+  });
+
   it("Player 页切成全屏沉浸模式，侧栏顶栏和全局 Dock 都会隐藏", async () => {
     const { wrapper } = await mountShell("/player");
 
@@ -246,8 +300,10 @@ describe("app shell route skeleton", () => {
     expect(wrapper.text()).not.toContain("应用状态");
     expect(wrapper.text()).not.toContain("在线就绪");
     expect(wrapper.text()).not.toContain("个人资料");
-    expect(wrapper.text()).not.toContain("夜航档案");
     expect(wrapper.text()).not.toContain("在线资源已连接");
+    expect(wrapper.text()).not.toContain("在线曲库");
+    expect(wrapper.text()).not.toContain("深夜聆听");
+    expect(wrapper.text()).not.toContain("精选收藏");
   });
 
   it("点击顶部设置按钮会打开设置弹窗，可切换主题模式和主题色", async () => {
@@ -262,10 +318,24 @@ describe("app shell route skeleton", () => {
     expect(wrapper.text()).toContain("外观设置");
     expect(wrapper.text()).not.toContain("界面预览");
     expect(wrapper.text()).not.toContain("胶囊 Dock");
-    expect(wrapper.get("[data-testid='theme-mode-light']").attributes("aria-label")).toContain("浅色");
-    expect(wrapper.get("[data-testid='theme-mode-dark']").attributes("aria-label")).toContain("深色");
-    expect(wrapper.get("[data-testid='theme-mode-system']").attributes("aria-label")).toContain("跟随系统");
     expect(wrapper.get("[data-testid='theme-preset-frost']").attributes("title")).toContain("霜蓝");
+  });
+
+  it("亮暗与跟随系统切换会常驻显示在壳层右上角，而不是重复放进设置弹窗", async () => {
+    const { wrapper } = await mountShell("/");
+    const theme = useThemeStore();
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/components/chrome/AppSettingsDialog.vue", "utf-8");
+
+    expect(wrapper.get('[data-testid="app-shell-theme-toggle"]').find("[data-testid='theme-mode-light']").exists()).toBe(true);
+    expect(wrapper.get('[data-testid="app-shell-theme-toggle"]').find("[data-testid='theme-mode-dark']").exists()).toBe(true);
+    expect(wrapper.get('[data-testid="app-shell-theme-toggle"]').find("[data-testid='theme-mode-system']").exists()).toBe(true);
+
+    await wrapper.get('[data-testid="app-shell-theme-toggle"]').find("[data-testid='theme-mode-dark']").trigger("click");
+    await flushPromises();
+    expect(theme.mode).toBe("dark");
+
+    expect(source).not.toContain('import UiThemeToggle from "@/components/ui/UiThemeToggle.vue"');
+    expect(source).not.toContain("<UiThemeToggle");
   });
 
   it("设置弹窗不再模糊背景页面，并移除界面预览占位区", () => {
@@ -281,6 +351,8 @@ describe("app shell route skeleton", () => {
 
     expect(source).toContain("scrollbar-width: none;");
     expect(source).toContain("::-webkit-scrollbar");
+    expect(source).not.toContain("<KeepAlive");
+    expect(source).not.toContain(':key="currentRoute.fullPath"');
   });
 
   it("主题切换与主题色面板入口已从壳层移除", async () => {

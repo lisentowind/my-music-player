@@ -186,6 +186,7 @@ describe("usePlayerStore", () => {
 
   beforeEach(async () => {
     vi.resetModules();
+    window.localStorage.clear();
     setActivePinia(createPinia());
 
     fakeAudio = new FakePlayerAudio();
@@ -475,6 +476,42 @@ describe("usePlayerStore", () => {
     expect(fakeAudio.muted).toBe(true);
     expect(secondStore.volume).toBe(0.25);
     expect(secondStore.muted).toBe(true);
+  });
+
+  it("会记住播放模式、音量和静音状态，并在新会话里恢复", async () => {
+    const firstStore = usePlayerStore();
+
+    firstStore.cycleMode();
+    firstStore.cycleMode();
+    firstStore.setVolume(0.33);
+    firstStore.toggleMute();
+
+    const persisted = JSON.parse(window.localStorage.getItem("aura-player-playback-preferences") ?? "{}") as {
+      mode?: string;
+      volume?: number;
+      muted?: boolean;
+    };
+
+    expect(persisted).toEqual({
+      mode: "shuffle",
+      volume: 0.33,
+      muted: true,
+    });
+
+    vi.resetModules();
+    setActivePinia(createPinia());
+
+    const restoredAudio = new FakePlayerAudio();
+    const { configurePlayerAudioFactory: configureRestoredAudioFactory } = await import("@/lib/player/audio");
+    configureRestoredAudioFactory(() => restoredAudio);
+    const { usePlayerStore: useRestoredPlayerStore } = await import("@/stores/player");
+    const restoredStore = useRestoredPlayerStore();
+
+    expect(restoredStore.mode).toBe("shuffle");
+    expect(restoredStore.volume).toBe(0.33);
+    expect(restoredStore.muted).toBe(true);
+    expect(restoredAudio.volume).toBe(0.33);
+    expect(restoredAudio.muted).toBe(true);
   });
 
   it("ended 异步流程过期后不会覆盖用户后续操作", async () => {

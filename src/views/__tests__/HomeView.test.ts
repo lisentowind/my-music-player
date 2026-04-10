@@ -94,9 +94,11 @@ describe("home view", () => {
 
     expect(wrapper.find("#home-page").exists()).toBe(true);
     expect(wrapper.get('[data-testid="home-hero-shell"]').attributes("data-home-layout")).toBe("editorial-split");
+    expect(wrapper.get('[data-testid="home-mixes-shell"]').attributes("data-home-region")).toBe("top-mixes");
     expect(wrapper.get('[data-testid="home-continue-shell"]').attributes("data-home-region")).toBe("recent-and-trending");
     expect(wrapper.get('[data-testid="home-recommend-shell"]').attributes("data-home-region")).toBe("editorial-posters");
     expect(wrapper.text()).toContain("夜色常驻");
+    expect(wrapper.text()).toContain("你的混合精选");
     expect(wrapper.text()).toContain("最近播放");
     expect(wrapper.text()).toContain("推荐歌单");
     expect(wrapper.text()).toContain("情绪入口");
@@ -137,11 +139,12 @@ describe("home view", () => {
     const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/views/HomeView.vue", "utf-8");
 
     expect(source).toContain("home-view__ambient--ember");
+    expect(source).toContain("home-view__ambient--halo");
+    expect(source).toContain("home-view__ambient--veil");
     expect(source).toContain("useGsapAmbientFlow(");
-    expect(source).toContain(".home-view__ambient--ember");
-    expect(source).toContain(".home-view__ambient--trail");
-    expect(source).toContain("x: -28");
-    expect(source).toContain("scale: 1.12");
+    expect(source).toContain(".home-view__ambient--halo");
+    expect(source).toContain(".home-view__ambient--veil");
+    expect(source).toContain("home-view__mix-grid");
     expect(source).not.toContain("@keyframes home-ambient-drift");
     expect(source).not.toContain("animation: home-ambient-drift");
   });
