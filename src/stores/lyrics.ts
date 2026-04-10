@@ -59,6 +59,11 @@ export const useLyricsStore = defineStore("lyrics", () => {
     adapter.setOffset(offsetMs.value);
   }
 
+  function clear() {
+    status.value = "idle";
+    resetState(null);
+  }
+
   return {
     currentTrackId,
     lines,
@@ -71,5 +76,6 @@ export const useLyricsStore = defineStore("lyrics", () => {
     loadFromText,
     updateTime,
     setOffset,
+    clear,
   };
 });
