@@ -7,7 +7,7 @@ import PlaybackControls from "@/components/dock/PlaybackControls.vue";
 import PlaybackProgress from "@/components/dock/PlaybackProgress.vue";
 import VolumeControl from "@/components/dock/VolumeControl.vue";
 import LyricsPanel from "@/components/music/LyricsPanel.vue";
-import { MOTION_TOKENS, useGsapAmbientFlow, useGsapHoverTargets, useGsapPointerTilt, useGsapReveal, useGsapScrollReveal } from "@/composables/use-gsap";
+import { MOTION_TOKENS, resolveCoverMorphFrames, useGsapAmbientFlow, useGsapHoverTargets, useGsapPointerTilt, useGsapReveal, useGsapScrollReveal } from "@/composables/use-gsap";
 import { iconRegistry } from "@/components/ui/icon-registry";
 import { useLyricsStore } from "@/stores/lyrics";
 import { usePlayerStore } from "@/stores/player";
@@ -21,6 +21,7 @@ const player = usePlayerStore();
 const lyrics = useLyricsStore();
 const PLAYER_FULLSCREEN_ORIGIN_KEY = "player-fullscreen-origin";
 const PLAYER_FULLSCREEN_RETURN_KEY = "player-fullscreen-return";
+const enteringFromDock = typeof window !== "undefined" && Boolean(window.sessionStorage.getItem(PLAYER_FULLSCREEN_ORIGIN_KEY));
 
 const currentTrack = computed(() => player.currentTrack);
 const playbackHeadline = computed(() => player.isPlaying ? "正在播放" : "沉浸播放器");
@@ -50,20 +51,28 @@ async function animateFromDockCover() {
       coverSrc?: string;
     };
     const targetRect = coverElement.getBoundingClientRect();
+    const frames = resolveCoverMorphFrames(origin, {
+      x: targetRect.left,
+      y: targetRect.top,
+      width: targetRect.width,
+      height: targetRect.height,
+    });
     const ghost = document.createElement("div");
     ghost.className = "player-view__cover-ghost";
     ghost.style.position = "fixed";
-    ghost.style.left = `${origin.x}px`;
-    ghost.style.top = `${origin.y}px`;
-    ghost.style.width = `${origin.width}px`;
-    ghost.style.height = `${origin.height}px`;
+    ghost.style.left = `${frames.box.left}px`;
+    ghost.style.top = `${frames.box.top}px`;
+    ghost.style.width = `${frames.box.width}px`;
+    ghost.style.height = `${frames.box.height}px`;
     ghost.style.borderRadius = "14px";
     ghost.style.overflow = "hidden";
     ghost.style.pointerEvents = "none";
     ghost.style.zIndex = "80";
     ghost.style.boxShadow = rootStyles.getPropertyValue("--shadow-lg").trim() || rootStyles.getPropertyValue("--shadow-md").trim();
     ghost.style.background = rootStyles.getPropertyValue("--color-control-surface-strong").trim() || "rgba(18,18,19,0.92)";
-    ghost.style.willChange = "left, top, width, height, border-radius, transform, opacity";
+    ghost.style.transformOrigin = "top left";
+    ghost.style.contain = "layout paint style";
+    ghost.style.willChange = "transform, border-radius, opacity";
 
     if (origin.coverSrc) {
       const image = document.createElement("img");
@@ -76,29 +85,24 @@ async function animateFromDockCover() {
     }
 
     document.body.appendChild(ghost);
-    gsap.set(coverElement, { autoAlpha: 0.12, scale: 0.976, filter: "blur(8px)" });
+    gsap.set(coverElement, { autoAlpha: 0.16, scale: 0.982 });
     gsap.fromTo(
       ghost,
       {
-        left: origin.x,
-        top: origin.y,
-        width: origin.width,
-        height: origin.height,
+        ...frames.from,
         borderRadius: MOTION_TOKENS.coverMorph.startRadius,
       },
       {
-        left: targetRect.left,
-        top: targetRect.top,
-        width: targetRect.width,
-        height: targetRect.height,
+        ...frames.to,
         borderRadius: MOTION_TOKENS.coverMorph.endRadius,
         duration: MOTION_TOKENS.coverMorph.duration,
         ease: MOTION_TOKENS.coverMorph.ease,
+        force3D: true,
         onComplete: () => {
-          gsap.set(coverElement, { autoAlpha: 1, scale: 1, filter: "blur(0px)" });
+          gsap.set(coverElement, { autoAlpha: 1, scale: 1 });
           requestAnimationFrame(() => {
             ghost.remove();
-            gsap.set(coverElement, { clearProps: "opacity,visibility,transform,filter" });
+            gsap.set(coverElement, { clearProps: "opacity,visibility,transform" });
           });
         },
       },
@@ -218,7 +222,7 @@ useGsapReveal(playerRef, [
   ".player-view__lyrics-stage",
   ".player-view__progress-stage",
   ".player-view__control-stage",
-], 0.08);
+], enteringFromDock ? 0.36 : 0.08);
 useGsapScrollReveal(playerRef, [
   {
     selector: ".player-view__meta > *",
@@ -226,6 +230,7 @@ useGsapScrollReveal(playerRef, [
     y: 22,
     stagger: 0.05,
     scale: 0.99,
+    delay: enteringFromDock ? 0.24 : 0,
   },
   {
     selector: ".player-view__top-actions > *",
@@ -233,6 +238,7 @@ useGsapScrollReveal(playerRef, [
     y: 16,
     stagger: 0.04,
     scale: 0.99,
+    delay: enteringFromDock ? 0.2 : 0,
   },
 ]);
 useGsapHoverTargets(playerRef, [
@@ -258,6 +264,7 @@ useGsapAmbientFlow(playerRef, [
     scale: 1.12,
     opacity: 0.52,
     duration: 18,
+    delay: enteringFromDock ? 0.5 : 0,
   },
   {
     selector: ".player-view__backdrop-orb--secondary",
@@ -266,7 +273,7 @@ useGsapAmbientFlow(playerRef, [
     scale: 1.12,
     opacity: 0.36,
     duration: 24,
-    delay: -7,
+    delay: enteringFromDock ? 0.72 : -7,
   },
   {
     selector: ".player-view__backdrop-orb--tertiary",
@@ -275,7 +282,7 @@ useGsapAmbientFlow(playerRef, [
     scale: 1.08,
     opacity: 0.3,
     duration: 21,
-    delay: -11,
+    delay: enteringFromDock ? 0.9 : -11,
   },
   {
     selector: ".player-view__art-glow",
@@ -284,7 +291,7 @@ useGsapAmbientFlow(playerRef, [
     scale: 1.08,
     opacity: 0.72,
     duration: 17,
-    delay: -3,
+    delay: enteringFromDock ? 0.62 : -3,
   },
 ]);
 </script>

@@ -63,10 +63,15 @@ describe("use-gsap motion tokens", () => {
     animateRouteEnter(element, done);
     expect(gsapFromToMock).toHaveBeenCalledWith(
       element,
-      expect.any(Object),
+      expect.objectContaining({
+        autoAlpha: 0,
+        y: 20,
+        scale: 0.994,
+      }),
       expect.objectContaining({
         duration: MOTION_TOKENS.route.enter.duration,
         ease: MOTION_TOKENS.route.enter.ease,
+        clearProps: "opacity,visibility,transform",
       }),
     );
 
@@ -76,7 +81,7 @@ describe("use-gsap motion tokens", () => {
       expect.objectContaining({
         duration: MOTION_TOKENS.route.leave.duration,
         ease: MOTION_TOKENS.route.leave.ease,
-        clearProps: "opacity,visibility,transform,filter",
+        clearProps: "opacity,visibility,transform",
       }),
     );
 
@@ -139,7 +144,13 @@ describe("use-gsap motion tokens", () => {
       }),
     );
 
-    const firstStep = gsapToMock.mock.calls[0]?.[1] as { onComplete?: () => void };
+    const firstCall = gsapToMock.mock.calls[0] as unknown[] | undefined;
+    expect(firstCall).toBeTruthy();
+    const firstStep = firstCall?.[1] as { onComplete?: () => void } | undefined;
+    expect(firstStep).toBeTruthy();
+    if (!firstStep) {
+      throw new Error("Expected first ambient step to exist");
+    }
     firstStep.onComplete?.();
     vi.advanceTimersByTime(1600);
 
@@ -192,5 +203,45 @@ describe("use-gsap motion tokens", () => {
     expect(scrollTriggerRefreshMock).toHaveBeenCalled();
 
     wrapper.unmount();
+  });
+
+  it("封面形变会预先固定到目标盒子，再通过 transform 回放起点尺寸", async () => {
+    const { resolveCoverMorphFrames } = await import("@/composables/use-gsap");
+
+    const frames = resolveCoverMorphFrames(
+      {
+        x: 24,
+        y: 36,
+        width: 44,
+        height: 44,
+      },
+      {
+        x: 180,
+        y: 120,
+        width: 528,
+        height: 528,
+      },
+    );
+
+    expect(frames.box).toEqual({
+      left: 180,
+      top: 120,
+      width: 528,
+      height: 528,
+    });
+    expect(frames.from).toEqual(expect.objectContaining({
+      x: -156,
+      y: -84,
+      scaleX: expect.closeTo(44 / 528, 5),
+      scaleY: expect.closeTo(44 / 528, 5),
+      transformOrigin: "top left",
+    }));
+    expect(frames.to).toEqual(expect.objectContaining({
+      x: 0,
+      y: 0,
+      scaleX: 1,
+      scaleY: 1,
+      transformOrigin: "top left",
+    }));
   });
 });

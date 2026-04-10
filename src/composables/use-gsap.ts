@@ -56,6 +56,32 @@ interface MotionPhase {
   ease: string;
 }
 
+interface CoverMorphRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface CoverMorphFrame {
+  x: number;
+  y: number;
+  scaleX: number;
+  scaleY: number;
+  transformOrigin: "top left";
+}
+
+interface CoverMorphFrames {
+  box: {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  };
+  from: CoverMorphFrame;
+  to: CoverMorphFrame;
+}
+
 export const MOTION_TOKENS = {
   hover: {
     y: -2,
@@ -164,6 +190,34 @@ function resolveNestedElements(root: HTMLElement, selector?: string | string[]) 
 
 function resolveScrollContainer(root: HTMLElement) {
   return root.closest<HTMLElement>(".app-shell__scroll") ?? undefined;
+}
+
+export function resolveCoverMorphFrames(origin: CoverMorphRect, target: CoverMorphRect): CoverMorphFrames {
+  const safeTargetWidth = Math.max(target.width, 1);
+  const safeTargetHeight = Math.max(target.height, 1);
+
+  return {
+    box: {
+      left: target.x,
+      top: target.y,
+      width: target.width,
+      height: target.height,
+    },
+    from: {
+      x: origin.x - target.x,
+      y: origin.y - target.y,
+      scaleX: origin.width / safeTargetWidth,
+      scaleY: origin.height / safeTargetHeight,
+      transformOrigin: "top left",
+    },
+    to: {
+      x: 0,
+      y: 0,
+      scaleX: 1,
+      scaleY: 1,
+      transformOrigin: "top left",
+    },
+  };
 }
 
 function attachHoverListeners(element: HTMLElement, options: HoverAnimationOptions = {}) {
@@ -617,15 +671,14 @@ export function useGsapPointerTilt(elementRef: Ref<HTMLElement | null>, options:
 export function animateRouteEnter(element: Element, done: () => void) {
   gsap.fromTo(
     element,
-    { autoAlpha: 0, y: 20, scale: 0.994, filter: "blur(10px)" },
+    { autoAlpha: 0, y: 20, scale: 0.994 },
     {
       autoAlpha: 1,
       y: 0,
       scale: 1,
-      filter: "blur(0px)",
       duration: MOTION_TOKENS.route.enter.duration,
       ease: MOTION_TOKENS.route.enter.ease,
-      clearProps: "opacity,visibility,transform,filter",
+      clearProps: "opacity,visibility,transform",
       onComplete: done,
     },
   );
@@ -636,10 +689,9 @@ export function animateRouteLeave(element: Element, done: () => void) {
     autoAlpha: 0,
     y: -10,
     scale: 0.996,
-    filter: "blur(8px)",
     duration: MOTION_TOKENS.route.leave.duration,
     ease: MOTION_TOKENS.route.leave.ease,
-    clearProps: "opacity,visibility,transform,filter",
+    clearProps: "opacity,visibility,transform",
     onComplete: done,
   });
 }

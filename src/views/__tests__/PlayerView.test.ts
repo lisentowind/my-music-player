@@ -209,7 +209,8 @@ describe("player view", () => {
     expect(source).toContain(".player-view__control-stage::before");
     expect(source).toContain(":mode=\"player.mode\"");
     expect(source).toContain("height: 100vh;");
-    expect(source).toContain("gsap.set(coverElement, { autoAlpha: 1, scale: 1, filter: \"blur(0px)\" });");
+    expect(source).toContain("resolveCoverMorphFrames");
+    expect(source).toContain("gsap.set(coverElement, { autoAlpha: 1, scale: 1 });");
   });
 
   it("沉浸式播放器右下角图标区为独立操作组，并和音量区保持明确间距", () => {

@@ -355,6 +355,15 @@ describe("app shell route skeleton", () => {
     expect(source).not.toContain(':key="currentRoute.fullPath"');
   });
 
+  it("进出 Player 时壳层会跳过默认的 out-in 整页路由转场，避免和封面动画抢帧", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/components/AppShell.vue", "utf-8");
+
+    expect(source).toContain("isPlayerRouteTransition");
+    expect(source).toContain("routeTransitionMode");
+    expect(source).toContain("@enter=\"handleRouteEnter\"");
+    expect(source).toContain("@leave=\"handleRouteLeave\"");
+  });
+
   it("主题切换与主题色面板入口已从壳层移除", async () => {
     const { wrapper } = await mountShell("/");
 

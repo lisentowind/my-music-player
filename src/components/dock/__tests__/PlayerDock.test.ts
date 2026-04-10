@@ -300,7 +300,8 @@ describe("player dock", () => {
 
     expect(source).toContain("PLAYER_FULLSCREEN_RETURN_KEY");
     expect(source).toContain("animateReturnFromPlayer");
-    expect(source).toContain("gsap.set([surfaceElement, coverElement], { autoAlpha: 1, y: 0, scale: 1, filter: \"blur(0px)\" });");
+    expect(source).toContain("resolveCoverMorphFrames");
+    expect(source).toContain("gsap.set([surfaceElement, coverElement], { autoAlpha: 1, y: 0, scale: 1 });");
   });
 
   it("Dock 宽度与顶部内容区保持同一左右基线", () => {

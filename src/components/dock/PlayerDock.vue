@@ -7,7 +7,7 @@ import PlaybackControls from "@/components/dock/PlaybackControls.vue";
 import PlaybackProgress from "@/components/dock/PlaybackProgress.vue";
 import VolumeControl from "@/components/dock/VolumeControl.vue";
 import QueuePopover from "@/components/music/QueuePopover.vue";
-import { MOTION_TOKENS, animatePopoverEnter, animatePopoverLeave, useGsapHoverTargets, useGsapReveal } from "@/composables/use-gsap";
+import { MOTION_TOKENS, animatePopoverEnter, animatePopoverLeave, resolveCoverMorphFrames, useGsapHoverTargets, useGsapReveal } from "@/composables/use-gsap";
 import { iconRegistry } from "@/components/ui/icon-registry";
 import { usePlayerStore } from "@/stores/player";
 
@@ -119,20 +119,28 @@ async function animateReturnFromPlayer() {
       coverSrc?: string;
     };
     const targetRect = coverElement.getBoundingClientRect();
+    const frames = resolveCoverMorphFrames(origin, {
+      x: targetRect.left,
+      y: targetRect.top,
+      width: targetRect.width,
+      height: targetRect.height,
+    });
     const ghost = document.createElement("div");
     ghost.className = "player-dock__cover-ghost";
     ghost.style.position = "fixed";
-    ghost.style.left = `${origin.x}px`;
-    ghost.style.top = `${origin.y}px`;
-    ghost.style.width = `${origin.width}px`;
-    ghost.style.height = `${origin.height}px`;
+    ghost.style.left = `${frames.box.left}px`;
+    ghost.style.top = `${frames.box.top}px`;
+    ghost.style.width = `${frames.box.width}px`;
+    ghost.style.height = `${frames.box.height}px`;
     ghost.style.borderRadius = `${MOTION_TOKENS.coverMorph.endRadius}px`;
     ghost.style.overflow = "hidden";
     ghost.style.pointerEvents = "none";
     ghost.style.zIndex = "88";
     ghost.style.boxShadow = rootStyles.getPropertyValue("--shadow-lg").trim() || rootStyles.getPropertyValue("--shadow-md").trim();
     ghost.style.background = rootStyles.getPropertyValue("--color-control-surface-strong").trim() || "rgba(18,18,19,0.92)";
-    ghost.style.willChange = "left, top, width, height, border-radius, transform, opacity";
+    ghost.style.transformOrigin = "top left";
+    ghost.style.contain = "layout paint style";
+    ghost.style.willChange = "transform, border-radius, opacity";
 
     if (origin.coverSrc) {
       const image = document.createElement("img");
@@ -145,31 +153,26 @@ async function animateReturnFromPlayer() {
     }
 
     document.body.appendChild(ghost);
-    gsap.set(surfaceElement, { autoAlpha: 0.72, y: 8, filter: "blur(8px)" });
-    gsap.set(coverElement, { autoAlpha: 0.12, scale: 0.972, filter: "blur(8px)" });
+    gsap.set(surfaceElement, { autoAlpha: 0.78, y: 8 });
+    gsap.set(coverElement, { autoAlpha: 0.16, scale: 0.982 });
     gsap.fromTo(
       ghost,
       {
-        left: origin.x,
-        top: origin.y,
-        width: origin.width,
-        height: origin.height,
+        ...frames.from,
         borderRadius: MOTION_TOKENS.coverMorph.endRadius,
       },
       {
-        left: targetRect.left,
-        top: targetRect.top,
-        width: targetRect.width,
-        height: targetRect.height,
+        ...frames.to,
         borderRadius: MOTION_TOKENS.coverMorph.startRadius,
         duration: MOTION_TOKENS.coverMorph.duration,
         ease: MOTION_TOKENS.coverMorph.ease,
+        force3D: true,
         onComplete: () => {
-          gsap.set([surfaceElement, coverElement], { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)" });
+          gsap.set([surfaceElement, coverElement], { autoAlpha: 1, y: 0, scale: 1 });
           requestAnimationFrame(() => {
             ghost.remove();
             gsap.set([surfaceElement, coverElement], {
-              clearProps: "opacity,visibility,transform,filter",
+              clearProps: "opacity,visibility,transform",
             });
           });
         },

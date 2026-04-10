@@ -15,6 +15,27 @@ const shellMinHeight = 760;
 const isPlayerFullscreen = computed(() => route.name === "player");
 const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" : "default");
 const scrollRef = ref<HTMLElement | null>(null);
+const previousRouteName = ref(route.name);
+const isPlayerRouteTransition = computed(() => route.name === "player" || previousRouteName.value === "player");
+const routeTransitionMode = computed<"out-in" | undefined>(() => isPlayerRouteTransition.value ? undefined : "out-in");
+
+function handleRouteEnter(element: Element, done: () => void) {
+  if (isPlayerRouteTransition.value) {
+    done();
+    return;
+  }
+
+  animateRouteEnter(element, done);
+}
+
+function handleRouteLeave(element: Element, done: () => void) {
+  if (isPlayerRouteTransition.value) {
+    done();
+    return;
+  }
+
+  animateRouteLeave(element, done);
+}
 
 watch(() => route.fullPath, async () => {
   await nextTick();
@@ -22,6 +43,10 @@ watch(() => route.fullPath, async () => {
     top: 0,
     behavior: "auto",
   });
+});
+
+watch(() => route.name, (_name, previousName) => {
+  previousRouteName.value = previousName;
 });
 </script>
 
@@ -73,7 +98,7 @@ watch(() => route.fullPath, async () => {
           data-scroll-surface="transparent"
         >
           <RouterView v-slot="{ Component }">
-            <Transition mode="out-in" :css="false" @enter="animateRouteEnter" @leave="animateRouteLeave">
+            <Transition :mode="routeTransitionMode" :css="false" @enter="handleRouteEnter" @leave="handleRouteLeave">
               <component :is="Component" class="app-shell__page" />
             </Transition>
           </RouterView>
