@@ -184,9 +184,27 @@ describe("player view", () => {
     const { wrapper } = await mountPlayerShell("/player");
 
     const immersiveDock = wrapper.get('[data-testid="player-immersive-dock"]');
-    expect(immersiveDock.attributes("data-player-dock-style")).toBe("immersive-full-width");
+    expect(immersiveDock.attributes("data-player-dock-style")).toBe("immersive-flat-band");
     expect(immersiveDock.attributes("data-player-dock-fixed")).toBe("true");
+    expect(immersiveDock.attributes("data-player-dock-integration")).toBe("flush-surface");
     expect(immersiveDock.attributes("data-player-dock-min-width")).toBe("960");
+  });
+
+  it("播放器页源码包含双向封面过渡与贴底一体化控制带实现", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/views/PlayerView.vue", "utf-8");
+
+    expect(source).toContain("PLAYER_FULLSCREEN_RETURN_KEY");
+    expect(source).toContain("data-player-dock-style=\"immersive-flat-band\"");
+    expect(source).toContain(".player-view__control-stage::before");
+    expect(source).toContain(":mode=\"player.mode\"");
+    expect(source).toContain("height: 100vh;");
+  });
+
+  it("沉浸式播放器右下角图标区为独立操作组，并和音量区保持明确间距", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/views/PlayerView.vue", "utf-8");
+
+    expect(source).toContain(".player-view__side-actions {");
+    expect(source).toContain(".player-view__control-side {\n  justify-content: flex-end;\n  gap: 14px;");
   });
 
   it("切入播放器页面会触发 GSAP 路由过渡和区块 reveal", async () => {

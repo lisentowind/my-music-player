@@ -133,6 +133,8 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
 <style scoped lang="less">
 .app-topbar {
   position: relative;
+  overflow: visible;
+  isolation: isolate;
 }
 
 .app-topbar__panel {
@@ -149,7 +151,7 @@ useGsapHoverTargets(topbarRef, [".app-topbar__search-shell", ".app-topbar__actio
     linear-gradient(180deg, color-mix(in srgb, var(--color-popover-glow-start) 74%, transparent), transparent 100%),
     color-mix(in srgb, var(--color-popover-fill) 94%, transparent);
   box-shadow:
-    0 14px 30px var(--color-popover-shadow),
+    0 10px 22px color-mix(in srgb, var(--color-popover-shadow) 78%, transparent),
     inset 0 1px 0 var(--color-panel-glow-end);
   backdrop-filter: blur(22px) saturate(1.06);
 }

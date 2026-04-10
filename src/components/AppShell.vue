@@ -86,7 +86,7 @@ const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" 
   margin-left: calc(var(--layout-sidebar-width) + (var(--layout-gap) * 2));
   padding: var(--layout-gap);
   min-width: calc(var(--layout-min-width) - var(--layout-sidebar-width) - (var(--layout-gap) * 3));
-  overflow: hidden;
+  overflow: visible;
 }
 
 .app-shell__content--player {
@@ -97,7 +97,7 @@ const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" 
 
 .app-shell__topbar {
   position: absolute;
-  top: 12px;
+  top: 16px;
   left: 0;
   right: 0;
   z-index: var(--z-shell-topbar);
@@ -108,6 +108,7 @@ const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" 
   z-index: 1;
   height: 100%;
   min-height: 0;
+  overflow: hidden;
 }
 
 .app-shell__scroll {
@@ -125,6 +126,11 @@ const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" 
 .app-shell__content--player .app-shell__scroll {
   padding: 0;
   overflow: hidden;
+  scrollbar-width: none;
+}
+
+.app-shell__content--player .app-shell__scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .app-shell__page {
@@ -143,7 +149,7 @@ const shellMode = computed(() => isPlayerFullscreen.value ? "player-fullscreen" 
   inset: 0;
   background:
     radial-gradient(circle at 12% 16%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 26%),
-    radial-gradient(circle at 78% 76%, rgba(105, 246, 184, 0.08), transparent 24%),
+    radial-gradient(circle at 78% 76%, color-mix(in srgb, var(--color-accent) 11%, transparent), transparent 24%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 26%);
   pointer-events: none;
   opacity: 0.9;

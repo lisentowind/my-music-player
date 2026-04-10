@@ -163,7 +163,15 @@ useGsapHoverTargets(playlistRef, [".playlist-view__meta-card", ".playlist-view__
 }
 
 .playlist-view--stitch {
+  padding: clamp(10px, 1.25vw, 14px);
+  border-radius: 22px;
   color: var(--color-text);
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 12% 10%, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 36%),
+    radial-gradient(circle at 92% 18%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 30%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-bg-elevated) 94%, transparent), var(--color-bg));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 74%, transparent);
 }
 
 .playlist-view__ambient {
@@ -184,7 +192,7 @@ useGsapHoverTargets(playlistRef, [".playlist-view__meta-card", ".playlist-view__
   left: 0;
   width: 360px;
   height: 360px;
-  background: rgba(204, 151, 255, 0.22);
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
 }
 
 .playlist-view__ambient-orb--secondary {
@@ -192,7 +200,7 @@ useGsapHoverTargets(playlistRef, [".playlist-view__meta-card", ".playlist-view__
   right: 0;
   width: 260px;
   height: 260px;
-  background: rgba(255, 139, 154, 0.14);
+  background: color-mix(in srgb, var(--color-accent) 16%, var(--color-bg-elevated) 84%);
 }
 
 .playlist-view__hero,
@@ -200,11 +208,14 @@ useGsapHoverTargets(playlistRef, [".playlist-view__meta-card", ".playlist-view__
 .playlist-view__table-shell {
   position: relative;
   z-index: 1;
-  border: 1px solid var(--color-border);
   border-radius: 18px;
+  overflow: hidden;
   background:
     linear-gradient(140deg, var(--color-panel-glow-start), transparent 44%),
     var(--color-panel-fill);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-border) 92%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-panel-glow-start) 84%, transparent);
   backdrop-filter: blur(14px);
 }
 
@@ -326,7 +337,7 @@ useGsapHoverTargets(playlistRef, [".playlist-view__meta-card", ".playlist-view__
 
 .playlist-view__meta-copy {
   margin: 14px 0 0;
-  color: color-mix(in srgb, var(--color-accent) 54%, #69f6b8);
+  color: color-mix(in srgb, var(--color-accent) 74%, var(--color-text-strong) 26%);
   font-size: 22px;
   font-weight: 700;
 }
@@ -377,9 +388,10 @@ useGsapHoverTargets(playlistRef, [".playlist-view__meta-card", ".playlist-view__
   gap: 4px;
   min-width: 82px;
   padding: 9px 10px;
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: 10px;
   background: var(--color-control-surface);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 88%, transparent);
 }
 
 .playlist-view__summary-label {

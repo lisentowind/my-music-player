@@ -47,15 +47,15 @@ export const MOTION_TOKENS = {
   },
   reveal: {
     distance: 18,
-    duration: 0.78,
-    stagger: 0.07,
+    duration: 0.4,
+    stagger: 0.04,
     ease: "power3.out",
   },
   scrollReveal: {
     distance: 26,
     scale: 0.988,
-    duration: 0.82,
-    stagger: 0.08,
+    duration: 0.44,
+    stagger: 0.04,
     ease: "power3.out",
     blur: 10,
   },
@@ -65,11 +65,11 @@ export const MOTION_TOKENS = {
   },
   route: {
     enter: {
-      duration: 0.68,
+      duration: 0.32,
       ease: "power3.out",
     } satisfies MotionPhase,
     leave: {
-      duration: 0.3,
+      duration: 0.16,
       ease: "power2.inOut",
     } satisfies MotionPhase,
   },
@@ -84,18 +84,18 @@ export const MOTION_TOKENS = {
     } satisfies MotionPhase,
   },
   dockEnter: {
-    duration: 0.82,
+    duration: 0.42,
     ease: "power3.out",
   } satisfies MotionPhase,
   surfaceSwap: {
-    duration: 0.48,
+    duration: 0.26,
     ease: "power3.out",
     blur: 12,
   },
   coverMorph: {
-    duration: 0.56,
+    duration: 0.46,
     ease: "power3.inOut",
-    fadeDuration: 0.22,
+    fadeDuration: 0.16,
     startRadius: 14,
     endRadius: 28,
   },

@@ -1,4 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils";
+import { readFileSync } from "node:fs";
 import { createPinia, setActivePinia } from "pinia";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -292,5 +293,19 @@ describe("player dock", () => {
 
     expect(router.currentRoute.value.path).toBe("/player");
     expect(sessionStorage.getItem("player-fullscreen-origin")).toBeTruthy();
+  });
+
+  it("Dock 源码支持从沉浸式页面返回时的封面对称过渡", async () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/components/dock/PlayerDock.vue", "utf-8");
+
+    expect(source).toContain("PLAYER_FULLSCREEN_RETURN_KEY");
+    expect(source).toContain("animateReturnFromPlayer");
+  });
+
+  it("Dock 宽度与顶部内容区保持同一左右基线", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/components/dock/PlayerDock.vue", "utf-8");
+
+    expect(source).toContain("left: calc(var(--layout-sidebar-width) + (var(--layout-gap) * 2));");
+    expect(source).toContain("right: 0;");
   });
 });

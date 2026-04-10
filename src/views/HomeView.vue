@@ -325,9 +325,9 @@ useGsapHoverTargets(homeRef, [
   border-radius: 20px;
   background:
     radial-gradient(circle at 12% 12%, color-mix(in srgb, var(--color-accent) 18%, transparent), transparent 34%),
-    radial-gradient(circle at 88% 20%, color-mix(in srgb, #ff7b97 14%, transparent), transparent 30%),
+    radial-gradient(circle at 88% 20%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 30%),
     linear-gradient(180deg, color-mix(in srgb, var(--color-bg-elevated) 92%, transparent), var(--color-bg));
-  border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 78%, transparent);
 }
 
 .home-view__ambient {
@@ -344,13 +344,13 @@ useGsapHoverTargets(homeRef, [
 .home-view__ambient--violet {
   top: -170px;
   right: 2%;
-  background: rgba(173, 129, 255, 0.54);
+  background: color-mix(in srgb, var(--color-accent) 54%, transparent);
 }
 
 .home-view__ambient--rose {
   bottom: -180px;
   left: 0;
-  background: rgba(255, 120, 146, 0.24);
+  background: color-mix(in srgb, var(--color-accent) 24%, var(--color-bg-elevated) 76%);
 }
 
 .home-view__hero,
@@ -371,11 +371,14 @@ useGsapHoverTargets(homeRef, [
 .home-view__continue-card,
 .home-view__poster-card,
 .home-view__mood-card {
-  border: 1px solid var(--color-border);
+  border: 0;
   background:
     linear-gradient(145deg, var(--color-panel-glow-start), transparent 40%),
     var(--color-panel-fill);
-  box-shadow: inset 0 1px 0 var(--color-panel-glow-end), var(--shadow-md);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-border) 92%, transparent),
+    inset 0 1px 0 var(--color-panel-glow-end),
+    var(--shadow-md);
   backdrop-filter: blur(24px);
 }
 
@@ -605,10 +608,13 @@ useGsapHoverTargets(homeRef, [
   gap: 6px;
   padding: 12px;
   border-radius: 16px;
-  border: 1px solid var(--color-border);
+  border: 0;
   background:
     linear-gradient(145deg, var(--color-panel-glow-start), transparent 40%),
     var(--color-panel-fill);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-border) 92%, transparent),
+    inset 0 1px 0 var(--color-panel-glow-end);
 }
 
 .home-view__trend-head {

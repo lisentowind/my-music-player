@@ -257,6 +257,13 @@ describe("app shell route skeleton", () => {
     expect(source).not.toContain("胶囊 Dock · 玻璃面板 · 中文排版");
   });
 
+  it("全屏播放器壳层会隐藏内部滚动条，并避免播放器页面出现独立滚动条", () => {
+    const source = readFileSync("/Users/tingfeng/Documents/code/github/my-player/src/components/AppShell.vue", "utf-8");
+
+    expect(source).toContain("scrollbar-width: none;");
+    expect(source).toContain("::-webkit-scrollbar");
+  });
+
   it("主题切换与主题色面板入口已从壳层移除", async () => {
     const { wrapper } = await mountShell("/");
 

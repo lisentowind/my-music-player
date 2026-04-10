@@ -17,6 +17,8 @@ const coverRef = ref<HTMLElement | null>(null);
 const queueLayerRef = ref<HTMLElement | null>(null);
 const queueOpen = ref(false);
 const player = usePlayerStore();
+const PLAYER_FULLSCREEN_ORIGIN_KEY = "player-fullscreen-origin";
+const PLAYER_FULLSCREEN_RETURN_KEY = "player-fullscreen-return";
 
 const trackTitle = computed(() => player.currentTrack?.title ?? "未开始播放");
 const trackArtist = computed(() => {
@@ -88,9 +90,101 @@ function openPlayerView() {
       height: rect.height,
       coverSrc: player.currentTrack?.coverSrc ?? "",
     };
-    sessionStorage.setItem("player-fullscreen-origin", JSON.stringify(payload));
+    sessionStorage.setItem(PLAYER_FULLSCREEN_ORIGIN_KEY, JSON.stringify(payload));
   }
   void router.push("/player");
+}
+
+async function animateReturnFromPlayer() {
+  const surfaceElement = dockRef.value;
+  const coverElement = coverRef.value;
+  if (!surfaceElement || !coverElement) {
+    return false;
+  }
+
+  const raw = sessionStorage.getItem(PLAYER_FULLSCREEN_RETURN_KEY);
+  if (!raw) {
+    return false;
+  }
+
+  sessionStorage.removeItem(PLAYER_FULLSCREEN_RETURN_KEY);
+
+  try {
+    const rootStyles = getComputedStyle(document.documentElement);
+    const origin = JSON.parse(raw) as {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      coverSrc?: string;
+    };
+    const targetRect = coverElement.getBoundingClientRect();
+    const ghost = document.createElement("div");
+    ghost.className = "player-dock__cover-ghost";
+    ghost.style.position = "fixed";
+    ghost.style.left = `${origin.x}px`;
+    ghost.style.top = `${origin.y}px`;
+    ghost.style.width = `${origin.width}px`;
+    ghost.style.height = `${origin.height}px`;
+    ghost.style.borderRadius = `${MOTION_TOKENS.coverMorph.endRadius}px`;
+    ghost.style.overflow = "hidden";
+    ghost.style.pointerEvents = "none";
+    ghost.style.zIndex = "88";
+    ghost.style.boxShadow = rootStyles.getPropertyValue("--shadow-lg").trim() || rootStyles.getPropertyValue("--shadow-md").trim();
+    ghost.style.background = rootStyles.getPropertyValue("--color-control-surface-strong").trim() || "rgba(18,18,19,0.92)";
+    ghost.style.willChange = "left, top, width, height, border-radius, transform, opacity";
+
+    if (origin.coverSrc) {
+      const image = document.createElement("img");
+      image.src = origin.coverSrc;
+      image.alt = "";
+      image.style.width = "100%";
+      image.style.height = "100%";
+      image.style.objectFit = "cover";
+      ghost.appendChild(image);
+    }
+
+    document.body.appendChild(ghost);
+    gsap.set(surfaceElement, { autoAlpha: 0.72, y: 8, filter: "blur(8px)" });
+    gsap.set(coverElement, { autoAlpha: 0.12, scale: 0.972, filter: "blur(8px)" });
+    gsap.fromTo(
+      ghost,
+      {
+        left: origin.x,
+        top: origin.y,
+        width: origin.width,
+        height: origin.height,
+        borderRadius: MOTION_TOKENS.coverMorph.endRadius,
+      },
+      {
+        left: targetRect.left,
+        top: targetRect.top,
+        width: targetRect.width,
+        height: targetRect.height,
+        borderRadius: MOTION_TOKENS.coverMorph.startRadius,
+        duration: MOTION_TOKENS.coverMorph.duration,
+        ease: MOTION_TOKENS.coverMorph.ease,
+        onComplete: () => {
+          ghost.remove();
+          gsap.to([surfaceElement, coverElement], {
+            autoAlpha: 1,
+            y: 0,
+            scale: 1,
+            filter: "blur(0px)",
+            duration: MOTION_TOKENS.coverMorph.fadeDuration,
+            ease: MOTION_TOKENS.popover.enter.ease,
+            stagger: 0.03,
+            clearProps: "opacity,visibility,transform,filter",
+          });
+        },
+      },
+    );
+
+    return true;
+  } catch {
+    sessionStorage.removeItem(PLAYER_FULLSCREEN_RETURN_KEY);
+    return false;
+  }
 }
 
 function handlePointerDown(event: PointerEvent) {
@@ -123,20 +217,26 @@ onMounted(() => {
     return;
   }
 
-  gsap.fromTo(
-    dockRef.value,
-    { autoAlpha: 0, y: 18, scale: 0.994, filter: "blur(10px)" },
-    {
-      autoAlpha: 1,
-      y: 0,
-      scale: 1,
-      filter: "blur(0px)",
-      duration: MOTION_TOKENS.dockEnter.duration,
-      delay: 0.18,
-      ease: MOTION_TOKENS.dockEnter.ease,
-      clearProps: "opacity,visibility,transform,filter",
-    },
-  );
+  void animateReturnFromPlayer().then((handled) => {
+    if (handled || !dockRef.value) {
+      return;
+    }
+
+    gsap.fromTo(
+      dockRef.value,
+      { autoAlpha: 0, y: 18, scale: 0.994, filter: "blur(10px)" },
+      {
+        autoAlpha: 1,
+        y: 0,
+        scale: 1,
+        filter: "blur(0px)",
+        duration: MOTION_TOKENS.dockEnter.duration,
+        delay: 0.18,
+        ease: MOTION_TOKENS.dockEnter.ease,
+        clearProps: "opacity,visibility,transform,filter",
+      },
+    );
+  });
 
   window.addEventListener("pointerdown", handlePointerDown);
   window.addEventListener("keydown", handleKeydown);
@@ -212,6 +312,7 @@ watch(() => player.currentTrack?.id, () => {
           <PlaybackControls
             :is-playing="player.isPlaying"
             :mode-label="player.activeModeLabel"
+            :mode="player.mode"
             @previous="playPrevious"
             @toggle="togglePlay"
             @next="playNext"
@@ -271,8 +372,8 @@ watch(() => player.currentTrack?.id, () => {
 <style scoped lang="less">
 .player-dock {
   position: fixed;
-  left: calc(var(--layout-sidebar-width) + (var(--layout-gap) * 3));
-  right: var(--layout-gap);
+  left: calc(var(--layout-sidebar-width) + (var(--layout-gap) * 2));
+  right: 0;
   bottom: var(--layout-gap);
   width: auto;
   z-index: 30;

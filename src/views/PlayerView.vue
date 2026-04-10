@@ -19,6 +19,8 @@ const coverRef = ref<HTMLElement | null>(null);
 const lyricsStageRef = ref<HTMLElement | null>(null);
 const player = usePlayerStore();
 const lyrics = useLyricsStore();
+const PLAYER_FULLSCREEN_ORIGIN_KEY = "player-fullscreen-origin";
+const PLAYER_FULLSCREEN_RETURN_KEY = "player-fullscreen-return";
 
 const currentTrack = computed(() => player.currentTrack);
 const playbackHeadline = computed(() => player.isPlaying ? "正在播放" : "沉浸播放器");
@@ -31,12 +33,12 @@ async function animateFromDockCover() {
     return;
   }
 
-  const raw = sessionStorage.getItem("player-fullscreen-origin");
+  const raw = sessionStorage.getItem(PLAYER_FULLSCREEN_ORIGIN_KEY);
   if (!raw) {
     return;
   }
 
-  sessionStorage.removeItem("player-fullscreen-origin");
+  sessionStorage.removeItem(PLAYER_FULLSCREEN_ORIGIN_KEY);
 
   try {
     const rootStyles = getComputedStyle(document.documentElement);
@@ -106,7 +108,7 @@ async function animateFromDockCover() {
       },
     );
   } catch {
-    sessionStorage.removeItem("player-fullscreen-origin");
+    sessionStorage.removeItem(PLAYER_FULLSCREEN_ORIGIN_KEY);
   }
 }
 
@@ -194,6 +196,18 @@ function toggleLikeCurrentTrack() {
 }
 
 async function exitFullscreenPlayer() {
+  if (coverRef.value) {
+    const rect = coverRef.value.getBoundingClientRect();
+    const payload = {
+      x: rect.left,
+      y: rect.top,
+      width: rect.width,
+      height: rect.height,
+      coverSrc: player.currentTrack?.coverSrc ?? "",
+    };
+    sessionStorage.setItem(PLAYER_FULLSCREEN_RETURN_KEY, JSON.stringify(payload));
+  }
+
   if (window.history.length > 1) {
     router.back();
     return;
@@ -339,60 +353,64 @@ useGsapPointerTilt(coverRef, {
       </section>
     </div>
 
-    <section
-      class="player-view__progress-stage"
-      data-testid="player-progress-stage"
-      data-player-region="progress"
-    >
-      <PlaybackProgress
-        :current-time="player.currentTime"
-        :duration="player.duration"
-        :current-label="player.currentTimeLabel"
-        :duration-label="player.durationLabel"
-        @seek="seekTo"
-      />
-    </section>
-
     <section class="player-view__control-stage">
       <div
         class="player-view__control-shell"
         data-testid="player-immersive-dock"
-        data-player-dock-style="immersive-full-width"
+        data-player-dock-style="immersive-flat-band"
         data-player-dock-fixed="true"
+        data-player-dock-integration="flush-surface"
         data-player-dock-min-width="960"
       >
-        <div class="player-view__control-track">
-          <div class="player-view__control-copy">
-            <strong>{{ currentTrack?.title || "未开始播放" }}</strong>
-            <small>{{ currentTrack?.artist || "选择一首歌开始播放" }}</small>
-          </div>
-        </div>
-
-        <PlaybackControls
-          :is-playing="player.isPlaying"
-          :mode-label="player.activeModeLabel"
-          @previous="playPrevious"
-          @toggle="togglePlay"
-          @next="playNext"
-          @cycle-mode="cycleMode"
-        />
-
-        <div class="player-view__control-side">
-          <div class="player-view__side-actions">
-            <button type="button" class="player-view__top-action" aria-label="歌词视图">
-              <Icon :icon="iconRegistry['solar:music-notes-outline']" />
-            </button>
-            <button type="button" class="player-view__top-action" aria-label="外接显示器">
-              <Icon :icon="iconRegistry['solar:monitor-outline']" />
-            </button>
-          </div>
-          <VolumeControl
-            :volume="player.volume"
-            :muted="player.muted"
-            :show-label="false"
-            @set-volume="setVolume"
-            @toggle-mute="toggleMute"
+        <section
+          class="player-view__progress-stage"
+          data-testid="player-progress-stage"
+          data-player-region="progress"
+        >
+          <PlaybackProgress
+            :current-time="player.currentTime"
+            :duration="player.duration"
+            :current-label="player.currentTimeLabel"
+            :duration-label="player.durationLabel"
+            @seek="seekTo"
           />
+        </section>
+
+        <div class="player-view__control-main">
+          <div class="player-view__control-track">
+            <div class="player-view__control-copy">
+              <strong>{{ currentTrack?.title || "未开始播放" }}</strong>
+              <small>{{ currentTrack?.artist || "选择一首歌开始播放" }}</small>
+            </div>
+          </div>
+
+          <PlaybackControls
+            :is-playing="player.isPlaying"
+            :mode-label="player.activeModeLabel"
+            :mode="player.mode"
+            @previous="playPrevious"
+            @toggle="togglePlay"
+            @next="playNext"
+            @cycle-mode="cycleMode"
+          />
+
+          <div class="player-view__control-side">
+            <div class="player-view__side-actions">
+              <button type="button" class="player-view__top-action" aria-label="歌词视图">
+                <Icon :icon="iconRegistry['solar:music-notes-outline']" />
+              </button>
+              <button type="button" class="player-view__top-action" aria-label="外接显示器">
+                <Icon :icon="iconRegistry['solar:monitor-outline']" />
+              </button>
+            </div>
+            <VolumeControl
+              :volume="player.volume"
+              :muted="player.muted"
+              :show-label="false"
+              @set-volume="setVolume"
+              @toggle-mute="toggleMute"
+            />
+          </div>
         </div>
       </div>
     </section>
@@ -404,8 +422,8 @@ useGsapPointerTilt(coverRef, {
   position: relative;
   min-width: 1220px;
   min-height: 100vh;
-  min-height: max(760px, 100vh);
-  padding: 22px 28px 176px;
+  height: 100vh;
+  padding: 22px 28px 154px;
   overflow: hidden;
 }
 
@@ -414,14 +432,13 @@ useGsapPointerTilt(coverRef, {
   inset: 0;
   background:
     radial-gradient(circle at 18% 14%, color-mix(in srgb, var(--color-accent) 34%, transparent), transparent 34%),
-    radial-gradient(circle at 72% 82%, rgba(105, 246, 184, 0.07), transparent 26%),
+    radial-gradient(circle at 72% 82%, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 26%),
     linear-gradient(135deg, color-mix(in srgb, var(--color-bg-elevated) 94%, var(--color-accent) 6%), var(--color-bg) 52%, color-mix(in srgb, var(--color-bg) 88%, #06110d 12%) 100%);
   pointer-events: none;
 }
 
 .player-view__topbar,
 .player-view__canvas,
-.player-view__progress-stage,
 .player-view__control-stage {
   position: relative;
   z-index: 1;
@@ -505,7 +522,7 @@ useGsapPointerTilt(coverRef, {
   grid-template-columns: minmax(460px, 0.9fr) minmax(420px, 1.08fr);
   gap: clamp(48px, 4.2vw, 88px);
   align-items: center;
-  min-height: calc(100vh - 250px);
+  min-height: calc(100vh - 220px);
   padding: 6px 8px 0;
 }
 
@@ -660,17 +677,15 @@ useGsapPointerTilt(coverRef, {
 }
 
 .player-view__progress-stage {
-  position: fixed;
-  left: 34px;
-  right: 34px;
-  bottom: 104px;
-  width: auto;
+  width: 100%;
   margin: 0;
-  padding: 0 8px;
+  padding: 0 4px;
+  position: relative;
+  z-index: 2;
 }
 
 .player-view__progress-stage :deep(.playback-progress) {
-  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
 }
 
 .player-view__progress-stage :deep(.playback-progress__time) {
@@ -679,36 +694,59 @@ useGsapPointerTilt(coverRef, {
 }
 
 .player-view__progress-stage :deep(.playback-progress__slider) {
-  height: 3px;
-  border: none;
+  height: 4px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
   background:
     linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent) var(--playback-progress), color-mix(in srgb, var(--color-text) 14%, transparent) var(--playback-progress), transparent 100%);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 8%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-panel-glow-start) 86%, transparent);
 }
 
 .player-view__control-stage {
   position: fixed;
-  left: 24px;
-  right: 24px;
-  bottom: 18px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   padding: 0;
+  z-index: 3;
+}
+
+.player-view__control-stage::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 154px;
+  border-top: 1px solid color-mix(in srgb, var(--color-panel-border) 92%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-bg) 12%, transparent), color-mix(in srgb, var(--color-popover-fill) 94%, transparent) 36%, color-mix(in srgb, var(--color-popover-fill) 98%, transparent) 100%);
+  backdrop-filter: blur(26px) saturate(1.04);
+  pointer-events: none;
 }
 
 .player-view__control-shell {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 12px;
+  min-height: 112px;
+  width: 100%;
+  padding: 14px 34px 18px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.player-view__control-main {
   display: grid;
   grid-template-columns: minmax(180px, 0.8fr) minmax(320px, 1fr) minmax(180px, 0.8fr);
   align-items: center;
   gap: 14px;
-  min-height: 84px;
-  width: 100%;
-  padding: 10px 18px;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-glow-start) 80%, transparent), transparent 46%),
-    linear-gradient(180deg, var(--color-popover-glow-start), transparent 42%),
-    var(--color-popover-fill);
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(32px);
 }
 
 .player-view__control-track,
@@ -737,7 +775,7 @@ useGsapPointerTilt(coverRef, {
 
 .player-view__control-copy strong {
   color: var(--color-text-strong);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .player-view__control-copy small {
@@ -748,65 +786,82 @@ useGsapPointerTilt(coverRef, {
 
 .player-view__control-shell :deep(.playback-controls) {
   grid-template-columns: auto 1fr;
-  gap: 6px;
+  gap: 8px;
 }
 
 .player-view__control-shell :deep(.playback-controls__mode) {
-  min-height: 32px;
-  min-width: 32px;
-  width: 32px;
-  padding: 0;
+  min-height: 40px;
+  min-width: 92px;
+  width: auto;
+  padding: 0 10px 0 4px;
   border-radius: 999px;
-  background: var(--color-control-surface);
+  background: transparent;
   box-shadow: none;
 }
 
 .player-view__control-shell :deep(.playback-controls__mode-copy) {
-  display: none;
+  display: grid;
+  gap: 2px;
+}
+
+.player-view__control-shell :deep(.playback-controls__mode-caption) {
+  font-size: 9px;
+}
+
+.player-view__control-shell :deep(.playback-controls__mode-label) {
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .player-view__control-shell :deep(.playback-controls__transport) {
-  min-height: 40px;
+  min-height: 46px;
   border-radius: 999px;
   background: transparent;
-  border-color: var(--color-border);
+  border-color: transparent;
+  box-shadow: none;
+  padding: 0;
+  gap: 10px;
 }
 
 .player-view__control-shell :deep(.playback-controls__button) {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 999px;
 }
 
 .player-view__control-shell :deep(.playback-controls__button--primary) {
-  width: 50px;
-  height: 50px;
-  box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-accent) 12%, transparent), var(--shadow-primary-hover);
+  width: 52px;
+  height: 52px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 10%, transparent), var(--shadow-primary-hover);
 }
 
 .player-view__control-side {
   justify-content: flex-end;
-  gap: 8px;
+  gap: 14px;
 }
 
 .player-view__side-actions {
-  gap: 6px;
+  gap: 10px;
 }
 
 .player-view__control-shell :deep(.volume-control) {
-  grid-template-columns: 32px minmax(78px, 1fr);
-  gap: 5px;
-  width: min(138px, 100%);
+  grid-template-columns: 34px minmax(110px, 1fr);
+  gap: 8px;
+  width: min(172px, 100%);
 }
 
 .player-view__control-shell :deep(.volume-control__mute) {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
 }
 
 .player-view__control-shell :deep(.volume-control__slider) {
-  height: 3px;
+  height: 4px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-panel-glow-start) 82%, transparent);
 }
 
 @media (max-width: 1440px) {
@@ -815,7 +870,7 @@ useGsapPointerTilt(coverRef, {
     gap: 42px;
   }
 
-  .player-view__control-shell {
+  .player-view__control-main {
     grid-template-columns: minmax(220px, 0.9fr) minmax(320px, 1fr) minmax(240px, 0.8fr);
   }
 }
@@ -823,13 +878,13 @@ useGsapPointerTilt(coverRef, {
 @media (max-height: 860px) {
   .page {
     padding-top: 18px;
-    padding-bottom: 164px;
+    padding-bottom: 146px;
   }
 
   .player-view__canvas {
     grid-template-columns: minmax(360px, 0.82fr) minmax(360px, 1fr);
     gap: 34px;
-    min-height: calc(100vh - 228px);
+    min-height: calc(100vh - 206px);
   }
 
   .player-view__cover-wrap {
@@ -864,13 +919,13 @@ useGsapPointerTilt(coverRef, {
     font-size: clamp(34px, 3vw, 46px);
   }
 
-  .player-view__progress-stage {
-    bottom: 96px;
+  .player-view__control-shell {
+    min-height: 104px;
+    padding: 12px 26px 14px;
   }
 
-  .player-view__control-shell {
-    min-height: 78px;
-    padding: 8px 16px;
+  .player-view__control-main {
+    grid-template-columns: minmax(160px, 0.82fr) minmax(300px, 1fr) minmax(200px, 0.74fr);
   }
 }
 </style>

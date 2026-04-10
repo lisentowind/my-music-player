@@ -112,7 +112,7 @@ const emit = defineEmits<{
   margin: 0 0 12px;
   padding: 6px 12px;
   border-radius: 999px;
-  background: rgba(204, 151, 255, 0.18);
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
   color: var(--color-accent);
   font-size: 11px;
   font-weight: 700;

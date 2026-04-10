@@ -409,9 +409,9 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
   padding: clamp(10px, 1.35vw, 16px);
   border-radius: 20px;
   background: radial-gradient(circle at 20% 12%, color-mix(in srgb, var(--color-accent) 24%, transparent), transparent 46%),
-    radial-gradient(circle at 88% 24%, color-mix(in srgb, #54f1bc 18%, transparent), transparent 44%),
+    radial-gradient(circle at 88% 24%, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 44%),
     linear-gradient(135deg, var(--color-bg-elevated) 0%, var(--color-bg) 45%, color-mix(in srgb, var(--color-bg) 82%, var(--color-accent) 18%) 100%);
-  border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border) 78%, transparent);
 }
 
 .explore-view__ambient {
@@ -427,13 +427,13 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 .explore-view__ambient--violet {
   top: -180px;
   right: -50px;
-  background: rgba(173, 129, 255, 0.6);
+  background: color-mix(in srgb, var(--color-accent) 60%, transparent);
 }
 
 .explore-view__ambient--mint {
   bottom: -230px;
   left: -100px;
-  background: rgba(93, 238, 188, 0.35);
+  background: color-mix(in srgb, var(--color-accent) 28%, var(--color-bg-elevated) 72%);
 }
 
 .explore-view__panel {
@@ -484,7 +484,7 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
   position: absolute;
   inset: auto 0 -1px;
   height: 1px;
-  background: linear-gradient(90deg, rgba(204, 151, 255, 0), rgba(204, 151, 255, 0.54), rgba(204, 151, 255, 0));
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-accent) 54%, transparent), transparent);
 }
 
 .explore-view__hero-title {
@@ -634,8 +634,8 @@ useGsapHoverTargets(exploreRef, [".explore-view__featured-card", ".explore-view_
 }
 
 .explore-view__featured-badge--mint {
-  background: color-mix(in srgb, #69f6b8 88%, white 12%);
-  color: #103829;
+  background: color-mix(in srgb, var(--color-accent) 78%, var(--color-surface-contrast) 22%);
+  color: var(--color-on-accent);
 }
 
 .explore-view__featured-copy strong {

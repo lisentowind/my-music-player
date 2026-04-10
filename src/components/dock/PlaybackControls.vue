@@ -6,6 +6,7 @@ import { iconRegistry } from "@/components/ui/icon-registry";
 const props = defineProps<{
   isPlaying: boolean;
   modeLabel: string;
+  mode?: string;
 }>();
 
 const emit = defineEmits<{
@@ -18,6 +19,17 @@ const emit = defineEmits<{
 const toggleIcon = computed(() => props.isPlaying
   ? iconRegistry["solar:pause-bold"]
   : iconRegistry["solar:play-bold"]);
+const modeBadge = computed(() => {
+  if (props.mode === "repeat-one") {
+    return "单";
+  }
+
+  if (props.mode === "shuffle") {
+    return "乱";
+  }
+
+  return "序";
+});
 </script>
 
 <template>
@@ -26,11 +38,13 @@ const toggleIcon = computed(() => props.isPlaying
       class="playback-controls__mode"
       data-testid="player-dock-mode"
       type="button"
+      :data-mode="props.mode ?? 'sequential'"
       :aria-label="`切换播放模式，当前${modeLabel}`"
       @click="emit('cycleMode')"
     >
       <span class="playback-controls__mode-icon" aria-hidden="true">
         <Icon :icon="iconRegistry['solar:repeat-outline']" />
+        <span class="playback-controls__mode-badge">{{ modeBadge }}</span>
       </span>
       <span class="playback-controls__mode-copy">
         <span class="playback-controls__mode-caption">播放模式</span>
@@ -112,6 +126,11 @@ const toggleIcon = computed(() => props.isPlaying
   transform: translateY(-1px);
 }
 
+.playback-controls__mode[data-mode="repeat-one"] .playback-controls__mode-badge,
+.playback-controls__mode[data-mode="shuffle"] .playback-controls__mode-badge {
+  background: color-mix(in srgb, var(--color-accent) 20%, var(--color-surface-contrast));
+}
+
 .playback-controls__mode-icon,
 .playback-controls__button {
   width: 38px;
@@ -123,8 +142,28 @@ const toggleIcon = computed(() => props.isPlaying
 }
 
 .playback-controls__mode-icon {
+  position: relative;
   background: var(--gradient-primary);
   color: var(--color-text-contrast);
+}
+
+.playback-controls__mode-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  min-width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 1px solid color-mix(in srgb, var(--color-surface-contrast) 72%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-surface-contrast) 92%, transparent);
+  color: var(--color-accent);
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .playback-controls__mode-icon :deep(svg),
