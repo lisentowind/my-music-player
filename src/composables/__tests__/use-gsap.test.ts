@@ -2,7 +2,7 @@ import { mount } from "@vue/test-utils";
 import { defineComponent, h, ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { gsapFromToMock, gsapTimelineMock, gsapToMock, timelineToMock } = vi.hoisted(() => ({
+const { gsapFromToMock, gsapTimelineMock, gsapToMock, timelineToMock, scrollTriggerRefreshMock } = vi.hoisted(() => ({
   gsapFromToMock: vi.fn(() => ({ kill: vi.fn() })),
   timelineToMock: vi.fn(),
   gsapTimelineMock: vi.fn(() => ({
@@ -10,6 +10,7 @@ const { gsapFromToMock, gsapTimelineMock, gsapToMock, timelineToMock } = vi.hois
     kill: vi.fn(),
   })),
   gsapToMock: vi.fn(() => ({ kill: vi.fn() })),
+  scrollTriggerRefreshMock: vi.fn(),
 }));
 
 vi.mock("gsap", () => ({
@@ -22,7 +23,9 @@ vi.mock("gsap", () => ({
 }));
 
 vi.mock("gsap/ScrollTrigger", () => ({
-  ScrollTrigger: {},
+  ScrollTrigger: {
+    refresh: scrollTriggerRefreshMock,
+  },
 }));
 
 describe("use-gsap motion tokens", () => {
@@ -31,6 +34,7 @@ describe("use-gsap motion tokens", () => {
     gsapTimelineMock.mockClear();
     gsapToMock.mockClear();
     timelineToMock.mockClear();
+    scrollTriggerRefreshMock.mockClear();
   });
 
   it("为路由、弹层与封面过渡导出统一的 motion token", async () => {
@@ -143,5 +147,50 @@ describe("use-gsap motion tokens", () => {
 
     wrapper.unmount();
     vi.useRealTimers();
+  });
+
+  it("滚动揭示会绑定到壳层滚动容器，而不是错误地监听 window", async () => {
+    const { useGsapScrollReveal } = await import("@/composables/use-gsap");
+    const TestComponent = defineComponent({
+      setup() {
+        const scopeRef = ref<HTMLElement | null>(null);
+        useGsapScrollReveal(scopeRef, [
+          {
+            selector: ".item",
+            triggerSelector: ".group",
+          },
+        ]);
+
+        return { scopeRef };
+      },
+      render() {
+        return h("div", { class: "app-shell__scroll" }, [
+          h("section", { ref: "scopeRef" }, [
+            h("div", { class: "group" }, [
+              h("div", { class: "item" }),
+            ]),
+          ]),
+        ]);
+      },
+    });
+
+    const wrapper = mount(TestComponent, {
+      attachTo: document.body,
+    });
+    await new Promise(resolve => window.requestAnimationFrame(() => resolve(undefined)));
+
+    const scroller = wrapper.get(".app-shell__scroll").element;
+    expect(gsapFromToMock).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.any(Object),
+      expect.objectContaining({
+        scrollTrigger: expect.objectContaining({
+          scroller,
+        }),
+      }),
+    );
+    expect(scrollTriggerRefreshMock).toHaveBeenCalled();
+
+    wrapper.unmount();
   });
 });

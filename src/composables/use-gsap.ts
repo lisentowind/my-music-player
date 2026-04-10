@@ -162,6 +162,10 @@ function resolveNestedElements(root: HTMLElement, selector?: string | string[]) 
   return resolveElements(root, selectors);
 }
 
+function resolveScrollContainer(root: HTMLElement) {
+  return root.closest<HTMLElement>(".app-shell__scroll") ?? undefined;
+}
+
 function attachHoverListeners(element: HTMLElement, options: HoverAnimationOptions = {}) {
   const {
     hoverY = MOTION_TOKENS.hover.y,
@@ -421,6 +425,7 @@ export function useGsapScrollReveal(scopeRef: Ref<HTMLElement | null>, groups: S
     }
 
     registerGsapPlugins();
+    const scroller = resolveScrollContainer(scope);
 
     groups.forEach((group) => {
       const targets = resolveElements(scope, [group.selector]);
@@ -453,6 +458,7 @@ export function useGsapScrollReveal(scopeRef: Ref<HTMLElement | null>, groups: S
           ease: MOTION_TOKENS.scrollReveal.ease,
           clearProps: "opacity,visibility,transform,filter",
           scrollTrigger: {
+            scroller,
             trigger,
             start: group.start ?? "top bottom-=12%",
             once: group.once ?? true,
@@ -462,6 +468,15 @@ export function useGsapScrollReveal(scopeRef: Ref<HTMLElement | null>, groups: S
 
       animations.push(tween);
     });
+
+    if (animations.length > 0) {
+      window.requestAnimationFrame(() => {
+        const refresh = (ScrollTrigger as typeof ScrollTrigger & {
+          refresh?: () => void;
+        }).refresh;
+        refresh?.();
+      });
+    }
   });
 
   onBeforeUnmount(() => {
